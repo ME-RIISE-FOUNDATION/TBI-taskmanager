@@ -44,9 +44,8 @@ class GoogleSheetsService
 
         $headers = array_shift($rows);
         $result  = [];
-
         foreach ($rows as $row) {
-            if (empty(array_filter($row))) continue; // skip blank rows
+            if (empty(array_filter($row))) continue;
             $record = [];
             foreach ($headers as $i => $h) {
                 $record[$h] = $row[$i] ?? '';
@@ -59,11 +58,8 @@ class GoogleSheetsService
     // ── Find one record by field value ───────────────────────────
     public function findOne(string $sheet, string $field, string $value): ?array
     {
-        $all = $this->getAll($sheet);
-        foreach ($all as $rec) {
-            if (isset($rec[$field]) && $rec[$field] === $value) {
-                return $rec;
-            }
+        foreach ($this->getAll($sheet) as $rec) {
+            if (isset($rec[$field]) && $rec[$field] === $value) return $rec;
         }
         return null;
     }
@@ -77,7 +73,7 @@ class GoogleSheetsService
         ));
     }
 
-    // ── Append a new row ─────────────────────────────────────────
+    // ── Append a flat (positional) row ───────────────────────────
     public function appendRow(string $sheet, array $values): bool
     {
         try {
@@ -91,6 +87,21 @@ class GoogleSheetsService
             error_log("Sheets appendRow($sheet): " . $e->getMessage());
             return false;
         }
+    }
+
+    // ── Append an associative record (reads headers first) ───────
+    public function appendRecord(string $sheet, array $record): bool
+    {
+        $rows = $this->getRawData($sheet);
+        if (empty($rows)) {
+            return $this->appendRow($sheet, array_values($record));
+        }
+        $headers = $rows[0];
+        $values  = [];
+        foreach ($headers as $h) {
+            $values[] = $record[$h] ?? '';
+        }
+        return $this->appendRow($sheet, $values);
     }
 
     // ── Update a row by 1-based sheet row number ─────────────────
@@ -113,7 +124,7 @@ class GoogleSheetsService
     // ── Update record by ID field ─────────────────────────────────
     public function updateById(string $sheet, string $idField, string $id, array $changes): bool
     {
-        $rows    = $this->getRawData($sheet);
+        $rows = $this->getRawData($sheet);
         if (empty($rows)) return false;
 
         $headers  = $rows[0];
@@ -124,15 +135,12 @@ class GoogleSheetsService
             if ($i === 0) continue;
             if (($row[$idColIdx] ?? '') !== $id) continue;
 
-            // Merge changes into existing row
             $newRow = $row;
             foreach ($changes as $field => $val) {
                 $col = array_search($field, $headers);
                 if ($col !== false) $newRow[$col] = $val;
             }
-            // Pad to header width
             while (count($newRow) < count($headers)) $newRow[] = '';
-
             return $this->updateRowByIndex($sheet, $i + 1, $newRow);
         }
         return false;
@@ -141,7 +149,7 @@ class GoogleSheetsService
     // ── Delete (clear) a row by ID ────────────────────────────────
     public function deleteById(string $sheet, string $idField, string $id): bool
     {
-        $rows    = $this->getRawData($sheet);
+        $rows = $this->getRawData($sheet);
         if (empty($rows)) return false;
 
         $headers  = $rows[0];
@@ -152,8 +160,6 @@ class GoogleSheetsService
             if ($i === 0) continue;
             if (($row[$idColIdx] ?? '') !== $id) continue;
 
-            $range = "{$sheet}!{$i}:{$i}" ; // note: $i is already 1-based after +1 for header
-            // Actually i starts at 1 for header row, so data row index = i+1
             $dataRowIndex = $i + 1;
             $range = "{$sheet}!{$dataRowIndex}:{$dataRowIndex}";
             try {
@@ -187,10 +193,10 @@ class GoogleSheetsService
     // ── Update pending day counts for overdue tasks ───────────────
     public function refreshPendingDays(): void
     {
-        $rows    = $this->getRawData(SHEET_TASKS);
+        $rows = $this->getRawData(SHEET_TASKS);
         if (empty($rows)) return;
 
-        $headers  = $rows[0];
+        $headers     = $rows[0];
         $statusIdx   = array_search('Status',       $headers);
         $deadlineIdx = array_search('Deadline',     $headers);
         $pendingIdx  = array_search('Days_Pending', $headers);
@@ -205,7 +211,7 @@ class GoogleSheetsService
                 try {
                     $dl   = new DateTime($deadline);
                     $diff = $today > $dl ? (int)$today->diff($dl)->days : 0;
-                    if ($diff > 0) {
+                    if ($diff > 0 && ($row[$pendingIdx] ?? '0') != $diff) {
                         $newRow = $row;
                         while (count($newRow) < count($headers)) $newRow[] = '';
                         $newRow[$pendingIdx] = $diff;

@@ -10,23 +10,21 @@ function startSession(): void
 {
     if (session_status() === PHP_SESSION_NONE) {
         session_name(SESSION_NAME);
+        // Detect HTTPS (works behind Railway/Render reverse proxies too)
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+                || ($_SERVER['HTTP_X_FORWARDED_SSL']   ?? '') === 'on';
         session_set_cookie_params([
-            'lifetime' => SESSION_TIMEOUT,
+            'lifetime' => 0,
             'path'     => '/',
-            'secure'   => false,   // set true when on HTTPS
+            'secure'   => $isHttps,
             'httponly' => true,
             'samesite' => 'Strict',
         ]);
         session_start();
     }
 
-    // Regenerate ID periodically to prevent fixation
-    if (!isset($_SESSION['_init'])) {
-        session_regenerate_id(true);
-        $_SESSION['_init'] = true;
-    }
-
-    // Idle timeout
+    // Idle timeout check
     if (isset($_SESSION['_last_active'])) {
         if (time() - $_SESSION['_last_active'] > SESSION_TIMEOUT) {
             session_unset();
@@ -36,6 +34,14 @@ function startSession(): void
         }
     }
     $_SESSION['_last_active'] = time();
+
+    // Periodic session ID regeneration (every 15 minutes)
+    if (!isset($_SESSION['_regen_at'])) {
+        $_SESSION['_regen_at'] = time();
+    } elseif (time() - $_SESSION['_regen_at'] > 900) {
+        session_regenerate_id(true);
+        $_SESSION['_regen_at'] = time();
+    }
 }
 
 // ── Auth helpers ─────────────────────────────────────────────
@@ -95,8 +101,8 @@ function daysPending(string $deadline): int
 {
     if (!$deadline) return 0;
     try {
-        $dl   = new DateTime($deadline);
-        $now  = new DateTime();
+        $dl  = new DateTime($deadline);
+        $now = new DateTime();
         return $now > $dl ? (int)$now->diff($dl)->days : 0;
     } catch (Exception) {
         return 0;
@@ -105,7 +111,7 @@ function daysPending(string $deadline): int
 
 function isOverdue(string $deadline, string $status): bool
 {
-    if (in_array($status, ['Approved', 'Completed'])) return false;
+    if (in_array($status, ['Approved', 'Completed', 'Rejected'])) return false;
     return daysPending($deadline) > 0;
 }
 
@@ -122,7 +128,7 @@ function formatDate(string $date): string
 // ── Priority badge HTML ───────────────────────────────────────
 function priorityBadge(string $p): string
 {
-    $map = ['High' => 'danger', 'Medium' => 'warning text-dark', 'Low' => 'success'];
+    $map = ['High' => 'danger', 'Medium' => 'warning', 'Low' => 'success'];
     $cls = $map[$p] ?? 'secondary';
     return '<span class="badge bg-' . $cls . '">' . e($p) . '</span>';
 }
@@ -133,7 +139,7 @@ function statusBadge(string $s): string
     $map = [
         'Pending'     => 'secondary',
         'In Progress' => 'primary',
-        'Completed'   => 'info text-dark',
+        'Completed'   => 'info',
         'Approved'    => 'success',
         'Rejected'    => 'danger',
     ];
@@ -170,26 +176,10 @@ function getFlash(): ?array
     return null;
 }
 
-function renderFlash(): string
-{
-    $f = getFlash();
-    if (!$f) return '';
-    $cls = match($f['type']) {
-        'success' => 'alert-success',
-        'danger'  => 'alert-danger',
-        'warning' => 'alert-warning',
-        default   => 'alert-info',
-    };
-    return '<div class="alert ' . $cls . ' alert-dismissible fade show" role="alert">'
-         . e($f['msg'])
-         . '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>'
-         . '</div>';
-}
-
 // ── Employee stats helper ─────────────────────────────────────
 function employeeStats(array $tasks, string $employeeId): array
 {
-    $mine = array_filter($tasks, fn($t) => $t['Employee_ID'] === $employeeId);
+    $mine      = array_filter($tasks, fn($t) => ($t['Employee_ID'] ?? '') === $employeeId);
     $total     = count($mine);
     $completed = count(array_filter($mine, fn($t) => in_array($t['Status'], ['Completed', 'Approved'])));
     $approved  = count(array_filter($mine, fn($t) => $t['Status'] === 'Approved'));
@@ -197,6 +187,5 @@ function employeeStats(array $tasks, string $employeeId): array
     $rejected  = count(array_filter($mine, fn($t) => $t['Status'] === 'Rejected'));
     $overdue   = count(array_filter($mine, fn($t) => isOverdue($t['Deadline'] ?? '', $t['Status'] ?? '')));
     $approvalPct = $total > 0 ? round(($approved / $total) * 100) : 0;
-
     return compact('total', 'completed', 'approved', 'pending', 'rejected', 'overdue', 'approvalPct');
 }

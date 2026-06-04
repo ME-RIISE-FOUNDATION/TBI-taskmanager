@@ -3,25 +3,24 @@
 //  Admin — Approval Workflow
 // ============================================================
 require_once __DIR__ . '/../includes/admin_check.php';
-require_once __DIR__ . '/../api/GoogleSheetsService.php';
+require_once __DIR__ . '/../api/DataService.php';
 
-$sheets    = new GoogleSheetsService();
+$sheets    = getDataService();
 $approvals = $sheets->getAll(SHEET_APPROVALS);
 $tasks     = $sheets->getAll(SHEET_TASKS);
 $employees = $sheets->getAll(SHEET_EMPLOYEES);
 
-// Build lookups
 $taskMap = [];
-foreach ($tasks     as $t) $taskMap[$t['Task_ID']]         = $t;
+foreach ($tasks     as $t) $taskMap[$t['Task_ID'] ?? '']         = $t;
 $empMap  = [];
-foreach ($employees as $e) $empMap[$e['Employee_ID']]      = $e;
+foreach ($employees as $e) $empMap[$e['Employee_ID'] ?? '']      = $e;
 
 // ── Process approval action ───────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
 
     $approvalId = $_POST['approval_id'] ?? '';
-    $action     = $_POST['action']      ?? '';   // 'approve' or 'reject'
+    $action     = $_POST['action']      ?? '';
     $comments   = trim($_POST['comments'] ?? '');
 
     if ($approvalId && in_array($action, ['approve', 'reject'])) {
@@ -30,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($approval) {
             $newStatus = $action === 'approve' ? 'Approved' : 'Rejected';
 
-            // Update Approvals sheet
             $sheets->updateById(SHEET_APPROVALS, 'Approval_ID', $approvalId, [
                 'Status'        => $newStatus,
                 'Approved_By'   => $_SESSION['name'],
@@ -38,20 +36,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'Approval_Date' => date('Y-m-d H:i:s'),
             ]);
 
-            // Update Task status
-            $sheets->updateById(SHEET_TASKS, 'Task_ID', $approval['Task_ID'], [
+            $sheets->updateById(SHEET_TASKS, 'Task_ID', $approval['Task_ID'] ?? '', [
                 'Status' => $newStatus,
                 'Notes'  => $comments,
             ]);
 
-            // Notify employee
-            $sheets->appendRow(SHEET_NOTIFICATIONS, [
-                generateId('NOTIF'),
-                $approval['Employee_ID'],
-                "Your task has been {$newStatus}: " . ($taskMap[$approval['Task_ID']]['Task_Title'] ?? ''),
-                'approval_result',
-                'unread',
-                date('Y-m-d H:i:s'),
+            $taskTitle = $taskMap[$approval['Task_ID'] ?? '']['Task_Title'] ?? '';
+            $sheets->appendRecord(SHEET_NOTIFICATIONS, [
+                'Notif_ID'    => generateId('NOTIF'),
+                'User_ID'     => $approval['Employee_ID'] ?? '',
+                'Message'     => "Your task has been {$newStatus}: {$taskTitle}",
+                'Type'        => 'approval_result',
+                'Read_Status' => 'unread',
+                'Created_At'  => date('Y-m-d H:i:s'),
             ]);
 
             setFlash('success', "Task {$newStatus} successfully.");
@@ -60,11 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect(BASE_URL . '/admin/approvals.php');
 }
 
-// Split approvals
-$pendingApprovals  = array_filter($approvals, fn($a) => $a['Status'] === 'Pending');
-$decidedApprovals  = array_filter($approvals, fn($a) => $a['Status'] !== 'Pending');
-$pendingApprovals  = array_values($pendingApprovals);
-$decidedApprovals  = array_values(array_reverse($decidedApprovals));
+$pendingApprovals = array_values(array_filter($approvals, fn($a) => ($a['Status'] ?? '') === 'Pending'));
+$decidedApprovals = array_values(array_reverse(array_filter($approvals, fn($a) => ($a['Status'] ?? '') !== 'Pending')));
 
 $pageTitle = 'Approvals';
 include __DIR__ . '/../includes/header.php';
@@ -74,34 +68,38 @@ include __DIR__ . '/../includes/header.php';
   <h4 class="fw-700 mb-0">
     <i class="bi bi-check2-circle me-2 text-primary"></i>Approval Workflow
     <?php if (count($pendingApprovals) > 0): ?>
-    <span class="badge bg-danger"><?= count($pendingApprovals) ?> pending</span>
+    <span class="badge bg-danger ms-1"><?= count($pendingApprovals) ?> pending</span>
     <?php endif; ?>
   </h4>
 </div>
 
 <!-- ── Pending Approvals ──────────────────────────────────────── -->
-<h5 class="fw-600 mb-3 text-warning"><i class="bi bi-clock me-2"></i>Awaiting Review (<?= count($pendingApprovals) ?>)</h5>
+<h5 class="fw-600 mb-3 text-warning">
+  <i class="bi bi-clock me-2"></i>Awaiting Review (<?= count($pendingApprovals) ?>)
+</h5>
 
 <?php if (empty($pendingApprovals)): ?>
-<div class="alert alert-success"><i class="bi bi-check2-all me-2"></i>No pending approvals. All tasks are reviewed!</div>
+<div class="alert alert-success mb-4">
+  <i class="bi bi-check2-all me-2"></i>No pending approvals — all caught up!
+</div>
 <?php endif; ?>
 
 <div class="row g-3 mb-5">
 <?php foreach ($pendingApprovals as $appr):
-  $task = $taskMap[$appr['Task_ID']] ?? [];
-  $emp  = $empMap[$appr['Employee_ID']] ?? [];
+  $task     = $taskMap[$appr['Task_ID'] ?? ''] ?? [];
+  $emp      = $empMap[$appr['Employee_ID'] ?? ''] ?? [];
   $initials = substr(implode('', array_map(fn($w) => strtoupper($w[0]), explode(' ', $emp['Name'] ?? 'U'))), 0, 2);
 ?>
 <div class="col-12 col-md-6 col-xl-4">
-  <div class="card border-0 shadow border-start border-warning border-4 h-100">
+  <div class="card border-0 shadow-sm h-100" style="border-left:3px solid var(--c-warning)!important">
     <div class="card-body">
 
       <div class="d-flex align-items-center gap-2 mb-3">
         <?php if (!empty($emp['Photo_URL'])): ?>
-          <img src="<?= e($emp['Photo_URL']) ?>" class="rounded-circle" width="42" height="42" style="object-fit:cover">
+          <img src="<?= e($emp['Photo_URL']) ?>" class="rounded-circle"
+               width="42" height="42" style="object-fit:cover;border:2px solid var(--glass-bd2)">
         <?php else: ?>
-          <div class="rounded-circle d-flex align-items-center justify-content-center fw-700 text-white"
-               style="width:42px;height:42px;background:linear-gradient(135deg,#0d2b5c,#1565c0);font-size:.85rem">
+          <div class="emp-avatar-initials" style="width:42px;height:42px;font-size:.82rem">
             <?= e($initials) ?>
           </div>
         <?php endif; ?>
@@ -114,29 +112,32 @@ include __DIR__ . '/../includes/header.php';
 
       <div class="fw-600 mb-1"><?= e($task['Task_Title'] ?? '—') ?></div>
       <?php if (!empty($task['Description'])): ?>
-      <div class="text-muted small mb-2"><?= e(substr($task['Description'], 0, 100)) ?></div>
+      <div class="text-muted small mb-2">
+        <?= e(substr($task['Description'], 0, 100)) ?>…
+      </div>
       <?php endif; ?>
 
-      <div class="d-flex gap-3 text-muted small mb-3">
+      <div class="d-flex flex-wrap gap-3 text-muted small mb-3">
         <span><i class="bi bi-calendar me-1"></i>Deadline: <?= formatDate($task['Deadline'] ?? '') ?></span>
         <span><i class="bi bi-clock me-1"></i>Submitted: <?= formatDate($appr['Submission_Date'] ?? '') ?></span>
       </div>
 
       <?php if (!empty($task['File_URL'])): ?>
       <div class="mb-3">
-        <a href="<?= e($task['File_URL']) ?>" target="_blank" class="btn btn-sm btn-outline-secondary">
+        <a href="<?= e($task['File_URL']) ?>" target="_blank"
+           class="btn btn-sm btn-outline-secondary">
           <i class="bi bi-paperclip me-1"></i>View Attachment
         </a>
       </div>
       <?php endif; ?>
 
-      <!-- Approve/Reject Form -->
+      <!-- Approve / Reject form -->
       <form method="POST">
         <input type="hidden" name="csrf_token"  value="<?= csrfToken() ?>">
-        <input type="hidden" name="approval_id" value="<?= e($appr['Approval_ID']) ?>">
+        <input type="hidden" name="approval_id" value="<?= e($appr['Approval_ID'] ?? '') ?>">
         <div class="mb-2">
           <textarea class="form-control form-control-sm" name="comments" rows="2"
-                    placeholder="Add review comments (optional)…"></textarea>
+                    placeholder="Review comments (optional)…"></textarea>
         </div>
         <div class="d-flex gap-2">
           <button type="submit" name="action" value="approve"
@@ -159,7 +160,9 @@ include __DIR__ . '/../includes/header.php';
 </div>
 
 <!-- ── Approval History ───────────────────────────────────────── -->
-<h5 class="fw-600 mb-3"><i class="bi bi-clock-history me-2"></i>Approval History</h5>
+<h5 class="fw-600 mb-3">
+  <i class="bi bi-clock-history me-2"></i>Approval History
+</h5>
 
 <div class="card border-0 shadow-sm">
   <div class="card-body p-0">
@@ -173,18 +176,18 @@ include __DIR__ . '/../includes/header.php';
         </thead>
         <tbody>
           <?php foreach ($decidedApprovals as $appr):
-            $task = $taskMap[$appr['Task_ID']] ?? [];
-            $emp  = $empMap[$appr['Employee_ID']] ?? [];
+            $task = $taskMap[$appr['Task_ID'] ?? ''] ?? [];
+            $emp  = $empMap[$appr['Employee_ID'] ?? ''] ?? [];
           ?>
           <tr>
             <td>
               <div class="small fw-500"><?= e($emp['Name'] ?? '—') ?></div>
               <div class="text-muted" style="font-size:.7rem"><?= e($emp['Designation'] ?? '') ?></div>
             </td>
-            <td class="small"><?= e($task['Task_Title'] ?? $appr['Task_ID']) ?></td>
+            <td class="small"><?= e($task['Task_Title'] ?? ($appr['Task_ID'] ?? '')) ?></td>
             <td class="small"><?= formatDate($appr['Submission_Date'] ?? '') ?></td>
             <td class="small"><?= e($appr['Approved_By'] ?? '—') ?></td>
-            <td><?= statusBadge($appr['Status']) ?></td>
+            <td><?= statusBadge($appr['Status'] ?? '') ?></td>
             <td class="small text-muted"><?= e($appr['Comments'] ?? '—') ?></td>
             <td class="small"><?= formatDate($appr['Approval_Date'] ?? '') ?></td>
           </tr>

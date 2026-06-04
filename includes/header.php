@@ -1,102 +1,169 @@
+<?php
+// Determine active page for sidebar highlighting
+$_curPage = basename($_SERVER['PHP_SELF']);
+$_curDir  = basename(dirname($_SERVER['PHP_SELF']));
+function _isActive(string $dir, string $file): bool {
+    global $_curPage, $_curDir;
+    return $_curDir === $dir && $_curPage === $file;
+}
+?>
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= isset($pageTitle) ? e($pageTitle) . ' — ' : '' ?><?= APP_NAME ?></title>
+<meta name="base-url"    content="<?= BASE_URL ?>">
+<meta name="csrf-token"  content="<?= csrfToken() ?>">
 
-<!-- Bootstrap 5 -->
+<!-- Bootstrap 5 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <!-- Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-<!-- Google Fonts -->
+<!-- Inter font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<!-- Custom CSS -->
+<!-- Chart.js (loaded here so inline scripts in page body can use it) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<!-- Glassmorphism CSS -->
 <link href="<?= BASE_URL ?>/assets/css/style.css" rel="stylesheet">
-<meta name="base-url" content="<?= BASE_URL ?>">
 </head>
 <body>
 
-<!-- ── Navbar ─────────────────────────────────────────────── -->
-<nav class="navbar navbar-expand-lg navbar-dark tbi-navbar sticky-top">
-  <div class="container-fluid px-3">
+<div class="tbi-wrapper">
+
+  <!-- ══ Sidebar ══════════════════════════════════════════════ -->
+  <aside class="tbi-sidebar" id="sidebar">
 
     <!-- Brand -->
-    <a class="navbar-brand d-flex align-items-center gap-2" href="<?= BASE_URL ?>/<?= isAdmin() ? 'admin' : 'employee' ?>/dashboard.php">
-      <img src="<?= BASE_URL ?>/assets/images/logo.svg" alt="TBI-MCE" height="38"
+    <a class="sidebar-brand"
+       href="<?= BASE_URL ?>/<?= isAdmin() ? 'admin' : 'employee' ?>/dashboard.php">
+      <img src="<?= BASE_URL ?>/assets/images/logo.svg" alt="TBI-MCE"
            onerror="this.style.display='none'">
-      <div class="d-none d-sm-block">
-        <div class="fw-700 lh-1" style="font-size:.95rem">TBI – MCE Hassan</div>
-        <div style="font-size:.65rem;opacity:.8">Task Manager</div>
+      <div>
+        <div class="sb-title">TBI – MCE Hassan</div>
+        <div class="sb-sub">Task Manager</div>
       </div>
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      <?php if (isAdmin()): ?>
+        <div class="sidebar-section">Main</div>
 
-    <div class="collapse navbar-collapse" id="navMain">
-      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+        <a href="<?= BASE_URL ?>/admin/dashboard.php"
+           class="<?= _isActive('admin','dashboard.php') ? 'active' : '' ?>">
+          <i class="bi bi-grid-fill"></i> Dashboard
+        </a>
 
-        <?php if (isAdmin()): ?>
-          <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/dashboard.php"><i class="bi bi-grid me-1"></i>Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/tasks.php"><i class="bi bi-list-task me-1"></i>Tasks</a></li>
-          <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/employees.php"><i class="bi bi-people me-1"></i>Employees</a></li>
-          <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/approvals.php"><i class="bi bi-check2-circle me-1"></i>Approvals</a></li>
-          <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/analytics.php"><i class="bi bi-bar-chart me-1"></i>Analytics</a></li>
-          <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/admin/reports.php"><i class="bi bi-file-earmark-bar-graph me-1"></i>Reports</a></li>
-        <?php else: ?>
-          <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/employee/dashboard.php"><i class="bi bi-grid me-1"></i>Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/employee/tasks.php"><i class="bi bi-list-task me-1"></i>My Tasks</a></li>
-          <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/employee/profile.php"><i class="bi bi-person me-1"></i>Profile</a></li>
-        <?php endif; ?>
+        <a href="<?= BASE_URL ?>/admin/tasks.php"
+           class="<?= (_isActive('admin','tasks.php') || _isActive('admin','create_task.php')) ? 'active' : '' ?>">
+          <i class="bi bi-list-task"></i> Task Management
+        </a>
 
-        <!-- Notifications -->
-        <li class="nav-item dropdown">
-          <a class="nav-link position-relative" href="#" data-bs-toggle="dropdown" id="notifBell">
-            <i class="bi bi-bell fs-5"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notif-count d-none">0</span>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end notif-dropdown p-2" style="min-width:300px">
-            <li><h6 class="dropdown-header">Notifications</h6></li>
-            <li id="notifList"><div class="text-center text-muted small py-2">No new notifications</div></li>
-          </ul>
-        </li>
+        <a href="<?= BASE_URL ?>/admin/employees.php"
+           class="<?= _isActive('admin','employees.php') ? 'active' : '' ?>">
+          <i class="bi bi-people-fill"></i> Employees
+        </a>
 
-        <!-- Dark mode -->
-        <li class="nav-item">
-          <button class="btn btn-sm btn-outline-light ms-1" id="darkToggle" title="Toggle dark mode">
-            <i class="bi bi-moon-fill"></i>
-          </button>
-        </li>
+        <a href="<?= BASE_URL ?>/admin/approvals.php"
+           class="<?= _isActive('admin','approvals.php') ? 'active' : '' ?>">
+          <i class="bi bi-check2-circle"></i> Approvals
+        </a>
 
-        <!-- User menu -->
-        <li class="nav-item dropdown ms-1">
-          <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
-            <div class="avatar-sm">
-              <?= strtoupper(substr($_SESSION['name'] ?? 'U', 0, 1)) ?>
-            </div>
-            <span class="d-none d-lg-inline"><?= e($_SESSION['name'] ?? 'User') ?></span>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><span class="dropdown-item-text small text-muted"><?= e($_SESSION['designation'] ?? '') ?></span></li>
-            <li><hr class="dropdown-divider my-1"></li>
-            <?php if (!isAdmin()): ?>
-            <li><a class="dropdown-item" href="<?= BASE_URL ?>/employee/profile.php"><i class="bi bi-person me-2"></i>Profile</a></li>
-            <?php endif; ?>
-            <li><a class="dropdown-item text-danger" href="<?= BASE_URL ?>/logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-          </ul>
-        </li>
+        <div class="sidebar-section">Reports</div>
 
-      </ul>
+        <a href="<?= BASE_URL ?>/admin/analytics.php"
+           class="<?= _isActive('admin','analytics.php') ? 'active' : '' ?>">
+          <i class="bi bi-bar-chart-fill"></i> Analytics
+        </a>
+
+        <a href="<?= BASE_URL ?>/admin/reports.php"
+           class="<?= _isActive('admin','reports.php') ? 'active' : '' ?>">
+          <i class="bi bi-file-earmark-bar-graph-fill"></i> Reports
+        </a>
+
+      <?php else: ?>
+        <div class="sidebar-section">My Workspace</div>
+
+        <a href="<?= BASE_URL ?>/employee/dashboard.php"
+           class="<?= _isActive('employee','dashboard.php') ? 'active' : '' ?>">
+          <i class="bi bi-grid-fill"></i> Dashboard
+        </a>
+
+        <a href="<?= BASE_URL ?>/employee/tasks.php"
+           class="<?= _isActive('employee','tasks.php') ? 'active' : '' ?>">
+          <i class="bi bi-list-task"></i> My Tasks
+        </a>
+
+        <a href="<?= BASE_URL ?>/employee/profile.php"
+           class="<?= _isActive('employee','profile.php') ? 'active' : '' ?>">
+          <i class="bi bi-person-fill"></i> Profile
+        </a>
+      <?php endif; ?>
+    </nav>
+
+    <!-- User info + logout -->
+    <div class="sidebar-user">
+      <div class="su-avatar">
+        <?= strtoupper(substr($_SESSION['name'] ?? 'U', 0, 1)) ?>
+      </div>
+      <div class="su-info">
+        <div class="su-name"><?= e($_SESSION['name'] ?? 'User') ?></div>
+        <div class="su-role"><?= e($_SESSION['designation'] ?? '') ?></div>
+      </div>
+      <a href="<?= BASE_URL ?>/logout.php" class="su-logout" title="Logout">
+        <i class="bi bi-box-arrow-right"></i>
+      </a>
     </div>
-  </div>
-</nav>
 
-<div class="container-fluid px-3 px-md-4 py-3">
-<?php $flash = getFlash(); if ($flash): ?>
-  <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : $flash['type'] ?> alert-dismissible fade show">
-    <?= e($flash['msg']) ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-<?php endif; ?>
+  </aside>
+
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ══ Main Wrapper ══════════════════════════════════════════ -->
+  <div class="tbi-main-wrap">
+
+    <!-- Topbar -->
+    <header class="tbi-topbar">
+      <button class="topbar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="topbar-title">
+        <?= isset($pageTitle) ? e($pageTitle) : APP_NAME ?>
+      </div>
+
+      <div class="topbar-actions">
+        <!-- Notification bell -->
+        <div class="dropdown">
+          <a class="notif-btn" href="#" data-bs-toggle="dropdown"
+             id="notifBell" aria-label="Notifications">
+            <i class="bi bi-bell"></i>
+            <span class="notif-count d-none" id="notifBadge">0</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end notif-dropdown p-1"
+              id="notifDropdown" style="min-width:310px">
+            <li><div class="dropdown-header">Notifications</div></li>
+            <li id="notifList">
+              <div class="dropdown-item-text text-center py-2">
+                No new notifications
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <!-- Flash message -->
+    <div class="flash-area">
+    <?php $flash = getFlash(); if ($flash): ?>
+      <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : e($flash['type']) ?> alert-dismissible fade show mb-0">
+        <?= e($flash['msg']) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <?php endif; ?>
+    </div>
+
+    <!-- Page content -->
+    <main class="tbi-content">

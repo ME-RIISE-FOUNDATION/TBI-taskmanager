@@ -17,7 +17,7 @@ define('APP_VERSION', '1.0.0');
 
 // BASE_URL: empty string when deployed at domain root (Railway/Render/000webhost)
 //           '/tbi_task_manager' if placed in a subdirectory on shared hosting
-define('BASE_URL', env('BASE_URL', ''));
+define('BASE_URL', env('BASE_URL', ''));   // localhost: leave empty
 
 // ── Google Sheets ─────────────────────────────────────────────
 define('SPREADSHEET_ID', env('SPREADSHEET_ID', 'YOUR_SPREADSHEET_ID_HERE'));
@@ -64,6 +64,6 @@ define('DESIGNATIONS', [
     'CEO', 'COO', 'Software Associate',
     'Finance Associate', 'Innovation Associate', 'Supporting Staff',
 ]);
-define('ADMIN_ROLES',    ['CEO', 'COO']);
+define('ADMIN_ROLES',    ['CEO']);
 define('PRIORITIES',     ['High', 'Medium', 'Low']);
 define('TASK_STATUSES',  ['Pending', 'In Progress', 'Completed', 'Approved', 'Rejected']);

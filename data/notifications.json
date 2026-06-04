@@ -1,0 +1,202 @@
+[
+    [
+        "NOTIF_20260602_724449",
+        "EMP_002",
+        "New task assigned: Flaoting of call for startup incubation applications",
+        "task_assigned",
+        "unread",
+        "2026-06-02 09:59:07"
+    ],
+    [
+        "NOTIF_20260602_139750",
+        "EMP_003",
+        "New task assigned: update attendance",
+        "task_assigned",
+        "unread",
+        "2026-06-02 16:55:36"
+    ],
+    {
+        "Notif_ID": "NOTIF_20260603_716601",
+        "User_ID": "EMP_003",
+        "Message": "New task assigned: news update",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-03 09:37:28"
+    },
+    {
+        "Notif_ID": "NOTIF_20260603_974375",
+        "User_ID": "EMP_003",
+        "Message": "New task assigned: hii",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-03 17:16:38"
+    },
+    {
+        "Notif_ID": "NOTIF_20260603_094722",
+        "User_ID": "EMP_005",
+        "Message": "Your task has been Approved: Startup Mentoring Sessions",
+        "Type": "approval_result",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-03 17:16:56"
+    },
+    {
+        "Notif_ID": "NOTIF_20260603_461469",
+        "User_ID": "EMP_003",
+        "Message": "Your task has been Rejected: Fix Login Page Bug",
+        "Type": "approval_result",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-03 17:17:32"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_633687",
+        "User_ID": "EMP_003",
+        "Message": "New task assigned: Registration Form",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 09:39:12"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_901624",
+        "User_ID": "EMP_003",
+        "Message": "New task assigned: Certificate Generate -Achal to give a access to certify files . Schedule meeting with Achal + CEO to plan and complete updates",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 09:42:06"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_708768",
+        "User_ID": "EMP_003",
+        "Message": "New task assigned: Prepare a Task Scheduler with admin access to ceomeriise@mcehassan.ac.in It must go live from June 1.It can be a separate web Page. Later we can integrarate with meriise.org",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 09:45:43"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_777685",
+        "User_ID": "EMP_003",
+        "Message": "New task assigned: Get a tab meriise.org exclusive for courses: 1. Fondamentals of MATLAB - Under Microengineering. 2. web Designing , Power BI & Elevate from concept to create through Innovation DTP - Under MSME.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 11:47:32"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_317570",
+        "User_ID": "EMP_004",
+        "Message": "New task assigned: Complete the verification and updation of ME-RIISE FOUNDATION Event file",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 11:50:21"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_051504",
+        "User_ID": "EMP_004",
+        "Message": "New task assigned: Talk to Mona and prepare a Budjet for office supplies under TBI .A list is prepared by deeksha get it from her",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 11:51:45"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_667163",
+        "User_ID": "EMP_004",
+        "Message": "New task assigned: Take the bill file of NAIN 2.0 and update the UC annextures 2.Also front page of UC is to be Done , Take guidencefrom Mona and complete it.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 11:53:03"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_645719",
+        "User_ID": "EMP_005",
+        "Message": "New task assigned: Updating website with event details (regular). End-to-end documentation for all events (regular). Create feedback forms (G-Form + QR) 3 days before every event.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 11:59:37"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_042253",
+        "User_ID": "EMP_005",
+        "Message": "New task assigned: 1. Show scanned folder of all events (Apr 2025–Apr 2026) for ME-RIISE, NAIN 2.0, RGEP with: Permission Letter, Flyer, Registration Form, Attendance, Report, Feedback, Bill Cover, Bills & Vouchers. 2.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 12:00:52"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_719245",
+        "User_ID": "EMP_005",
+        "Message": "New task assigned: Prepare event report of Innovation Catalyst.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 12:01:59"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_796896",
+        "User_ID": "EMP_005",
+        "Message": "New task assigned: Update the 2nd session of DSA course documents. Ignite Idea to Proto 4.0.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 12:04:45"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_848277",
+        "User_ID": "EMP_005",
+        "Message": "New task assigned: Prepare report and filing of documents as per checklist by 3:00 pm.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 12:05:27"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_544301",
+        "User_ID": "EMP_006",
+        "Message": "New task assigned: Keep log book outside immediately after coming.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 12:07:08"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_698352",
+        "User_ID": "EMP_006",
+        "Message": "New task assigned: Keep movement register immediately after coming.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 12:11:19"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_318312",
+        "User_ID": "EMP_006",
+        "Message": "New task assigned: Scan official documents\/letters; update in Drive and mail.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 12:11:59"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_255848",
+        "User_ID": "EMP_006",
+        "Message": "New task assigned: Write from-and-to register for all documents and letters.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 12:12:37"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_503639",
+        "User_ID": "EMP_006",
+        "Message": "New task assigned: Check for charge in all laptops.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 12:13:03"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_888504",
+        "User_ID": "EMP_006",
+        "Message": "New task assigned: Complete scanning and updation of events.",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 12:14:50"
+    },
+    {
+        "Notif_ID": "NOTIF_20260604_223698",
+        "User_ID": "EMP_006",
+        "Message": "New task assigned: DSA – Microengineering file to be prepared: 1. Add flyer 2. Add registration details 3. Curriculum 4. Week 1 details – Course Content, Attendance, Feedback .",
+        "Type": "task_assigned",
+        "Read_Status": "unread",
+        "Created_At": "2026-06-04 12:15:43"
+    }
+]

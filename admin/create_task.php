@@ -3,37 +3,38 @@
 //  Admin — Create / Edit Task
 // ============================================================
 require_once __DIR__ . '/../includes/admin_check.php';
-require_once __DIR__ . '/../api/GoogleSheetsService.php';
+require_once __DIR__ . '/../api/DataService.php';
 
-$sheets    = new GoogleSheetsService();
+$sheets    = getDataService();
 $employees = $sheets->getAll(SHEET_EMPLOYEES);
 
 $editId = $_GET['edit'] ?? '';
 $task   = $editId ? $sheets->findOne(SHEET_TASKS, 'Task_ID', $editId) : null;
 $isEdit = (bool)$task;
 
-// ── Handle form submit ────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
 
     $employeeId  = $_POST['employee_id']  ?? '';
     $title       = trim($_POST['title']       ?? '');
     $description = trim($_POST['description'] ?? '');
-    $priority    = $_POST['priority']    ?? 'Medium';
-    $startDate   = $_POST['start_date']  ?? date('Y-m-d');
-    $deadline    = $_POST['deadline']    ?? '';
-    $status      = $isEdit ? ($_POST['status'] ?? 'Pending') : 'Pending';
+    $priority    = in_array($_POST['priority'] ?? '', PRIORITIES) ? $_POST['priority'] : 'Medium';
+    $startDate   = $_POST['start_date']   ?? date('Y-m-d');
+    $deadline    = $_POST['deadline']     ?? '';
+    $status      = $isEdit
+        ? (in_array($_POST['status'] ?? '', TASK_STATUSES) ? $_POST['status'] : ($task['Status'] ?? 'Pending'))
+        : 'Pending';
 
     if (!$employeeId || !$title || !$deadline) {
         setFlash('danger', 'Employee, Title, and Deadline are required.');
         redirect(BASE_URL . '/admin/create_task.php' . ($isEdit ? '?edit=' . urlencode($editId) : ''));
     }
 
-    // Handle file upload
+    // File upload
     $fileUrl = $task['File_URL'] ?? '';
     if (!empty($_FILES['attachment']['name'])) {
-        $origName  = $_FILES['attachment']['name'];
-        $ext       = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+        $origName = $_FILES['attachment']['name'];
+        $ext      = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
         if (in_array($ext, ALLOWED_EXTENSIONS) && $_FILES['attachment']['size'] <= MAX_UPLOAD_SIZE) {
             $newName = generateId('FILE') . '.' . $ext;
             $dest    = UPLOAD_DIR . $newName;
@@ -59,35 +60,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         setFlash('success', 'Task updated successfully.');
     } else {
         $taskId = generateId('TSK');
-        $sheets->appendRow(SHEET_TASKS, [
-            $taskId,       // Task_ID
-            $employeeId,   // Employee_ID
-            $title,        // Task_Title
-            $description,  // Description
-            $priority,     // Priority
-            $startDate,    // Assigned_Date
-            $deadline,     // Deadline
-            'Pending',     // Status
-            0,             // Days_Pending
-            $_SESSION['name'], // Assigned_By
-            $fileUrl,      // File_URL
-            '',            // Notes
+        $sheets->appendRecord(SHEET_TASKS, [
+            'Task_ID'      => $taskId,
+            'Employee_ID'  => $employeeId,
+            'Task_Title'   => $title,
+            'Description'  => $description,
+            'Priority'     => $priority,
+            'Assigned_Date'=> $startDate,
+            'Deadline'     => $deadline,
+            'Status'       => 'Pending',
+            'Days_Pending' => 0,
+            'Assigned_By'  => $_SESSION['name'],
+            'File_URL'     => $fileUrl,
+            'Notes'        => '',
         ]);
-
-        // Create notification
-        $sheets->appendRow(SHEET_NOTIFICATIONS, [
-            generateId('NOTIF'),
-            $employeeId,
-            "New task assigned: $title",
-            'task_assigned',
-            'unread',
-            date('Y-m-d H:i:s'),
+        $sheets->appendRecord(SHEET_NOTIFICATIONS, [
+            'Notif_ID'    => generateId('NOTIF'),
+            'User_ID'     => $employeeId,
+            'Message'     => "New task assigned: $title",
+            'Type'        => 'task_assigned',
+            'Read_Status' => 'unread',
+            'Created_At'  => date('Y-m-d H:i:s'),
         ]);
-
         setFlash('success', 'Task created and assigned successfully.');
     }
     redirect(BASE_URL . '/admin/tasks.php');
 }
+
+// Sort employees by designation
+$order = ['CEO','COO','Software Associate','Finance Associate','Innovation Associate','Supporting Staff'];
+usort($employees, function($a, $b) use ($order) {
+    $ai = array_search($a['Designation'] ?? '', $order);
+    $bi = array_search($b['Designation'] ?? '', $order);
+    return ($ai !== false ? $ai : 99) <=> ($bi !== false ? $bi : 99);
+});
 
 $pageTitle = $isEdit ? 'Edit Task' : 'Create Task';
 include __DIR__ . '/../includes/header.php';
@@ -114,16 +120,15 @@ include __DIR__ . '/../includes/header.php';
 
             <!-- Employee -->
             <div class="col-12">
-              <label class="form-label fw-500">Assign To <span class="text-danger">*</span></label>
+              <label class="form-label fw-500">
+                Assign To <span class="text-danger">*</span>
+              </label>
               <select class="form-select" name="employee_id" required>
                 <option value="">Select Employee…</option>
-                <?php
-                $order = ['CEO','COO','Software Associate','Finance Associate','Innovation Associate','Supporting Staff'];
-                usort($employees, fn($a,$b) => array_search($a['Designation'],$order) <=> array_search($b['Designation'],$order));
-                foreach ($employees as $emp): ?>
-                <option value="<?= e($emp['Employee_ID']) ?>"
-                  <?= ($task['Employee_ID'] ?? '') === $emp['Employee_ID'] ? 'selected' : '' ?>>
-                  <?= e($emp['Name']) ?> — <?= e($emp['Designation']) ?>
+                <?php foreach ($employees as $emp): ?>
+                <option value="<?= e($emp['Employee_ID'] ?? '') ?>"
+                  <?= ($task['Employee_ID'] ?? '') === ($emp['Employee_ID'] ?? '') ? 'selected' : '' ?>>
+                  <?= e($emp['Name'] ?? '') ?> — <?= e($emp['Designation'] ?? '') ?>
                 </option>
                 <?php endforeach; ?>
               </select>
@@ -131,7 +136,9 @@ include __DIR__ . '/../includes/header.php';
 
             <!-- Title -->
             <div class="col-12">
-              <label class="form-label fw-500">Task Title <span class="text-danger">*</span></label>
+              <label class="form-label fw-500">
+                Task Title <span class="text-danger">*</span>
+              </label>
               <input type="text" class="form-control" name="title"
                      value="<?= e($task['Task_Title'] ?? '') ?>"
                      placeholder="Enter task title" required maxlength="200">
@@ -149,7 +156,8 @@ include __DIR__ . '/../includes/header.php';
               <label class="form-label fw-500">Priority</label>
               <select class="form-select" name="priority">
                 <?php foreach (PRIORITIES as $p): ?>
-                <option value="<?= $p ?>" <?= ($task['Priority'] ?? 'Medium') === $p ? 'selected' : '' ?>>
+                <option value="<?= $p ?>"
+                  <?= ($task['Priority'] ?? 'Medium') === $p ? 'selected' : '' ?>>
                   <?= $p ?>
                 </option>
                 <?php endforeach; ?>
@@ -165,10 +173,12 @@ include __DIR__ . '/../includes/header.php';
 
             <!-- Deadline -->
             <div class="col-6 col-md-4">
-              <label class="form-label fw-500">Deadline <span class="text-danger">*</span></label>
+              <label class="form-label fw-500">
+                Deadline <span class="text-danger">*</span>
+              </label>
               <input type="date" class="form-control" name="deadline"
                      value="<?= e($task['Deadline'] ?? '') ?>"
-                     min="<?= date('Y-m-d') ?>" required>
+                     required>
             </div>
 
             <!-- Status (edit only) -->
@@ -177,7 +187,8 @@ include __DIR__ . '/../includes/header.php';
               <label class="form-label fw-500">Status</label>
               <select class="form-select" name="status">
                 <?php foreach (TASK_STATUSES as $s): ?>
-                <option value="<?= $s ?>" <?= ($task['Status'] ?? '') === $s ? 'selected' : '' ?>>
+                <option value="<?= $s ?>"
+                  <?= ($task['Status'] ?? '') === $s ? 'selected' : '' ?>>
                   <?= $s ?>
                 </option>
                 <?php endforeach; ?>
@@ -192,13 +203,16 @@ include __DIR__ . '/../includes/header.php';
                      accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.zip">
               <?php if (!empty($task['File_URL'])): ?>
               <div class="mt-1 small text-muted">
-                Current: <a href="<?= e($task['File_URL']) ?>" target="_blank"><?= e(basename($task['File_URL'])) ?></a>
+                Current: <a href="<?= e($task['File_URL']) ?>" target="_blank"
+                            style="color:var(--accent)">
+                  <?= e(basename($task['File_URL'])) ?>
+                </a>
               </div>
               <?php endif; ?>
-              <div class="form-text">Max 10 MB. Allowed: PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, ZIP</div>
+              <div class="form-text">Max 10 MB — PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, ZIP</div>
             </div>
 
-          </div><!-- /row -->
+          </div>
 
           <div class="d-flex gap-3 mt-4">
             <button type="submit" class="btn btn-primary px-4">
@@ -207,6 +221,7 @@ include __DIR__ . '/../includes/header.php';
             </button>
             <a href="<?= BASE_URL ?>/admin/tasks.php" class="btn btn-outline-secondary">Cancel</a>
           </div>
+
         </form>
       </div>
     </div>
