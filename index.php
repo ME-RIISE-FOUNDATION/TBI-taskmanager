@@ -137,12 +137,12 @@ $timeout = isset($_GET['timeout']);
       </div>
 
       <!-- Dev credentials hint — REMOVE IN PRODUCTION -->
-      <div class="alert alert-info mt-3 py-2 small">
+      <!-- <div class="alert alert-info mt-3 py-2 small">
         <strong>Demo Credentials:</strong><br>
         CEO: <code>geetha</code> / <code>Admin@123</code> &nbsp;|&nbsp;
         COO: <code>mohana</code> / <code>Admin@123</code><br>
         Software: <code>darshan</code> / <code>Employee@123</code>
-      </div>
+      </div> -->
     </div>
 
   </div>
