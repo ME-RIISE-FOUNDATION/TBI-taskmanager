@@ -15,20 +15,11 @@ $isEdit = (bool)$task;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
 
-    $employeeId  = $_POST['employee_id']  ?? '';
     $title       = trim($_POST['title']       ?? '');
     $description = trim($_POST['description'] ?? '');
     $priority    = in_array($_POST['priority'] ?? '', PRIORITIES) ? $_POST['priority'] : 'Medium';
     $startDate   = $_POST['start_date']   ?? date('Y-m-d');
     $deadline    = $_POST['deadline']     ?? '';
-    $status      = $isEdit
-        ? (in_array($_POST['status'] ?? '', TASK_STATUSES) ? $_POST['status'] : ($task['Status'] ?? 'Pending'))
-        : 'Pending';
-
-    if (!$employeeId || !$title || !$deadline) {
-        setFlash('danger', 'Employee, Title, and Deadline are required.');
-        redirect(BASE_URL . '/admin/create_task.php' . ($isEdit ? '?edit=' . urlencode($editId) : ''));
-    }
 
     // File upload
     $fileUrl = $task['File_URL'] ?? '';
@@ -46,6 +37,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($isEdit) {
+        $employeeId = $_POST['employee_id'] ?? '';
+        $status     = in_array($_POST['status'] ?? '', TASK_STATUSES) ? $_POST['status'] : ($task['Status'] ?? 'Pending');
+
+        if (!$employeeId || !$title || !$deadline) {
+            setFlash('danger', 'Employee, Title, and Deadline are required.');
+            redirect(BASE_URL . '/admin/create_task.php?edit=' . urlencode($editId));
+        }
+
         $sheets->updateById(SHEET_TASKS, 'Task_ID', $editId, [
             'Employee_ID'   => $employeeId,
             'Task_Title'    => $title,
@@ -59,30 +58,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         setFlash('success', 'Task updated successfully.');
     } else {
-        $taskId = generateId('TSK');
-        $sheets->appendRecord(SHEET_TASKS, [
-            'Task_ID'      => $taskId,
-            'Employee_ID'  => $employeeId,
-            'Task_Title'   => $title,
-            'Description'  => $description,
-            'Priority'     => $priority,
-            'Assigned_Date'=> $startDate,
-            'Deadline'     => $deadline,
-            'Status'       => 'Pending',
-            'Days_Pending' => 0,
-            'Assigned_By'  => $_SESSION['name'],
-            'File_URL'     => $fileUrl,
-            'Notes'        => '',
-        ]);
-        $sheets->appendRecord(SHEET_NOTIFICATIONS, [
-            'Notif_ID'    => generateId('NOTIF'),
-            'User_ID'     => $employeeId,
-            'Message'     => "New task assigned: $title",
-            'Type'        => 'task_assigned',
-            'Read_Status' => 'unread',
-            'Created_At'  => date('Y-m-d H:i:s'),
-        ]);
-        setFlash('success', 'Task created and assigned successfully.');
+        $employeeIds = array_values(array_filter((array)($_POST['employee_ids'] ?? [])));
+
+        if (!$employeeIds || !$title || !$deadline) {
+            setFlash('danger', 'At least one Employee, Title, and Deadline are required.');
+            redirect(BASE_URL . '/admin/create_task.php');
+        }
+
+        foreach ($employeeIds as $eid) {
+            $taskId = generateId('TSK');
+            $sheets->appendRecord(SHEET_TASKS, [
+                'Task_ID'      => $taskId,
+                'Employee_ID'  => $eid,
+                'Task_Title'   => $title,
+                'Description'  => $description,
+                'Priority'     => $priority,
+                'Assigned_Date'=> $startDate,
+                'Deadline'     => $deadline,
+                'Status'       => 'Pending',
+                'Days_Pending' => 0,
+                'Assigned_By'  => $_SESSION['name'],
+                'File_URL'     => $fileUrl,
+                'Notes'        => '',
+            ]);
+            $sheets->appendRecord(SHEET_NOTIFICATIONS, [
+                'Notif_ID'    => generateId('NOTIF'),
+                'User_ID'     => $eid,
+                'Message'     => "New task assigned: $title",
+                'Type'        => 'task_assigned',
+                'Read_Status' => 'unread',
+                'Created_At'  => date('Y-m-d H:i:s'),
+            ]);
+        }
+        $n = count($employeeIds);
+        setFlash('success', 'Task created and assigned to ' . $n . ' employee' . ($n > 1 ? 's' : '') . ' successfully.');
     }
     redirect(BASE_URL . '/admin/tasks.php');
 }
@@ -123,6 +132,7 @@ include __DIR__ . '/../includes/header.php';
               <label class="form-label fw-500">
                 Assign To <span class="text-danger">*</span>
               </label>
+              <?php if ($isEdit): ?>
               <select class="form-select" name="employee_id" required>
                 <option value="">Select Employee…</option>
                 <?php foreach ($employees as $emp): ?>
@@ -132,6 +142,29 @@ include __DIR__ . '/../includes/header.php';
                 </option>
                 <?php endforeach; ?>
               </select>
+              <?php else: ?>
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start fw-normal"
+                        type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                        aria-expanded="false">
+                  <span id="createEmpLabel">Select Employee(s)…</span>
+                </button>
+                <div class="dropdown-menu p-2" style="min-width:100%;max-height:280px;overflow-y:auto">
+                  <?php foreach ($employees as $emp): ?>
+                  <div class="form-check mb-1">
+                    <input class="form-check-input create-emp-chk" type="checkbox"
+                           name="employee_ids[]" value="<?= e($emp['Employee_ID'] ?? '') ?>"
+                           id="createEmp_<?= e($emp['Employee_ID'] ?? '') ?>">
+                    <label class="form-check-label" for="createEmp_<?= e($emp['Employee_ID'] ?? '') ?>">
+                      <?= e($emp['Name'] ?? '') ?>
+                      <span class="text-muted" style="font-size:.75rem"> — <?= e($emp['Designation'] ?? '') ?></span>
+                    </label>
+                  </div>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+              <div class="form-text">Select one or more employees — a separate task will be created for each.</div>
+              <?php endif; ?>
             </div>
 
             <!-- Title -->
@@ -227,5 +260,31 @@ include __DIR__ . '/../includes/header.php';
     </div>
   </div>
 </div>
+
+<?php if (!$isEdit): ?>
+<script>
+(function () {
+  const chks = document.querySelectorAll('.create-emp-chk');
+  const lbl  = document.getElementById('createEmpLabel');
+  if (!lbl) return;
+
+  function updateLabel() {
+    const checked = [...chks].filter(c => c.checked);
+    if (checked.length === 0) lbl.textContent = 'Select Employee(s)…';
+    else if (checked.length === 1) lbl.textContent = checked[0].nextElementSibling.textContent.split('—')[0].trim();
+    else lbl.textContent = checked.length + ' employees selected';
+  }
+  chks.forEach(c => c.addEventListener('change', updateLabel));
+
+  document.querySelector('form').addEventListener('submit', function (e) {
+    if (![...chks].some(c => c.checked)) {
+      e.preventDefault();
+      lbl.closest('.dropdown').querySelector('button').classList.add('border-danger');
+      alert('Please select at least one employee.');
+    }
+  });
+})();
+</script>
+<?php endif; ?>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

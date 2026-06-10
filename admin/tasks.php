@@ -16,8 +16,7 @@ foreach ($employees as $e) $empMap[$e['Employee_ID']] = $e;
 // ── Delete task (POST + CSRF — never via GET) ─────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete_task') {
     verifyCsrf();
-    $taskId  = $_POST['task_id'] ?? '';
-    $empBack = $_POST['employee'] ?? '';
+    $taskId = $_POST['task_id'] ?? '';
     if ($taskId) {
         $sheets->deleteById(SHEET_TASKS, 'Task_ID', $taskId);
         // Also remove any approval records for this task
@@ -29,9 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
         }
         setFlash('success', 'Task deleted.');
     }
-    $redir = BASE_URL . '/admin/tasks.php';
-    if ($empBack) $redir .= '?employee=' . urlencode($empBack);
-    redirect($redir);
+    redirect(BASE_URL . '/admin/tasks.php');
 }
 
 // ── Update task status ────────────────────────────────────────
@@ -72,17 +69,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
 }
 
 // ── Filter params ─────────────────────────────────────────────
-$fEmployee = $_GET['employee'] ?? '';
-$fStatus   = $_GET['status']   ?? '';
-$fPriority = $_GET['priority'] ?? '';
-$fSearch   = trim($_GET['q']   ?? '');
-$fDate     = $_GET['date']     ?? '';
+$rawEmp     = $_GET['employee'] ?? [];
+$fEmployees = is_array($rawEmp) ? array_values(array_filter($rawEmp)) : ($rawEmp ? [$rawEmp] : []);
+$rawStat    = $_GET['status']   ?? [];
+$fStatuses  = is_array($rawStat) ? array_values(array_filter($rawStat)) : ($rawStat ? [$rawStat] : []);
+$fPriority  = $_GET['priority'] ?? '';
+$fSearch    = trim($_GET['q']   ?? '');
+$fDate      = $_GET['date']     ?? '';
+// Single-value compat — used for the employee info card
+$fEmployee  = count($fEmployees) === 1 ? $fEmployees[0] : '';
 
-$filtered = array_values(array_filter($tasks, function($t) use ($fEmployee, $fStatus, $fPriority, $fSearch, $fDate) {
-    if ($fEmployee && ($t['Employee_ID'] ?? '') !== $fEmployee) return false;
-    if ($fStatus   && ($t['Status']      ?? '') !== $fStatus)   return false;
-    if ($fPriority && ($t['Priority']    ?? '') !== $fPriority) return false;
-    if ($fDate     && substr($t['Assigned_Date'] ?? '', 0, 10) !== $fDate) return false;
+$filtered = array_values(array_filter($tasks, function($t) use ($fEmployees, $fStatuses, $fPriority, $fSearch, $fDate) {
+    if ($fEmployees && !in_array($t['Employee_ID'] ?? '', $fEmployees, true)) return false;
+    if ($fStatuses  && !in_array($t['Status']      ?? '', $fStatuses,  true)) return false;
+    if ($fPriority  && ($t['Priority']    ?? '') !== $fPriority) return false;
+    if ($fDate      && substr($t['Assigned_Date'] ?? '', 0, 10) !== $fDate) return false;
     if ($fSearch) {
         $hay = strtolower(($t['Task_Title'] ?? '') . ' ' . ($t['Description'] ?? ''));
         if (!str_contains($hay, strtolower($fSearch))) return false;
@@ -112,23 +113,55 @@ include __DIR__ . '/../includes/header.php';
                placeholder="Search tasks…" value="<?= e($fSearch) ?>">
       </div>
       <div class="col-6 col-sm-4 col-lg-2">
-        <select class="form-select" name="employee">
-          <option value="">All Employees</option>
-          <?php foreach ($employees as $emp): ?>
-          <option value="<?= e($emp['Employee_ID']) ?>"
-            <?= $fEmployee === $emp['Employee_ID'] ? 'selected' : '' ?>>
-            <?= e($emp['Name']) ?>
-          </option>
-          <?php endforeach; ?>
-        </select>
+        <div class="dropdown w-100">
+          <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start fw-normal"
+                  type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+            <span id="empFilterLabel"><?php
+              if (!$fEmployees) echo 'All Employees';
+              elseif (count($fEmployees) === 1) echo e($empMap[$fEmployees[0]]['Name'] ?? 'Unknown');
+              else echo count($fEmployees) . ' employees';
+            ?></span>
+          </button>
+          <div class="dropdown-menu p-2" style="min-width:220px;max-height:260px;overflow-y:auto">
+            <?php foreach ($employees as $emp): ?>
+            <div class="form-check mb-1">
+              <input class="form-check-input emp-filter-chk" type="checkbox"
+                     name="employee[]" value="<?= e($emp['Employee_ID']) ?>"
+                     id="empChk_<?= e($emp['Employee_ID']) ?>"
+                     <?= in_array($emp['Employee_ID'], $fEmployees, true) ? 'checked' : '' ?>>
+              <label class="form-check-label small" for="empChk_<?= e($emp['Employee_ID']) ?>">
+                <?= e($emp['Name']) ?>
+                <span class="text-muted" style="font-size:.7rem"> — <?= e($emp['Designation'] ?? '') ?></span>
+              </label>
+            </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
       </div>
       <div class="col-6 col-sm-4 col-lg-2">
-        <select class="form-select" name="status">
-          <option value="">All Status</option>
-          <?php foreach (TASK_STATUSES as $s): ?>
-          <option value="<?= $s ?>" <?= $fStatus === $s ? 'selected' : '' ?>><?= $s ?></option>
-          <?php endforeach; ?>
-        </select>
+        <div class="dropdown w-100">
+          <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start fw-normal"
+                  type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+            <span id="statusFilterLabel"><?php
+              if (!$fStatuses) echo 'All Status';
+              elseif (count($fStatuses) === 1) echo $fStatuses[0];
+              else echo count($fStatuses) . ' statuses';
+            ?></span>
+          </button>
+          <div class="dropdown-menu p-2" style="min-width:160px">
+            <?php foreach (TASK_STATUSES as $s): ?>
+            <div class="form-check mb-1">
+              <input class="form-check-input status-filter-chk" type="checkbox"
+                     name="status[]" value="<?= $s ?>"
+                     id="statusChk_<?= $s ?>"
+                     <?= in_array($s, $fStatuses, true) ? 'checked' : '' ?>>
+              <label class="form-check-label small" for="statusChk_<?= $s ?>">
+                <?= $s ?>
+              </label>
+            </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
       </div>
       <div class="col-6 col-sm-4 col-lg-2">
         <select class="form-select" name="priority">
@@ -274,5 +307,29 @@ include __DIR__ . '/../includes/header.php';
     </div>
   </div>
 </div>
+
+<script>
+(function () {
+  const empChks  = document.querySelectorAll('.emp-filter-chk');
+  const empLabel = document.getElementById('empFilterLabel');
+  function updateEmpLabel() {
+    const checked = [...empChks].filter(c => c.checked);
+    if (checked.length === 0) empLabel.textContent = 'All Employees';
+    else if (checked.length === 1) empLabel.textContent = checked[0].nextElementSibling.textContent.split('—')[0].trim();
+    else empLabel.textContent = checked.length + ' employees selected';
+  }
+  empChks.forEach(c => c.addEventListener('change', updateEmpLabel));
+
+  const statChks  = document.querySelectorAll('.status-filter-chk');
+  const statLabel = document.getElementById('statusFilterLabel');
+  function updateStatLabel() {
+    const checked = [...statChks].filter(c => c.checked);
+    if (checked.length === 0) statLabel.textContent = 'All Status';
+    else if (checked.length === 1) statLabel.textContent = checked[0].nextElementSibling.textContent.trim();
+    else statLabel.textContent = checked.length + ' statuses selected';
+  }
+  statChks.forEach(c => c.addEventListener('change', updateStatLabel));
+})();
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
