@@ -256,6 +256,11 @@ body::before {
 .card-body  { color: var(--t1) !important; }
 .card-footer { background: rgba(0,0,0,.15) !important; border-top: 1px solid var(--glass-bd) !important; color: var(--t2) !important; }
 
+/* backdrop-filter gives every card its own stacking context, so a later card
+   paints over dropdowns opened inside an earlier one — lift the card that
+   currently has an open dropdown above its siblings */
+.card:has(.dropdown-menu.show) { position: relative; z-index: 1055; }
+
 /* ── Stat Cards ──────────────────────────────────────────────── */
 .stat-card {
   background: var(--glass-2); backdrop-filter: var(--blur-md); -webkit-backdrop-filter: var(--blur-md);

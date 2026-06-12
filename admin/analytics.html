@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — TBI Task Manager</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="tbi-wrapper">
+  <div id="sidebarContainer"></div>
+  <div class="tbi-main-wrap">
+    <div id="topbarContainer"></div>
+    <main class="tbi-content" id="pageContent"></main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (!renderShell('Analytics', true)) return;
+
+  const tasks     = DB.getAll('tasks');
+  const employees = DB.getAll('employees');
+
+  const totalTasks   = tasks.length;
+  const approved     = tasks.filter(t => t.Status==='Approved').length;
+  const completed    = tasks.filter(t => ['Completed','Approved'].includes(t.Status)).length;
+  const pending      = tasks.filter(t => ['Pending','In Progress'].includes(t.Status)).length;
+  const overdue      = tasks.filter(t => Utils.isOverdue(t.Deadline, t.Status)).length;
+  const approvalRate = totalTasks > 0 ? Math.round((approved/totalTasks)*100) : 0;
+
+  // Monthly data (last 6 months)
+  const monthlyData = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(); d.setMonth(d.getMonth() - i); d.setDate(1);
+    const key   = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const label = d.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    const mTasks= tasks.filter(t => (t.Assigned_Date||'').slice(0,7)===key);
+    const mDone = mTasks.filter(t => ['Completed','Approved'].includes(t.Status));
+    monthlyData.push({label, total:mTasks.length, completed:mDone.length});
+  }
+
+  // Ranking
+  const ranking = employees.map(emp => ({
+    name: emp.Name, designation: emp.Designation,
+    stats: Utils.employeeStats(tasks, emp.Employee_ID)
+  })).sort((a,b) => b.stats.approvalPct - a.stats.approvalPct);
+
+  const medals = ['🥇','🥈','🥉'];
+  const rankRows = ranking.map((r,i) => `
+    <tr>
+      <td class="fw-700">${medals[i]||i+1}</td>
+      <td class="fw-600">${Utils.esc(r.name)}</td>
+      <td class="text-muted small">${Utils.esc(r.designation)}</td>
+      <td>${r.stats.total}</td>
+      <td class="text-success">${r.stats.completed}</td>
+      <td class="text-warning">${r.stats.pending}</td>
+      <td class="${r.stats.overdue>0?'text-danger fw-600':''}">${r.stats.overdue}</td>
+      <td>
+        <div class="d-flex align-items-center gap-2">
+          <div class="progress flex-fill" style="height:6px">
+            <div class="progress-bar bg-${Utils.pctColor(r.stats.approvalPct)}" style="width:${r.stats.approvalPct}%"></div>
+          </div>
+          <span class="fw-600 small">${r.stats.approvalPct}%</span>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="fw-700 mb-0"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Analytics Dashboard</h4>
+      <span class="small text-muted">Real-time data</span>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-2"><div class="stat-card border-start border-primary border-4 text-center"><div class="stat-val text-primary">${totalTasks}</div><div class="stat-lbl">Total Tasks</div></div></div>
+      <div class="col-6 col-lg-2"><div class="stat-card border-start border-success border-4 text-center"><div class="stat-val text-success">${approved}</div><div class="stat-lbl">Approved</div></div></div>
+      <div class="col-6 col-lg-2"><div class="stat-card border-start border-info border-4 text-center"><div class="stat-val text-info">${completed}</div><div class="stat-lbl">Completed</div></div></div>
+      <div class="col-6 col-lg-2"><div class="stat-card border-start border-warning border-4 text-center"><div class="stat-val text-warning">${pending}</div><div class="stat-lbl">Pending</div></div></div>
+      <div class="col-6 col-lg-2"><div class="stat-card border-start border-danger border-4 text-center"><div class="stat-val text-danger">${overdue}</div><div class="stat-lbl">Overdue</div></div></div>
+      <div class="col-6 col-lg-2"><div class="stat-card border-start border-4 text-center" style="border-left-color:var(--c-purple)!important"><div class="stat-val text-purple">${approvalRate}%</div><div class="stat-lbl">Approval Rate</div></div></div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header fw-600">Monthly Task Productivity (Last 6 Months)</div>
+          <div class="card-body" style="height:280px"><canvas id="monthlyChart"></canvas></div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header fw-600">Priority Breakdown</div>
+          <div class="card-body d-flex align-items-center" style="height:280px"><canvas id="priorityChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header fw-600">Status Distribution</div>
+          <div class="card-body d-flex align-items-center" style="height:260px"><canvas id="statusChart"></canvas></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header fw-600">Employee Task Load</div>
+          <div class="card-body" style="height:260px"><canvas id="empLoadChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header fw-600"><i class="bi bi-trophy me-2 text-warning"></i>Employee Performance Ranking</div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light"><tr><th>#</th><th>Employee</th><th>Designation</th><th>Total</th><th>Completed</th><th>Pending</th><th>Overdue</th><th>Approval %</th></tr></thead>
+            <tbody>${rankRows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Charts
+  new Chart(document.getElementById('monthlyChart'), {
+    type:'line',
+    data:{
+      labels: monthlyData.map(m=>m.label),
+      datasets:[
+        {label:'Total Assigned',data:monthlyData.map(m=>m.total), borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,.12)',tension:.35,fill:true},
+        {label:'Completed',     data:monthlyData.map(m=>m.completed),borderColor:'#4ade80',backgroundColor:'rgba(74,222,128,.12)',tension:.35,fill:true},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+  });
+
+  const cnt = s => tasks.filter(t=>t[s[0]]===s[1]).length;
+  new Chart(document.getElementById('priorityChart'), {
+    type:'doughnut',
+    data:{labels:['High','Medium','Low'],datasets:[{data:[tasks.filter(t=>t.Priority==='High').length,tasks.filter(t=>t.Priority==='Medium').length,tasks.filter(t=>t.Priority==='Low').length],backgroundColor:['#f87171','#facc15','#4ade80'],borderColor:'rgba(255,255,255,.08)',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+  });
+
+  new Chart(document.getElementById('statusChart'), {
+    type:'pie',
+    data:{labels:['Pending','In Progress','Completed','Approved','Rejected'],datasets:[{data:['Pending','In Progress','Completed','Approved','Rejected'].map(s=>tasks.filter(t=>t.Status===s).length),backgroundColor:['#94a3b8','#60a5fa','#38bdf8','#4ade80','#f87171'],borderColor:'rgba(255,255,255,.08)',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right'}}}
+  });
+
+  const empStats = employees.map(e => Utils.employeeStats(tasks, e.Employee_ID));
+  new Chart(document.getElementById('empLoadChart'), {
+    type:'bar',
+    data:{labels:employees.map(e=>e.Name),datasets:[
+      {label:'Total',    data:empStats.map(d=>d.total),    backgroundColor:'rgba(96,165,250,.6)'},
+      {label:'Completed',data:empStats.map(d=>d.completed),backgroundColor:'rgba(74,222,128,.6)'},
+      {label:'Pending',  data:empStats.map(d=>d.pending),  backgroundColor:'rgba(250,204,21,.6)'},
+    ]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{x:{beginAtZero:true}}}
+  });
+});
+</script>
+</body>
+</html>

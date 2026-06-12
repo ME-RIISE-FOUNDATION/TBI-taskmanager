@@ -1,9 +1,0 @@
-# Deny all direct web access to the data directory
-# Apache 2.2
-Order Deny,Allow
-Deny from all
-
-# Apache 2.4+
-<IfModule mod_authz_core.c>
-  Require all denied
-</IfModule>

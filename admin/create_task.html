@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Task — TBI Task Manager</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="tbi-wrapper">
+  <div id="sidebarContainer"></div>
+  <div class="tbi-main-wrap">
+    <div id="topbarContainer"></div>
+    <main class="tbi-content" id="pageContent"></main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const editId = getParams().get('edit') || '';
+  const task   = editId ? DB.findOne('tasks', 'Task_ID', editId) : null;
+  const isEdit = !!task;
+  const title  = isEdit ? 'Edit Task' : 'Create Task';
+
+  if (!renderShell(title, true)) return;
+
+  const session   = Auth.getSession();
+  const employees = DB.getAll('employees');
+  const order = ['CEO','COO','Software Associate','Finance Associate','Innovation Associate','Supporting Staff'];
+  employees.sort((a,b) => { const ai=order.indexOf(a.Designation); const bi=order.indexOf(b.Designation); return (ai<0?99:ai)-(bi<0?99:bi); });
+
+  const empOptions = employees.map(e =>
+    `<option value="${Utils.esc(e.Employee_ID)}" ${task?.Employee_ID===e.Employee_ID?'selected':''}>${Utils.esc(e.Name)} — ${Utils.esc(e.Designation)}</option>`
+  ).join('');
+
+  const priorityOptions = PRIORITIES.map(p =>
+    `<option value="${p}" ${(task?.Priority||'Medium')===p?'selected':''}>${p}</option>`
+  ).join('');
+
+  const statusOptions = TASK_STATUSES.map(s =>
+    `<option value="${s}" ${task?.Status===s?'selected':''}>${s}</option>`
+  ).join('');
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <a href="tasks.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+      <h4 class="fw-700 mb-0">
+        <i class="bi bi-${isEdit?'pencil':'plus-circle'} me-2 text-primary"></i>${isEdit?'Edit Task':'Create New Task'}
+      </h4>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div id="formAlert"></div>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-500">Assign To <span class="text-danger">*</span></label>
+                <select class="form-select" id="employee_id" required>
+                  <option value="">Select Employee…</option>
+                  ${empOptions}
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-500">Task Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="title" value="${Utils.esc(task?.Task_Title||'')}" placeholder="Enter task title" required maxlength="200">
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-500">Description</label>
+                <textarea class="form-control" id="description" rows="4" placeholder="Detailed task description…">${Utils.esc(task?.Description||'')}</textarea>
+              </div>
+              <div class="col-6 col-md-4">
+                <label class="form-label fw-500">Priority</label>
+                <select class="form-select" id="priority">${priorityOptions}</select>
+              </div>
+              <div class="col-6 col-md-4">
+                <label class="form-label fw-500">Start Date</label>
+                <input type="date" class="form-control" id="start_date" value="${Utils.esc(task?.Assigned_Date||Utils.today())}">
+              </div>
+              <div class="col-6 col-md-4">
+                <label class="form-label fw-500">Deadline <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="deadline" value="${Utils.esc(task?.Deadline||'')}" required>
+              </div>
+              ${isEdit ? `
+              <div class="col-6 col-md-4">
+                <label class="form-label fw-500">Status</label>
+                <select class="form-select" id="status">${statusOptions}</select>
+              </div>` : ''}
+              <div class="col-12">
+                <label class="form-label fw-500">Attachment Note</label>
+                <input type="text" class="form-control" id="file_url" value="${Utils.esc(task?.File_URL||'')}" placeholder="Link or reference to attachment (URL or description)…">
+                <div class="form-text">Enter a URL or brief note about any attachments</div>
+              </div>
+            </div>
+            <div class="d-flex gap-3 mt-4">
+              <button type="button" class="btn btn-primary px-4" onclick="saveTask()">
+                <i class="bi bi-${isEdit?'save':'plus-circle'} me-2"></i>${isEdit?'Save Changes':'Create Task'}
+              </button>
+              <a href="tasks.html" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+});
+
+function saveTask() {
+  const editId      = getParams().get('edit') || '';
+  const task        = editId ? DB.findOne('tasks', 'Task_ID', editId) : null;
+  const isEdit      = !!task;
+  const session     = Auth.getSession();
+
+  const employeeId  = document.getElementById('employee_id').value;
+  const title       = document.getElementById('title').value.trim();
+  const description = document.getElementById('description').value.trim();
+  const priority    = document.getElementById('priority').value;
+  const startDate   = document.getElementById('start_date').value || Utils.today();
+  const deadline    = document.getElementById('deadline').value;
+  const fileUrl     = document.getElementById('file_url').value.trim();
+  const status      = isEdit ? (document.getElementById('status')?.value || task.Status) : 'Pending';
+  const alertEl     = document.getElementById('formAlert');
+
+  if (!employeeId || !title || !deadline) {
+    alertEl.innerHTML = `<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-circle me-1"></i>Employee, Title, and Deadline are required.</div>`;
+    return;
+  }
+  alertEl.innerHTML = '';
+
+  if (isEdit) {
+    DB.updateById('tasks', 'Task_ID', editId, {
+      Employee_ID: employeeId, Task_Title: title, Description: description,
+      Priority: priority, Assigned_Date: startDate, Deadline: deadline,
+      Status: status, File_URL: fileUrl, Assigned_By: session.name
+    });
+    setFlash('success', 'Task updated successfully.');
+  } else {
+    const taskId = Utils.generateId('TSK');
+    DB.append('tasks', {
+      Task_ID: taskId, Employee_ID: employeeId, Task_Title: title, Description: description,
+      Priority: priority, Assigned_Date: startDate, Deadline: deadline,
+      Status: 'Pending', Days_Pending: 0, Assigned_By: session.name, File_URL: fileUrl, Notes: ''
+    });
+    DB.append('notifications', {
+      Notif_ID: Utils.generateId('NOTIF'), User_ID: employeeId,
+      Message: `New task assigned: ${title}`, Type: 'task_assigned',
+      Read_Status: 'unread', Created_At: new Date().toISOString().replace('T',' ').slice(0,19)
+    });
+    setFlash('success', 'Task created and assigned successfully.');
+  }
+  window.location.href = 'tasks.html';
+}
+</script>
+</body>
+</html>

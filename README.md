@@ -219,4 +219,3 @@ Recommended size: 80×80 px PNG with transparent background.
 ---
 
 *Built for Technology Business Incubator – Malnad College of Engineering, Hassan*
-"# TBI-taskmanager" 
