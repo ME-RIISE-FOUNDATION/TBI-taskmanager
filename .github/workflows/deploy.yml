@@ -10,8 +10,8 @@ jobs:
     steps:
       - name: Trigger Render Deploy
         run: |
-          if [ -z "${{ secrets.RENDER_DEPLOY_HOOK }}" ]; then
-            echo "Error: RENDER_DEPLOY_HOOK secret is not set"
+          if [ -z "${{ secrets.HOSTINGER_WEB_HOOK }}" ]; then
+            echo "Error: HOSTINGER_WEB_HOOK secret is not set"
             exit 1
           fi
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+          curl -X POST "${{ secrets.HOSTINGER_WEB_HOOK }}"
