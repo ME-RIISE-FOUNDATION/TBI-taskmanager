@@ -316,7 +316,15 @@ function exportTableExcel(tableId, filename) {
   const table = document.getElementById(tableId);
   if (!table) { alert('Table not found'); return; }
   if (typeof XLSX === 'undefined') { alert('Excel library not loaded'); return; }
-  const wb = XLSX.utils.table_to_book(table, {sheet:'Report'});
+
+  const clonedTable = table.cloneNode(true);
+  const rows = clonedTable.querySelectorAll('thead tr, tbody tr');
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('th, td');
+    if (cells.length > 0) cells[cells.length - 1].remove();
+  });
+
+  const wb = XLSX.utils.table_to_book(clonedTable, {sheet:'Report'});
   XLSX.writeFile(wb, filename + '_' + Utils.today() + '.xlsx');
 }
 
@@ -324,12 +332,20 @@ function exportTableExcel(tableId, filename) {
 function exportTablePDF(tableId, title) {
   const table = document.getElementById(tableId);
   if (!table || typeof jspdf === 'undefined') { alert('PDF library not loaded'); return; }
+
+  const clonedTable = table.cloneNode(true);
+  const rows = clonedTable.querySelectorAll('thead tr, tbody tr');
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('th, td');
+    if (cells.length > 0) cells[cells.length - 1].remove();
+  });
+
   const {jsPDF} = jspdf;
   const doc = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
   doc.setFontSize(14); doc.setTextColor(0,100,180); doc.text('TBI – MCE Hassan', 15, 15);
   doc.setFontSize(11); doc.setTextColor(50,100,150); doc.text(title, 15, 22);
   doc.setFontSize(8); doc.setTextColor(120); doc.text('Generated: ' + new Date().toLocaleString('en-IN'), 15, 28);
-  doc.autoTable({html:'#'+tableId, startY:32, styles:{fontSize:8,cellPadding:2}, headStyles:{fillColor:[10,50,100],textColor:255,fontStyle:'bold'}, alternateRowStyles:{fillColor:[235,244,255]}});
+  doc.autoTable({html:clonedTable, startY:32, styles:{fontSize:8,cellPadding:2}, headStyles:{fillColor:[10,50,100],textColor:255,fontStyle:'bold'}, alternateRowStyles:{fillColor:[235,244,255]}});
   doc.save(title.replace(/\s+/g,'_') + '_' + Utils.today() + '.pdf');
 }
 
