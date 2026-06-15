@@ -34,7 +34,7 @@ function seedIfNeeded() {
   DB._set('users', [
     {"User_ID":"USR_001","Username":"geetha",  "Password":"Admin@123",   "Designation":"CEO",                 "Employee_ID":"EMP_001","Email":"ceotbimeriise@mcehassan.ac.in","Name":"Dr. Geetha Kiran A"},
     {"User_ID":"USR_002","Username":"mohana",  "Password":"Admin@123",   "Designation":"COO",                 "Employee_ID":"EMP_002","Email":"cootbimeriise@mcehassan.ac.in","Name":"Dr. Mohana Lakshmi J"},
-    {"User_ID":"USR_003","Username":"darshan", "Password":"Employee@123","Designation":"Software Associate",  "Employee_ID":"EMP_003","Email":"satbimeriise@mcehassan.ac.in","Name":"Mr. Darshan H D"},
+    {"User_ID":"USR_003","Username":"darsha",  "Password":"Employee@123","Designation":"Software Associate",  "Employee_ID":"EMP_003","Email":"satbimeriise@mcehassan.ac.in","Name":"Mr. Darshan H D"},
     {"User_ID":"USR_004","Username":"ramya",   "Password":"Employee@123","Designation":"Finance Associate",   "Employee_ID":"EMP_004","Email":"fatbimeriise@mcehassan.ac.in","Name":"Miss. Ramya K V"},
     {"User_ID":"USR_005","Username":"madhurya","Password":"Employee@123","Designation":"Innovation Associate","Employee_ID":"EMP_005","Email":"iatbimeriise@mcehassan.ac.in","Name":"Ms. Madhurya H V"},
     {"User_ID":"USR_006","Username":"deeksha", "Password":"Employee@123","Designation":"Supporting Staff",    "Employee_ID":"EMP_006","Email":"sstbimeriise@mcehassan.ac.in","Name":"Ms. Deeksha M S"}
