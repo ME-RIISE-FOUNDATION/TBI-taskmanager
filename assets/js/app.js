@@ -1,5 +1,11 @@
 'use strict';
 
+// Initialize theme immediately
+(function() {
+  const theme = localStorage.getItem('tbi_theme') || 'ocean';
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+
 // ── Config ────────────────────────────────────────────────────
 const ADMIN_ROLES   = ['CEO', 'COO'];
 const TASK_STATUSES = ['Pending', 'In Progress', 'Completed', 'Approved', 'Rejected'];
@@ -89,6 +95,19 @@ const Auth = {
     if (!this.isAdmin()) { window.location.href = rootPath() + 'employee/dashboard.html'; return false; }
     return true;
   },
+};
+
+// ── Theme Management ─────────────────────────────────────────
+const Theme = {
+  THEMES: ['ocean', 'forest', 'sunset', 'purple', 'rose', 'black', 'white'],
+  STORAGE_KEY: 'tbi_theme',
+  getTheme() { return localStorage.getItem(this.STORAGE_KEY) || 'ocean'; },
+  setTheme(theme) {
+    if (!this.THEMES.includes(theme)) theme = 'ocean';
+    localStorage.setItem(this.STORAGE_KEY, theme);
+    document.documentElement.setAttribute('data-theme', theme);
+  },
+  initTheme() { this.setTheme(this.getTheme()); },
 };
 
 // ── Utilities ─────────────────────────────────────────────────
@@ -224,6 +243,22 @@ function renderShell(title, requireAdmin = false) {
       <div class="topbar-title">${Utils.esc(title)}</div>
       <div class="topbar-actions">
         <div class="dropdown">
+          <a class="notif-btn" href="#" data-bs-toggle="dropdown" title="Theme">
+            <i class="bi bi-palette"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width:160px">
+            <li><div class="dropdown-header small">Select Theme</div></li>
+            <li><button class="dropdown-item small" onclick="setTheme('ocean')"><span class="theme-dot" style="background:#00d4ff"></span> Ocean</button></li>
+            <li><button class="dropdown-item small" onclick="setTheme('forest')"><span class="theme-dot" style="background:#10b981"></span> Forest</button></li>
+            <li><button class="dropdown-item small" onclick="setTheme('sunset')"><span class="theme-dot" style="background:#f97316"></span> Sunset</button></li>
+            <li><button class="dropdown-item small" onclick="setTheme('purple')"><span class="theme-dot" style="background:#a78bfa"></span> Purple</button></li>
+            <li><button class="dropdown-item small" onclick="setTheme('rose')"><span class="theme-dot" style="background:#ec4899"></span> Rose</button></li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li><button class="dropdown-item small" onclick="setTheme('black')"><span class="theme-dot" style="background:#000000;border:1px solid #666"></span> Black</button></li>
+            <li><button class="dropdown-item small" onclick="setTheme('white')"><span class="theme-dot" style="background:#ffffff;border:1px solid #999"></span> White</button></li>
+          </ul>
+        </div>
+        <div class="dropdown">
           <a class="notif-btn" href="#" data-bs-toggle="dropdown" id="notifBell" aria-label="Notifications">
             <i class="bi bi-bell"></i>
             <span class="notif-count d-none" id="notifBadge">0</span>
@@ -318,11 +353,15 @@ function exportTableExcel(tableId, filename) {
   if (typeof XLSX === 'undefined') { alert('Excel library not loaded'); return; }
 
   const clonedTable = table.cloneNode(true);
-  const rows = clonedTable.querySelectorAll('thead tr, tbody tr');
-  rows.forEach(row => {
-    const cells = row.querySelectorAll('th, td');
-    if (cells.length > 0) cells[cells.length - 1].remove();
-  });
+  const includeActions = document.getElementById('exportActionsToggle')?.checked ?? true;
+
+  if (!includeActions) {
+    const rows = clonedTable.querySelectorAll('thead tr, tbody tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('th, td');
+      if (cells.length > 0) cells[cells.length - 1].remove();
+    });
+  }
 
   const wb = XLSX.utils.table_to_book(clonedTable, {sheet:'Report'});
   XLSX.writeFile(wb, filename + '_' + Utils.today() + '.xlsx');
@@ -334,11 +373,15 @@ function exportTablePDF(tableId, title) {
   if (!table || typeof jspdf === 'undefined') { alert('PDF library not loaded'); return; }
 
   const clonedTable = table.cloneNode(true);
-  const rows = clonedTable.querySelectorAll('thead tr, tbody tr');
-  rows.forEach(row => {
-    const cells = row.querySelectorAll('th, td');
-    if (cells.length > 0) cells[cells.length - 1].remove();
-  });
+  const includeActions = document.getElementById('exportActionsToggle')?.checked ?? true;
+
+  if (!includeActions) {
+    const rows = clonedTable.querySelectorAll('thead tr, tbody tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('th, td');
+      if (cells.length > 0) cells[cells.length - 1].remove();
+    });
+  }
 
   const {jsPDF} = jspdf;
   const doc = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
@@ -347,6 +390,12 @@ function exportTablePDF(tableId, title) {
   doc.setFontSize(8); doc.setTextColor(120); doc.text('Generated: ' + new Date().toLocaleString('en-IN'), 15, 28);
   doc.autoTable({html:clonedTable, startY:32, styles:{fontSize:8,cellPadding:2}, headStyles:{fillColor:[10,50,100],textColor:255,fontStyle:'bold'}, alternateRowStyles:{fillColor:[235,244,255]}});
   doc.save(title.replace(/\s+/g,'_') + '_' + Utils.today() + '.pdf');
+}
+
+// ── Theme setter ──────────────────────────────────────────────
+function setTheme(theme) {
+  Theme.setTheme(theme);
+  showFlash('success', 'Theme changed to ' + theme.charAt(0).toUpperCase() + theme.slice(1) + '.');
 }
 
 // ── URL params helper ─────────────────────────────────────────

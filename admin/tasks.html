@@ -172,9 +172,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ${empInfoBanner}
 
-    <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
       <small class="text-muted">Showing ${filtered.length} of ${tasks.length} tasks</small>
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2 align-items-center">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="exportActionsToggle" checked>
+          <label class="form-check-label small" for="exportActionsToggle">Include Actions</label>
+        </div>
         <button class="btn btn-sm btn-outline-success" onclick="exportTableExcel('taskTable','TBI_Tasks')"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
         <button class="btn btn-sm btn-outline-danger" onclick="exportTablePDF('taskTable','Task Report')"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
       </div>
