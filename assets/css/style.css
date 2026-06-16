@@ -283,7 +283,8 @@
 }
 
 [data-theme="black"] .dropdown-menu {
-  background: rgba(0,0,0,.95) !important;
+  background: #1c1c1c !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
   border-color: #444444 !important;
 }
 
@@ -317,7 +318,9 @@
 
 [data-theme="white"] .dropdown-menu {
   background: #ffffff !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
   border-color: #cccccc !important;
+  box-shadow: 0 10px 36px rgba(0,0,0,.18) !important;
 }
 
 [data-theme="white"] .dropdown-item {
@@ -905,6 +908,9 @@ small { color: var(--t3); }
 .table-primary > * { background: rgba(0,120,160,.18) !important; }
 .table-primary > * > * { color: var(--accent) !important; }
 .table-responsive { border-radius: 0 0 var(--r2) var(--r2); overflow: hidden; }
+/* Let row-level dropdowns (e.g. Status) escape the table instead of being clipped */
+.table-responsive:has(.dropdown-menu.show) { overflow: visible; }
+.card-body:has(.dropdown-menu.show) { overflow: visible; }
 .table-bordered td, .table-bordered th { border-color: rgba(255,255,255,.07) !important; }
 
 /* ── Badges ──────────────────────────────────────────────────── */
@@ -960,6 +966,7 @@ small { color: var(--t3); }
   background: rgba(5,16,40,.94) !important; backdrop-filter: var(--blur-lg); -webkit-backdrop-filter: var(--blur-lg);
   border: 1px solid var(--glass-bd) !important; border-radius: var(--r2) !important;
   box-shadow: 0 10px 36px rgba(0,0,0,.55) !important; padding: .35rem !important;
+  z-index: 1060 !important;
 }
 .dropdown-item { color: var(--t2) !important; border-radius: var(--r1) !important; padding: .48rem .85rem !important; font-size: .855rem !important; transition: all var(--ease) !important; }
 .dropdown-item:hover, .dropdown-item:focus { background: var(--theme-glow) !important; color: var(--t1) !important; }
