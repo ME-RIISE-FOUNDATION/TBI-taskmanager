@@ -902,8 +902,11 @@ small { color: var(--t3); }
   font-size: .72rem !important; font-weight: 700 !important;
   text-transform: uppercase; letter-spacing: .05em; border-bottom-color: var(--glass-bd) !important;
 }
-.table-danger { --bs-table-bg: rgba(248,113,113,.08) !important; }
-.table-danger > * { background-color: rgba(248,113,113,.07) !important; }
+.task-group-header > * { background: var(--theme-bg-light) !important; color: var(--t1) !important; border-top: 2px solid var(--theme-border) !important; }
+.task-group-header i { color: var(--theme-primary) !important; }
+.table-danger { --bs-table-bg: rgba(251,146,60,.16) !important; }
+.table-danger > * { background-color: rgba(251,146,60,.14) !important; box-shadow: inset 3px 0 0 rgba(249,115,22,.55); }
+.table-danger > *:not(:first-child) { box-shadow: none; }
 .table-primary { --bs-table-bg: rgba(0,120,160,.18) !important; }
 .table-primary > * { background: rgba(0,120,160,.18) !important; }
 .table-primary > * > * { color: var(--accent) !important; }

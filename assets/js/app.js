@@ -363,7 +363,12 @@ function exportTableExcel(tableId, filename) {
     });
   }
 
-  const wb = XLSX.utils.table_to_book(clonedTable, {sheet:'Report'});
+  // Convert the table to rows, then prepend the branded heading
+  const tableWs  = XLSX.utils.table_to_sheet(clonedTable);
+  const tableAoa = XLSX.utils.sheet_to_json(tableWs, {header:1});
+  const ws = XLSX.utils.aoa_to_sheet([...excelHeaderRows(filename.replace(/_/g,' ')), ...tableAoa]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Report');
   XLSX.writeFile(wb, filename + '_' + Utils.today() + '.xlsx');
 }
 
@@ -385,11 +390,31 @@ function exportTablePDF(tableId, title) {
 
   const {jsPDF} = jspdf;
   const doc = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
-  doc.setFontSize(14); doc.setTextColor(0,100,180); doc.text('TBI – MCE Hassan', 15, 15);
-  doc.setFontSize(11); doc.setTextColor(50,100,150); doc.text(title, 15, 22);
-  doc.setFontSize(8); doc.setTextColor(120); doc.text('Generated: ' + new Date().toLocaleString('en-IN'), 15, 28);
-  doc.autoTable({html:clonedTable, startY:32, styles:{fontSize:8,cellPadding:2}, headStyles:{fillColor:[10,50,100],textColor:255,fontStyle:'bold'}, alternateRowStyles:{fillColor:[235,244,255]}});
+  const startY = pdfHeader(doc, title);
+  doc.autoTable({html:clonedTable, startY, styles:{fontSize:8,cellPadding:2}, headStyles:{fillColor:[10,50,100],textColor:255,fontStyle:'bold'}, alternateRowStyles:{fillColor:[235,244,255]}});
   doc.save(title.replace(/\s+/g,'_') + '_' + Utils.today() + '.pdf');
+}
+
+// ── Shared PDF/Excel branding header ──────────────────────────
+const ORG_TITLE    = 'TBI-MCE  Managed by ME-RIISE FOUNDATION';
+const ORG_SUBTITLE = '(A Section 8 Company)  ·  Elevating Ideas, Incubating Success';
+
+// Draws the branded heading on a jsPDF doc and returns the Y to start the table at
+function pdfHeader(doc, title) {
+  const w = doc.internal.pageSize.getWidth();
+  doc.setFontSize(14); doc.setTextColor(0,100,180);
+  doc.text(ORG_TITLE, w/2, 14, {align:'center'});
+  doc.setFontSize(9); doc.setTextColor(90,120,150);
+  doc.text(ORG_SUBTITLE, w/2, 20, {align:'center'});
+  doc.setDrawColor(0,150,200); doc.setLineWidth(0.4); doc.line(15, 23, w-15, 23);
+  doc.setFontSize(11); doc.setTextColor(50,100,150); doc.text(title, 15, 30);
+  doc.setFontSize(8); doc.setTextColor(120); doc.text('Generated: ' + new Date().toLocaleString('en-IN'), 15, 35);
+  return 39;
+}
+
+// Returns the org heading rows for an Excel AOA (array-of-arrays)
+function excelHeaderRows(title) {
+  return [[ORG_TITLE], [ORG_SUBTITLE], [title], ['Generated: ' + new Date().toLocaleString('en-IN')], []];
 }
 
 // ── Theme setter ──────────────────────────────────────────────

@@ -91,19 +91,24 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </div>` : '';
 
-  const tableRows = filtered.length ? filtered.map((t, i) => {
-    const emp  = empMap[t.Employee_ID];
+  // Group filtered tasks by employee (employees already sorted by designation)
+  const groups = {};
+  filtered.forEach(t => { (groups[t.Employee_ID] = groups[t.Employee_ID] || []).push(t); });
+  const groupOrderIds = employees.map(e => e.Employee_ID).filter(id => groups[id]);
+
+  // Expose data for the grouped export
+  window._taskExport = { filtered, empMap, employees };
+
+  const renderTaskRow = (t, n) => {
     const od   = Utils.isOverdue(t.Deadline, t.Status);
     const days = Utils.daysPending(t.Deadline);
     const statusOptions = TASK_STATUSES.map(s => `<li><button class="dropdown-item${t.Status===s?' active':''}" onclick="updateStatus('${t.Task_ID}','${s}')">${s}</button></li>`).join('');
     return `<tr class="${od?'table-danger':''}">
-      <td class="small">${i+1}</td>
+      <td><input type="checkbox" class="form-check-input task-select-chk" value="${Utils.esc(t.Task_ID)}" onchange="updateSelCount()"></td>
+      <td class="small">${n}</td>
       <td>
         <div class="fw-500">${Utils.esc(t.Task_Title)}</div>
         ${t.Description?`<small class="text-muted">${Utils.esc(t.Description.slice(0,60))}…</small>`:''}
-      </td>
-      <td>
-        ${emp ? `<div class="small fw-500">${Utils.esc(emp.Name)}</div><div style="font-size:.7rem" class="text-muted">${Utils.esc(emp.Designation)}</div>` : `<span class="text-muted">${Utils.esc(t.Employee_ID)}</span>`}
       </td>
       <td>${Utils.priorityBadge(t.Priority)}</td>
       <td class="small">${Utils.formatDate(t.Assigned_Date)}</td>
@@ -121,6 +126,20 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </td>
     </tr>`;
+  };
+
+  const tableRows = filtered.length ? groupOrderIds.map(id => {
+    const emp = empMap[id];
+    const list = groups[id];
+    const ids = list.map(t => t.Task_ID);
+    const header = `<tr class="task-group-header">
+      <td><input type="checkbox" class="form-check-input grp-select-chk" data-ids='${JSON.stringify(ids)}' onchange="toggleGroup(this)"></td>
+      <td colspan="8" class="fw-700">
+        <i class="bi bi-person-fill me-1"></i>${Utils.esc(emp?.Name || id)}
+        <span class="fw-normal text-muted small"> — ${Utils.esc(emp?.Designation || '')} · ${list.length} task${list.length>1?'s':''}</span>
+      </td>
+    </tr>`;
+    return header + list.map((t, i) => renderTaskRow(t, i + 1)).join('');
   }).join('') : `<tr><td colspan="9" class="text-center py-4 text-muted">No tasks found</td></tr>`;
 
   document.getElementById('pageContent').innerHTML = `
@@ -137,26 +156,26 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="col-6 col-sm-4 col-lg-2">
             <div class="dropdown w-100">
-              <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start fw-normal" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="empDropdownBtn">
+              <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start fw-normal" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-display="static" id="empDropdownBtn">
                 <span id="empFilterLabel">${Utils.esc(empLabel)}</span>
               </button>
-              <div class="dropdown-menu p-2" style="min-width:220px;max-height:260px;overflow-y:auto">${empCheckboxes}</div>
+              <div class="dropdown-menu p-2 w-100" style="max-height:260px;overflow-y:auto">${empCheckboxes}</div>
             </div>
           </div>
           <div class="col-6 col-sm-4 col-lg-2">
             <div class="dropdown w-100">
-              <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start fw-normal" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="statDropdownBtn">
+              <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start fw-normal" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-display="static" id="statDropdownBtn">
                 <span id="statFilterLabel">${Utils.esc(statLabel)}</span>
               </button>
-              <div class="dropdown-menu p-2" style="min-width:160px">${statusCheckboxes}</div>
+              <div class="dropdown-menu p-2 w-100" style="min-width:160px">${statusCheckboxes}</div>
             </div>
           </div>
           <div class="col-6 col-sm-4 col-lg-2">
             <div class="dropdown w-100">
-              <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start fw-normal" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="priDropdownBtn">
+              <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start fw-normal" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-display="static" id="priDropdownBtn">
                 <span id="priFilterLabel">${Utils.esc(priLabel)}</span>
               </button>
-              <div class="dropdown-menu p-2" style="min-width:160px">${priCheckboxes}</div>
+              <div class="dropdown-menu p-2 w-100" style="min-width:160px">${priCheckboxes}</div>
             </div>
           </div>
           <div class="col-6 col-sm-4 col-lg-2">
@@ -173,14 +192,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ${empInfoBanner}
 
     <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-      <small class="text-muted">Showing ${filtered.length} of ${tasks.length} tasks</small>
+      <small class="text-muted">Showing ${filtered.length} of ${tasks.length} tasks · <span id="selCount">0</span> selected</small>
       <div class="d-flex gap-2 align-items-center">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="exportActionsToggle" checked>
-          <label class="form-check-label small" for="exportActionsToggle">Include Actions</label>
-        </div>
-        <button class="btn btn-sm btn-outline-success" onclick="exportTableExcel('taskTable','TBI_Tasks')"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
-        <button class="btn btn-sm btn-outline-danger" onclick="exportTablePDF('taskTable','Task Report')"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
+        <span class="small text-muted d-none d-md-inline"><i class="bi bi-info-circle me-1"></i>Tick rows to export only those</span>
+        <button class="btn btn-sm btn-outline-success" onclick="exportTasksGrouped('excel')"><i class="bi bi-file-earmark-excel me-1"></i>Excel</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="exportTasksGrouped('pdf')"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</button>
       </div>
     </div>
 
@@ -188,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-hover mb-0" id="taskTable">
-            <thead class="table-light"><tr><th>#</th><th>Task Title</th><th>Employee</th><th>Priority</th><th>Assigned</th><th>Deadline</th><th>Days Overdue</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead class="table-light"><tr><th style="width:34px"><input type="checkbox" class="form-check-input" id="selectAllTasks" onchange="toggleSelectAll(this)"></th><th>#</th><th>Task Title</th><th>Priority</th><th>Assigned</th><th>Deadline</th><th>Days Overdue</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>${tableRows}</tbody>
           </table>
         </div>
@@ -246,6 +262,86 @@ function updateStatus(taskId, newStatus) {
   }
   setFlash('success', `Task status updated to ${newStatus}.`);
   location.reload();
+}
+
+// ── Selection helpers ─────────────────────────────────────────
+function updateSelCount() {
+  const n = document.querySelectorAll('.task-select-chk:checked').length;
+  const el = document.getElementById('selCount');
+  if (el) el.textContent = n;
+}
+function toggleSelectAll(box) {
+  document.querySelectorAll('.task-select-chk').forEach(c => c.checked = box.checked);
+  document.querySelectorAll('.grp-select-chk').forEach(c => c.checked = box.checked);
+  updateSelCount();
+}
+function toggleGroup(box) {
+  const ids = JSON.parse(box.dataset.ids || '[]');
+  ids.forEach(id => {
+    const c = document.querySelector(`.task-select-chk[value="${CSS.escape(id)}"]`);
+    if (c) c.checked = box.checked;
+  });
+  updateSelCount();
+}
+
+// ── Grouped export (Excel / PDF), respects row selection ──────
+function exportTasksGrouped(format) {
+  const data = window._taskExport;
+  if (!data) return;
+
+  const selectedIds = [...document.querySelectorAll('.task-select-chk:checked')].map(c => c.value);
+  let list = data.filtered;
+  if (selectedIds.length) list = list.filter(t => selectedIds.includes(t.Task_ID));
+  if (!list.length) { showFlash('warning', 'No tasks to export. Tick some rows or clear the selection.'); return; }
+
+  // Group by employee in designation order
+  const groups = {};
+  list.forEach(t => { (groups[t.Employee_ID] = groups[t.Employee_ID] || []).push(t); });
+  const orderIds = data.employees.map(e => e.Employee_ID).filter(id => groups[id]);
+  const cols = ['#', 'Task Title', 'Priority', 'Assigned', 'Deadline', 'Days Overdue', 'Status'];
+
+  const rowFor = (t, i) => {
+    const od = Utils.isOverdue(t.Deadline, t.Status);
+    return [i + 1, t.Task_Title, t.Priority, Utils.formatDate(t.Assigned_Date),
+            Utils.formatDate(t.Deadline), od ? Utils.daysPending(t.Deadline) + 'd' : '—', t.Status];
+  };
+
+  if (format === 'excel') {
+    if (typeof XLSX === 'undefined') { alert('Excel library not loaded'); return; }
+    const aoa = excelHeaderRows('Task Report');
+    orderIds.forEach(id => {
+      const emp = data.empMap[id];
+      aoa.push([`${emp?.Name || id}  —  ${emp?.Designation || ''}`]);
+      aoa.push(cols);
+      groups[id].forEach((t, i) => aoa.push(rowFor(t, i)));
+      aoa.push([]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [{wch:5},{wch:48},{wch:10},{wch:14},{wch:14},{wch:13},{wch:12}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Tasks');
+    XLSX.writeFile(wb, 'TBI_Tasks_' + Utils.today() + '.xlsx');
+  } else {
+    if (typeof jspdf === 'undefined') { alert('PDF library not loaded'); return; }
+    const { jsPDF } = jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    let y = pdfHeader(doc, 'Task Report');
+    orderIds.forEach(id => {
+      const emp = data.empMap[id];
+      if (y > doc.internal.pageSize.getHeight() - 28) { doc.addPage(); y = 15; }
+      doc.setFontSize(10); doc.setTextColor(0, 90, 140);
+      doc.text(`${emp?.Name || id}  —  ${emp?.Designation || ''}  (${groups[id].length})`, 15, y);
+      doc.autoTable({
+        head: [cols], body: groups[id].map((t, i) => rowFor(t, i)), startY: y + 2,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [10, 50, 100], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [235, 244, 255] },
+        columnStyles: { 1: { cellWidth: 110 } }
+      });
+      y = doc.lastAutoTable.finalY + 9;
+    });
+    doc.save('TBI_Tasks_' + Utils.today() + '.pdf');
+  }
 }
 </script>
 </body>
