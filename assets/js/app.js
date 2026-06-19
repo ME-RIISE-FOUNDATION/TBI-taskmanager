@@ -412,7 +412,20 @@ function exportTableExcel(tableId, filename) {
   // Convert the table to rows, then prepend the branded heading
   const tableWs  = XLSX.utils.table_to_sheet(clonedTable);
   const tableAoa = XLSX.utils.sheet_to_json(tableWs, {header:1});
-  const ws = XLSX.utils.aoa_to_sheet([...excelHeaderRows(filename.replace(/_/g,' ')), ...tableAoa]);
+  const headRows = excelHeaderRows(filename.replace(/_/g,' '));
+  const ws = XLSX.utils.aoa_to_sheet([...headRows, ...tableAoa]);
+
+  const ncols = Math.max(1, ...tableAoa.map(r => r.length));
+  const hdrRow = headRows.length;            // first table row = column header (the <thead>)
+
+  xlStyleBrandHeader(ws, ncols);
+  xlStyleRow(ws, hdrRow, ncols, xlBordered(XL.colHdr));
+  for (let r = hdrRow + 1; r < headRows.length + tableAoa.length; r++) {
+    const odd = (r - hdrRow) % 2 === 0;       // zebra striping
+    xlStyleRow(ws, r, ncols, xlBordered(odd ? XL.cellAlt : XL.cell));
+  }
+  ws['!cols'] = ws['!cols'] || Array.from({length: ncols}, (_, i) => ({ wch: i === 1 ? 34 : 16 }));
+
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Report');
   XLSX.writeFile(wb, filename + '_' + Utils.today() + '.xlsx');
@@ -461,6 +474,41 @@ function pdfHeader(doc, title) {
 // Returns the org heading rows for an Excel AOA (array-of-arrays)
 function excelHeaderRows(title) {
   return [[ORG_TITLE], [ORG_SUBTITLE], [title], ['Generated: ' + new Date().toLocaleString('en-IN')], []];
+}
+
+// ── Excel styling palette (requires xlsx-js-style) ────────────
+const XL = {
+  border: { top:{style:'thin',color:{rgb:'D6E2EE'}}, bottom:{style:'thin',color:{rgb:'D6E2EE'}}, left:{style:'thin',color:{rgb:'D6E2EE'}}, right:{style:'thin',color:{rgb:'D6E2EE'}} },
+  orgTitle:  { font:{bold:true, sz:16, color:{rgb:'0A3260'}}, alignment:{horizontal:'center', vertical:'center'} },
+  orgSub:    { font:{italic:true, sz:10, color:{rgb:'5A7896'}}, alignment:{horizontal:'center'} },
+  reportTtl: { font:{bold:true, sz:12, color:{rgb:'1F6FB2'}}, alignment:{horizontal:'center'} },
+  generated: { font:{italic:true, sz:9, color:{rgb:'8A8A8A'}}, alignment:{horizontal:'center'} },
+  groupHdr:  { font:{bold:true, sz:11, color:{rgb:'FFFFFF'}}, fill:{fgColor:{rgb:'0E7C66'}}, alignment:{vertical:'center'} },
+  colHdr:    { font:{bold:true, sz:10, color:{rgb:'FFFFFF'}}, fill:{fgColor:{rgb:'0A3260'}}, alignment:{horizontal:'center', vertical:'center', wrapText:true} },
+  cell:      { font:{sz:10, color:{rgb:'21303F'}}, alignment:{vertical:'top', wrapText:true} },
+  cellAlt:   { font:{sz:10, color:{rgb:'21303F'}}, fill:{fgColor:{rgb:'EAF3FB'}}, alignment:{vertical:'top', wrapText:true} },
+};
+// Add borders to a base style object
+function xlBordered(base) { return { ...base, border: XL.border }; }
+// Apply a style to a whole row of `ncols` cells at row index r
+function xlStyleRow(ws, r, ncols, style) {
+  for (let c = 0; c < ncols; c++) {
+    const addr = XLSX.utils.encode_cell({ r, c });
+    if (!ws[addr]) ws[addr] = { t: 's', v: '' };
+    ws[addr].s = style;
+  }
+}
+// Style the 4 branded heading rows (org title, subtitle, report title, generated) + merge them across ncols
+function xlStyleBrandHeader(ws, ncols) {
+  const last = ncols - 1;
+  ws['!merges'] = ws['!merges'] || [];
+  [0,1,2,3].forEach(r => ws['!merges'].push({ s:{r,c:0}, e:{r,c:last} }));
+  if (ws['A1']) ws['A1'].s = XL.orgTitle;
+  if (ws['A2']) ws['A2'].s = XL.orgSub;
+  if (ws['A3']) ws['A3'].s = XL.reportTtl;
+  if (ws['A4']) ws['A4'].s = XL.generated;
+  ws['!rows'] = ws['!rows'] || [];
+  ws['!rows'][0] = { hpt: 24 };
 }
 
 // ── Theme setter ──────────────────────────────────────────────
