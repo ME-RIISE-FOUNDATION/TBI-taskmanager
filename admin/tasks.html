@@ -298,12 +298,13 @@ function exportTasksGrouped(format) {
   const groups = {};
   list.forEach(t => { (groups[t.Employee_ID] = groups[t.Employee_ID] || []).push(t); });
   const orderIds = data.employees.map(e => e.Employee_ID).filter(id => groups[id]);
-  const cols = ['#', 'Task Title', 'Description', 'Priority', 'Assigned', 'Deadline', 'Days Overdue', 'Status'];
+  const cols = ['#', 'Task Title & Description', 'Priority', 'Assigned', 'Deadline', 'Days Overdue', 'Status'];
 
-  const fmtDeadline = t => Utils.formatDate(t.Deadline) + (t.Deadline_Time ? ' ' + t.Deadline_Time : '');
+  const fmtDeadline  = t => Utils.formatDate(t.Deadline) + (t.Deadline_Time ? ' ' + t.Deadline_Time : '');
+  const titleAndDesc = t => t.Description ? `${t.Task_Title}\n${t.Description}` : t.Task_Title;
   const rowFor = (t, i) => {
     const od = Utils.isOverdue(t.Deadline, t.Status);
-    return [i + 1, t.Task_Title, t.Description || '—', t.Priority, Utils.formatDate(t.Assigned_Date),
+    return [i + 1, titleAndDesc(t), t.Priority, Utils.formatDate(t.Assigned_Date),
             fmtDeadline(t), od ? Utils.daysPending(t.Deadline) + 'd' : '—', t.Status];
   };
 
@@ -318,7 +319,13 @@ function exportTasksGrouped(format) {
       aoa.push([]);
     });
     const ws = XLSX.utils.aoa_to_sheet(aoa);
-    ws['!cols'] = [{wch:5},{wch:40},{wch:50},{wch:10},{wch:14},{wch:18},{wch:13},{wch:12}];
+    ws['!cols'] = [{wch:5},{wch:70},{wch:10},{wch:14},{wch:18},{wch:13},{wch:12}];
+    // Enable text-wrap on the Title & Description column so both lines show in the cell
+    Object.keys(ws).forEach(addr => {
+      if (addr[0] === '!') return;
+      const cell = XLSX.utils.decode_cell(addr);
+      if (cell.c === 1) ws[addr].s = { alignment: { wrapText: true, vertical: 'top' } };
+    });
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Tasks');
     XLSX.writeFile(wb, 'TBI_Tasks_' + Utils.today() + '.xlsx');
@@ -337,7 +344,7 @@ function exportTasksGrouped(format) {
         styles: { fontSize: 8, cellPadding: 2 },
         headStyles: { fillColor: [10, 50, 100], textColor: 255, fontStyle: 'bold' },
         alternateRowStyles: { fillColor: [235, 244, 255] },
-        columnStyles: { 1: { cellWidth: 60 }, 2: { cellWidth: 75 } }
+        columnStyles: { 1: { cellWidth: 130 } }
       });
       y = doc.lastAutoTable.finalY + 9;
     });
