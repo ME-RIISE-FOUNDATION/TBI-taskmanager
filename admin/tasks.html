@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Task Management — TBI Task Manager</title>
+<title>Task Management — ME-RIISE FOUNDATION</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -298,12 +298,13 @@ function exportTasksGrouped(format) {
   const groups = {};
   list.forEach(t => { (groups[t.Employee_ID] = groups[t.Employee_ID] || []).push(t); });
   const orderIds = data.employees.map(e => e.Employee_ID).filter(id => groups[id]);
-  const cols = ['#', 'Task Title', 'Priority', 'Assigned', 'Deadline', 'Days Overdue', 'Status'];
+  const cols = ['#', 'Task Title', 'Description', 'Priority', 'Assigned', 'Deadline', 'Days Overdue', 'Status'];
 
+  const fmtDeadline = t => Utils.formatDate(t.Deadline) + (t.Deadline_Time ? ' ' + t.Deadline_Time : '');
   const rowFor = (t, i) => {
     const od = Utils.isOverdue(t.Deadline, t.Status);
-    return [i + 1, t.Task_Title, t.Priority, Utils.formatDate(t.Assigned_Date),
-            Utils.formatDate(t.Deadline), od ? Utils.daysPending(t.Deadline) + 'd' : '—', t.Status];
+    return [i + 1, t.Task_Title, t.Description || '—', t.Priority, Utils.formatDate(t.Assigned_Date),
+            fmtDeadline(t), od ? Utils.daysPending(t.Deadline) + 'd' : '—', t.Status];
   };
 
   if (format === 'excel') {
@@ -317,7 +318,7 @@ function exportTasksGrouped(format) {
       aoa.push([]);
     });
     const ws = XLSX.utils.aoa_to_sheet(aoa);
-    ws['!cols'] = [{wch:5},{wch:48},{wch:10},{wch:14},{wch:14},{wch:13},{wch:12}];
+    ws['!cols'] = [{wch:5},{wch:40},{wch:50},{wch:10},{wch:14},{wch:18},{wch:13},{wch:12}];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Tasks');
     XLSX.writeFile(wb, 'TBI_Tasks_' + Utils.today() + '.xlsx');
@@ -336,7 +337,7 @@ function exportTasksGrouped(format) {
         styles: { fontSize: 8, cellPadding: 2 },
         headStyles: { fillColor: [10, 50, 100], textColor: 255, fontStyle: 'bold' },
         alternateRowStyles: { fillColor: [235, 244, 255] },
-        columnStyles: { 1: { cellWidth: 110 } }
+        columnStyles: { 1: { cellWidth: 60 }, 2: { cellWidth: 75 } }
       });
       y = doc.lastAutoTable.finalY + 9;
     });

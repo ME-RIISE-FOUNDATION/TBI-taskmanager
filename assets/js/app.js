@@ -222,7 +222,7 @@ function renderShell(title, requireAdmin = false) {
     <aside class="tbi-sidebar" id="sidebar">
       <a class="sidebar-brand" href="${root}${isAdm?'admin':'employee'}/dashboard.html">
         <img src="${root}assets/images/logo.svg" alt="TBI-MCE" onerror="this.style.display='none'">
-        <div><div class="sb-title">TBI – MCE Hassan</div><div class="sb-sub">Task Manager</div></div>
+        <div><div class="sb-title">ME-RIISE FOUNDATION</div><div class="sb-sub">TBI-MCE Task Manager</div></div>
       </a>
       <nav class="sidebar-nav">${nav}</nav>
       <div class="sidebar-user">
