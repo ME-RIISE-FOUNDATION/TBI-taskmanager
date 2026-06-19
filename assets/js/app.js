@@ -70,6 +70,7 @@ function seedIfNeeded() {
 
   DB._set('approvals', []);
   DB._set('notifications', []);
+  DB._set('attendance', []);
   localStorage.setItem('tbi_initialized', '1');
 }
 
@@ -82,7 +83,11 @@ const Auth = {
   isAdmin()       { const s = this.getSession(); return s && ADMIN_ROLES.includes(s.designation); },
   login(username, password) {
     const user = DB.findOne('users', 'Username', username);
-    if (user && user.Password === password) { this.setSession(user); return true; }
+    if (user && user.Password === password) {
+      this.setSession(user);
+      Attendance.recordLogin(user.Employee_ID);
+      return true;
+    }
     return false;
   },
   logout() { sessionStorage.removeItem(this.SESSION_KEY); window.location.href = rootPath() + 'index.html'; },
@@ -94,6 +99,46 @@ const Auth = {
     if (!this.require()) return false;
     if (!this.isAdmin()) { window.location.href = rootPath() + 'employee/dashboard.html'; return false; }
     return true;
+  },
+};
+
+// ── Attendance (check-in / check-out) ─────────────────────────
+const Attendance = {
+  _dateStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); },
+  _stamp()   { const d = new Date(); return this._dateStr() + ' ' + d.toTimeString().slice(0,8); },
+  getToday(empId) {
+    const date = this._dateStr();
+    return DB.getAll('attendance').find(a => a.Employee_ID === empId && a.Date === date) || null;
+  },
+  _ensure(empId) {
+    let rec = this.getToday(empId);
+    if (!rec) {
+      rec = { Attendance_ID: Utils.generateId('ATT'), Employee_ID: empId, Date: this._dateStr(), Login_Time: '', Check_In: '', Check_Out: '' };
+      DB.append('attendance', rec);
+    }
+    return rec;
+  },
+  recordLogin(empId) {
+    if (!empId) return;
+    const rec = this._ensure(empId);
+    if (!rec.Login_Time) DB.updateById('attendance', 'Attendance_ID', rec.Attendance_ID, { Login_Time: this._stamp() });
+  },
+  checkIn(empId) {
+    const rec = this._ensure(empId);
+    if (!rec.Check_In) DB.updateById('attendance', 'Attendance_ID', rec.Attendance_ID, { Check_In: this._stamp() });
+    return this.getToday(empId);
+  },
+  checkOut(empId) {
+    const rec = this._ensure(empId);
+    DB.updateById('attendance', 'Attendance_ID', rec.Attendance_ID, { Check_Out: this._stamp() });
+    return this.getToday(empId);
+  },
+  // Returns "Xh Ym" worked between check-in and check-out, or '—'
+  workedHours(rec) {
+    if (!rec || !rec.Check_In || !rec.Check_Out) return '—';
+    const ms = new Date(rec.Check_Out.replace(' ', 'T')) - new Date(rec.Check_In.replace(' ', 'T'));
+    if (ms <= 0) return '—';
+    return `${Math.floor(ms/3600000)}h ${Math.floor(ms%3600000/60000)}m`;
   },
 };
 
@@ -208,6 +253,7 @@ function renderShell(title, requireAdmin = false) {
     <a href="${root}admin/tasks.html" class="${taskActive}"><i class="bi bi-list-task"></i> Task Management</a>
     <a href="${root}admin/employees.html" class="${act('admin','employees.html')}"><i class="bi bi-people-fill"></i> Employees</a>
     <a href="${root}admin/approvals.html" class="${act('admin','approvals.html')}"><i class="bi bi-check2-circle"></i> Approvals ${aprBadge}</a>
+    <a href="${root}admin/attendance.html" class="${act('admin','attendance.html')}"><i class="bi bi-clock-history"></i> Attendance</a>
     <div class="sidebar-section">Reports</div>
     <a href="${root}admin/analytics.html" class="${act('admin','analytics.html')}"><i class="bi bi-bar-chart-fill"></i> Analytics</a>
     <a href="${root}admin/reports.html" class="${act('admin','reports.html')}"><i class="bi bi-file-earmark-bar-graph-fill"></i> Reports</a>
