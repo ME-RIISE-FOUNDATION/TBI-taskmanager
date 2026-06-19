@@ -1,5 +1,5 @@
 /* ============================================================
-   TBI-MCE Task Manager — Main JavaScript
+   ME-RIISE FOUNDATION Task Manager — Main JavaScript
    ============================================================ */
 
 'use strict';
@@ -145,7 +145,7 @@ function exportTablePDF(tableId, title) {
   const { jsPDF } = jspdf;
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   doc.setFontSize(14); doc.setTextColor(0, 100, 180);
-  doc.text('TBI – MCE Hassan', 15, 15);
+  doc.text('ME-RIISE FOUNDATION', 15, 15);
   doc.setFontSize(11); doc.setTextColor(50, 100, 150);
   doc.text(title, 15, 22);
   doc.setFontSize(8); doc.setTextColor(120);

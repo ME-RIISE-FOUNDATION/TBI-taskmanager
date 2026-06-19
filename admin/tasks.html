@@ -328,7 +328,7 @@ function exportTasksGrouped(format) {
     });
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Tasks');
-    XLSX.writeFile(wb, 'TBI_Tasks_' + Utils.today() + '.xlsx');
+    XLSX.writeFile(wb, 'ME-RIISE_FOUNDATION_Tasks_' + Utils.today() + '.xlsx');
   } else {
     if (typeof jspdf === 'undefined') { alert('PDF library not loaded'); return; }
     const { jsPDF } = jspdf;
@@ -348,7 +348,7 @@ function exportTasksGrouped(format) {
       });
       y = doc.lastAutoTable.finalY + 9;
     });
-    doc.save('TBI_Tasks_' + Utils.today() + '.pdf');
+    doc.save('ME-RIISE_FOUNDATION_Tasks_' + Utils.today() + '.pdf');
   }
 }
 </script>
