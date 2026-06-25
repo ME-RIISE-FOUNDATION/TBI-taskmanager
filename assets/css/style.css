@@ -1075,6 +1075,23 @@ code { background: var(--theme-glow); color: var(--theme-primary); padding: .1em
   .stat-val { font-size: 1.5rem; }
   .auth-body { padding: 1.25rem 1.25rem 1.5rem; }
   .auth-header { padding: 1.75rem 1.25rem 1.25rem; }
+
+  /* Auth page: better stacking for very small screens */
+  .auth-card { margin: 0 0.75rem; max-width: calc(100% - 1.5rem); }
+  .auth-logo { width: 64px; height: 64px; margin-bottom: .75rem; }
+  .auth-title { font-size: 1.15rem; }
+
+  /* Let input groups wrap when space is tight */
+  .auth-body .input-group { flex-wrap: wrap; gap: .45rem; }
+  .auth-body .input-group .form-control { min-width: 0; flex: 1 1 auto; }
+  .auth-body .input-group .btn,
+  .auth-body .input-group .input-group-text { flex: 0 0 auto; }
+
+  /* Make primary buttons easier to tap */
+  .auth-body .btn { width: 100%; padding-top: .6rem; padding-bottom: .6rem; }
+
+  /* Slightly reduce header padding on very small devices */
+  .auth-header { padding: 1.25rem 1rem 1rem; }
 }
 
 /* ── Print ───────────────────────────────────────────────────── */
