@@ -12,23 +12,83 @@ const TASK_STATUSES = ['Pending', 'In Progress', 'Completed', 'Approved', 'Rejec
 const PRIORITIES    = ['High', 'Medium', 'Low'];
 const DESIGNATIONS  = ['CEO', 'COO', 'Software Associate', 'Finance Associate', 'Innovation Associate', 'Supporting Staff'];
 
-// ── DB (localStorage) ─────────────────────────────────────────
+// ── Server sync ───────────────────────────────────────────────
+// Served over http(s) => a PHP backend is present and is the shared source of
+// truth. Opened from file:// => fall back to a pure-localStorage dev mode.
+const SERVER_MODE = location.protocol === 'http:' || location.protocol === 'https:';
+const ENTITIES    = ['employees', 'users', 'tasks', 'approvals', 'notifications', 'attendance'];
+
+const API = {
+  url() { return rootPath() + 'api/data_api.php'; },
+  _queue: Promise.resolve(),
+  // Serialised, navigation-proof write. keepalive lets the request finish even
+  // if the page reloads/navigates immediately after a mutation.
+  push(action, entity, payload) {
+    if (!SERVER_MODE) return;
+    const body = JSON.stringify({ action, entity, ...payload });
+    this._queue = this._queue.then(() =>
+      fetch(this.url(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true })
+        .catch(err => console.error('[TBI] sync push failed', action, entity, err))
+    );
+  },
+  // Resolves once all queued writes have been sent. Await before a reload so a
+  // mutation lands on the server before the next page pulls fresh data.
+  flush() { return this._queue; },
+};
+
+// ── DB (localStorage cache, mirrored to the server) ───────────
 const DB = {
-  _get(key)       { try { return JSON.parse(localStorage.getItem('tbi_' + key) || '[]'); } catch { return []; } },
-  _set(key, data) { localStorage.setItem('tbi_' + key, JSON.stringify(data)); },
+  _get(key)            { try { return JSON.parse(localStorage.getItem('tbi_' + key) || '[]'); } catch { return []; } },
+  _setLocal(key, data) { localStorage.setItem('tbi_' + key, JSON.stringify(data)); },
+  _set(key, data)      { this._setLocal(key, data); API.push('replace', key, { data }); },
   getAll(entity)                           { return this._get(entity); },
   findOne(entity, field, value)            { return this._get(entity).find(r => r[field] === value) || null; },
   findMany(entity, field, value)           { return this._get(entity).filter(r => r[field] === value); },
-  append(entity, record)                   { const d = this._get(entity); d.push(record); this._set(entity, d); },
-  updateById(entity, idField, idVal, upd)  { this._set(entity, this._get(entity).map(r => r[idField] === idVal ? {...r, ...upd} : r)); },
-  deleteById(entity, idField, idVal)       { this._set(entity, this._get(entity).filter(r => r[idField] !== idVal)); },
+  append(entity, record)                   {
+    const d = this._get(entity); d.push(record); this._setLocal(entity, d);
+    API.push('append', entity, { record });
+  },
+  updateById(entity, idField, idVal, upd)  {
+    this._setLocal(entity, this._get(entity).map(r => r[idField] === idVal ? {...r, ...upd} : r));
+    API.push('update', entity, { idField, idVal, upd });
+  },
+  deleteById(entity, idField, idVal)       {
+    this._setLocal(entity, this._get(entity).filter(r => r[idField] !== idVal));
+    API.push('delete', entity, { idField, idVal });
+  },
+};
+
+// Pull the shared dataset from the server into the local cache. Runs once per
+// page load; pages await TBI.ready() before rendering so they show live data.
+const TBI = {
+  _ready: null,
+  ready() {
+    if (!this._ready) this._ready = this._boot();
+    return this._ready;
+  },
+  async _boot() {
+    if (!SERVER_MODE) { seedIfNeeded(); return; }
+    try {
+      const res  = await fetch(API.url() + '?action=bootstrap', { cache: 'no-store' });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || 'bootstrap failed');
+      ENTITIES.forEach(e => { if (Array.isArray(json.data[e])) DB._setLocal(e, json.data[e]); });
+    } catch (err) {
+      console.error('[TBI] server unreachable, using local cache/seed', err);
+      seedIfNeeded(true);  // degrade gracefully to a local-only dataset
+    }
+  },
 };
 
 // ── Seed ──────────────────────────────────────────────────────
-function seedIfNeeded() {
+// In server mode the backend is the source of truth, so this only runs as a
+// local fallback (force=true) when the server is unreachable. Uses _setLocal so
+// seed data is never pushed back to the server.
+function seedIfNeeded(force) {
+  if (SERVER_MODE && !force) return;
   if (localStorage.getItem('tbi_initialized')) return;
 
-  DB._set('employees', [
+  DB._setLocal('employees', [
     {"Employee_ID":"EMP_001","Name":"Dr. Geetha Kiran A",  "Designation":"CEO",                 "Email":"ceotbimeriise@mcehassan.ac.in","Phone":"+91 98765 43210","Photo_URL":"","Status":"Active"},
     {"Employee_ID":"EMP_002","Name":"Dr. Mohana Lakshmi J","Designation":"COO",                 "Email":"cootbimeriise@mcehassan.ac.in","Phone":"+91 98765 43211","Photo_URL":"","Status":"Active"},
     {"Employee_ID":"EMP_003","Name":"Mr. Darshan H D",     "Designation":"Software Associate",  "Email":"satbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43212","Photo_URL":"","Status":"Active"},
@@ -37,7 +97,7 @@ function seedIfNeeded() {
     {"Employee_ID":"EMP_006","Name":"Ms. Deeksha M S",     "Designation":"Supporting Staff",    "Email":"sstbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43215","Photo_URL":"","Status":"Active"}
   ]);
 
-  DB._set('users', [
+  DB._setLocal('users', [
     {"User_ID":"USR_001","Username":"geetha",  "Password":"Admin@123",   "Designation":"CEO",                 "Employee_ID":"EMP_001","Email":"ceotbimeriise@mcehassan.ac.in","Name":"Dr. Geetha Kiran A"},
     {"User_ID":"USR_002","Username":"mohana",  "Password":"Admin@123",   "Designation":"COO",                 "Employee_ID":"EMP_002","Email":"cootbimeriise@mcehassan.ac.in","Name":"Dr. Mohana Lakshmi J"},
     {"User_ID":"USR_003","Username":"darsha",  "Password":"Employee@123","Designation":"Software Associate",  "Employee_ID":"EMP_003","Email":"satbimeriise@mcehassan.ac.in","Name":"Mr. Darshan H D"},
@@ -46,7 +106,7 @@ function seedIfNeeded() {
     {"User_ID":"USR_006","Username":"deeksha", "Password":"Employee@123","Designation":"Supporting Staff",    "Employee_ID":"EMP_006","Email":"sstbimeriise@mcehassan.ac.in","Name":"Ms. Deeksha M S"}
   ]);
 
-  DB._set('tasks', [
+  DB._setLocal('tasks', [
     {"Task_ID":"TSK_20260604_367924","Employee_ID":"EMP_003","Task_Title":"Registration Form","Description":"Design a Professional Events Registration form for all programs ( NAIN 2.0, TBI-MCE, MRF, UBA ,RGEP , IIC )","Priority":"High","Assigned_Date":"2026-05-21","Deadline":"2026-06-04","Status":"Pending","Days_Pending":0,"Assigned_By":"Dr. Geetha Kiran A","File_URL":"","Notes":""},
     {"Task_ID":"TSK_20260604_850917","Employee_ID":"EMP_003","Task_Title":"Certificate Generate - Achal to give access to certify files. Schedule meeting with Achal + CEO","Description":"Achal to give a access to certify files. Schedule meeting with Achal + CEO to plan and complete updates","Priority":"High","Assigned_Date":"2026-05-21","Deadline":"2026-06-04","Status":"Pending","Days_Pending":0,"Assigned_By":"Dr. Geetha Kiran A","File_URL":"","Notes":""},
     {"Task_ID":"TSK_20260604_353294","Employee_ID":"EMP_003","Task_Title":"Prepare a Task Scheduler with admin access to ceomeriise@mcehassan.ac.in","Description":"It must go live from June 1. It can be a separate web page. Later we can integrate with meriise.org","Priority":"High","Assigned_Date":"2026-06-04","Deadline":"2026-06-04","Status":"Pending","Days_Pending":0,"Assigned_By":"Dr. Geetha Kiran A","File_URL":"","Notes":""},
@@ -68,9 +128,9 @@ function seedIfNeeded() {
     {"Task_ID":"TSK_20260604_018465","Employee_ID":"EMP_006","Task_Title":"DSA – Microengineering file to be prepared.","Description":"Add flyer, registration details, curriculum, week 1 details. Take details from Darshan. Get reviewed by Mona.","Priority":"Medium","Assigned_Date":"2026-06-04","Deadline":"2026-06-04","Status":"Pending","Days_Pending":0,"Assigned_By":"Dr. Geetha Kiran A","File_URL":"","Notes":""}
   ]);
 
-  DB._set('approvals', []);
-  DB._set('notifications', []);
-  DB._set('attendance', []);
+  DB._setLocal('approvals', []);
+  DB._setLocal('notifications', []);
+  DB._setLocal('attendance', []);
   localStorage.setItem('tbi_initialized', '1');
 }
 
@@ -384,11 +444,12 @@ function markNotifRead(id, el) {
 }
 
 // ── Delete task ───────────────────────────────────────────────
-function confirmDelete(taskId) {
+async function confirmDelete(taskId) {
   if (!confirm('Delete this task? This cannot be undone.')) return;
   DB.deleteById('tasks', 'Task_ID', taskId);
   DB.getAll('approvals').filter(a => a.Task_ID === taskId).forEach(a => DB.deleteById('approvals', 'Approval_ID', a.Approval_ID));
   setFlash('success', 'Task deleted.');
+  await API.flush();
   location.reload();
 }
 

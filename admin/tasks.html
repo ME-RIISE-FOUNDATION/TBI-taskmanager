@@ -25,7 +25,8 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.7.1/dist/jspdf.plugin.autotable.min.js"></script>
 <script src="../assets/js/app.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await TBI.ready();
   if (!renderShell('Task Management', true)) return;
 
   const tasks     = DB.getAll('tasks').reverse(); // newest created first
@@ -245,7 +246,7 @@ function applyFilters() {
   window.location.href = 'tasks.html?' + p.toString();
 }
 
-function updateStatus(taskId, newStatus) {
+async function updateStatus(taskId, newStatus) {
   const task = DB.findOne('tasks', 'Task_ID', taskId);
   if (!task) return;
   DB.updateById('tasks', 'Task_ID', taskId, {Status: newStatus});
@@ -261,6 +262,7 @@ function updateStatus(taskId, newStatus) {
     }
   }
   setFlash('success', `Task status updated to ${newStatus}.`);
+  await API.flush();
   location.reload();
 }
 

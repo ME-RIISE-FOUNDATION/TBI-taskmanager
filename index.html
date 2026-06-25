@@ -67,7 +67,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/app.js"></script>
 <script>
-  seedIfNeeded();
+  // Pull the shared dataset (users, etc.) from the server before any login
+  const _ready = TBI.ready();
 
   // Redirect if already logged in
   if (Auth.isLoggedIn()) {
@@ -81,7 +82,7 @@
     else { f.type = 'password'; e.className = 'bi bi-eye'; }
   });
 
-  function doLogin() {
+  async function doLogin() {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
     const area     = document.getElementById('alertArea');
@@ -90,6 +91,7 @@
       area.innerHTML = `<div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle me-1"></i>Please enter username and password.</div>`;
       return;
     }
+    await _ready;  // ensure the user list is loaded from the server first
     if (Auth.login(username, password)) {
       window.location.href = Auth.isAdmin() ? 'admin/dashboard.html' : 'employee/dashboard.html';
     } else {

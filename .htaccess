@@ -14,18 +14,25 @@ ServerSignature Off
 # ── Pretty URLs ───────────────────────────────────────────────
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /tbi_task_manager/
+    RewriteBase /
 
-    # Deny access to sensitive files
-    RewriteRule ^config/credentials\.json$  - [F,L]
-    RewriteRule ^\.env$                      - [F,L]
-    RewriteRule ^vendor/.*                   - [F,L]
-    RewriteRule ^setup/setup_sheets\.php$    - [F,L]
+    # Deny direct web access to the data store and secrets. The PHP API reads
+    # these from the filesystem, so blocking HTTP access does not break the app
+    # but does stop anyone downloading data/users.json etc. over the web.
+    RewriteRule ^data/        - [F,L]
+    RewriteRule ^config/      - [F,L]
+    RewriteRule ^\.env$       - [F,L]
+    RewriteRule ^vendor/.*    - [F,L]
 
     # Redirect http to https (uncomment in production)
     # RewriteCond %{HTTPS} off
     # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 </IfModule>
+
+# Belt-and-braces: deny serving raw credential/data files by name
+<FilesMatch "(credentials\.json|\.env)$">
+    Require all denied
+</FilesMatch>
 
 # ── Security Headers ──────────────────────────────────────────
 <IfModule mod_headers.c>

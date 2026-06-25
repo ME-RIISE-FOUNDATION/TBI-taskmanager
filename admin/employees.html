@@ -78,7 +78,8 @@
 <script>
 let _resetUserId = '';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await TBI.ready();
   if (!renderShell('Employee Management', true)) return;
 
   const tasks     = DB.getAll('tasks');
@@ -141,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
 });
 
-function addEmployee() {
+async function addEmployee() {
   const name     = document.getElementById('newName').value.trim();
   const desig    = document.getElementById('newDesig').value;
   const email    = document.getElementById('newEmail').value.trim();
@@ -164,6 +165,7 @@ function addEmployee() {
   DB.append('users', {User_ID:Utils.generateId('USR'), Username:username, Password:password, Designation:desig, Employee_ID:empId, Email:email, Name:name});
   setFlash('success', `Employee ${name} added successfully.`);
   bootstrap.Modal.getInstance(document.getElementById('addEmpModal'))?.hide();
+  await API.flush();
   location.reload();
 }
 
@@ -175,13 +177,14 @@ function openResetPwd(userId, empName) {
   new bootstrap.Modal(document.getElementById('resetPwdModal')).show();
 }
 
-function doResetPwd() {
+async function doResetPwd() {
   const newPwd  = document.getElementById('resetNewPwd').value;
   const alertEl = document.getElementById('resetPwdAlert');
   if (!newPwd || newPwd.length < 8) { alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-2">Password must be at least 8 characters.</div>`; return; }
   DB.updateById('users', 'User_ID', _resetUserId, {Password: newPwd});
   setFlash('success', 'Password reset successfully.');
   bootstrap.Modal.getInstance(document.getElementById('resetPwdModal'))?.hide();
+  await API.flush();
   location.reload();
 }
 </script>

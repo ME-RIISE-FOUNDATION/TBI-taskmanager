@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: tbi-task-manager
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SPREADSHEET_ID
+        sync: false
+      - key: GOOGLE_CREDENTIALS_BASE64
+        sync: false
+      - key: SETUP_KEY
+        sync: false
