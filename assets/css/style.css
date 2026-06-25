@@ -1075,6 +1075,59 @@ code { background: var(--theme-glow); color: var(--theme-primary); padding: .1em
   .stat-val { font-size: 1.5rem; }
   .auth-body { padding: 1.25rem 1.25rem 1.5rem; }
   .auth-header { padding: 1.75rem 1.25rem 1.25rem; }
+
+  /* Auth page: better stacking for very small screens */
+  .auth-card { margin: 0 0.75rem; max-width: calc(100% - 1.5rem); }
+  .auth-logo { width: 64px; height: 64px; margin-bottom: .75rem; }
+  .auth-title { font-size: 1.15rem; }
+
+  /* Let input groups wrap when space is tight */
+  .auth-body .input-group { flex-wrap: wrap; gap: .45rem; }
+  .auth-body .input-group .form-control { min-width: 0; flex: 1 1 auto; }
+  .auth-body .input-group .btn,
+  .auth-body .input-group .input-group-text { flex: 0 0 auto; }
+
+  /* Make primary buttons easier to tap */
+  .auth-body .btn { width: 100%; padding-top: .6rem; padding-bottom: .6rem; }
+
+  /* Slightly reduce header padding on very small devices */
+  .auth-header { padding: 1.25rem 1rem 1rem; }
+}
+
+/* Task table -> card view on small screens */
+@media (max-width: 767.98px) {
+  .table-responsive { overflow: visible; }
+  .table-responsive table thead { display: none; }
+  .table-responsive table tbody tr { display: block; margin: .5rem 0; border-radius: var(--r2); border: 1px solid rgba(255,255,255,.04); background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.02)); overflow: hidden; }
+  .table-responsive table tbody tr td { display: block; padding: .75rem 1rem; border: none; }
+
+  /* hide checkbox and index column to save space */
+  .table-responsive table tbody tr td:nth-child(1),
+  .table-responsive table tbody tr td:nth-child(2) { display: none; }
+
+  /* Task title: make prominent and keep description */
+  .table-responsive table tbody tr td:nth-child(3) { font-size: 1rem; font-weight: 600; color: var(--t1); }
+  .table-responsive table tbody tr td:nth-child(3) small { display: block; color: var(--t3); font-weight: 400; margin-top: .35rem; }
+
+  /* Meta fields shown as compact rows with labels */
+  .table-responsive table tbody tr td:nth-child(4)::before { content: 'Priority: '; font-weight:700; color: var(--t3); }
+  .table-responsive table tbody tr td:nth-child(5)::before { content: 'Assigned: '; font-weight:700; color: var(--t3); }
+  .table-responsive table tbody tr td:nth-child(6)::before { content: 'Deadline: '; font-weight:700; color: var(--t3); }
+  .table-responsive table tbody tr td:nth-child(7)::before { content: 'Overdue: '; font-weight:700; color: var(--t3); }
+  .table-responsive table tbody tr td:nth-child(8)::before { content: 'Status: '; font-weight:700; color: var(--t3); }
+
+  .table-responsive table tbody tr td:nth-child(4),
+  .table-responsive table tbody tr td:nth-child(5),
+  .table-responsive table tbody tr td:nth-child(6),
+  .table-responsive table tbody tr td:nth-child(7),
+  .table-responsive table tbody tr td:nth-child(8) {
+    color: var(--t2); font-size: .82rem; padding-top: .4rem;
+  }
+
+  /* Actions: keep buttons accessible and stacked */
+  .table-responsive table tbody tr td:nth-child(9) { padding-top: .6rem; }
+  .table-responsive table tbody tr td:nth-child(9) .d-flex { gap: .4rem; flex-wrap: wrap; }
+  .table-responsive table tbody tr td:nth-child(9) .btn { padding: .35rem .5rem; font-size: .78rem; }
 }
 
 /* ── Print ───────────────────────────────────────────────────── */
