@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const stats = Utils.employeeStats(tasks, emp.Employee_ID);
     const ini   = Utils.initials(emp.Name);
     const icon  = Utils.desigIcon(emp.Designation);
-    const pctCl = Utils.pctColor(stats.approvalPct);
+    const pctCl = Utils.pctColor(stats.completionPct);
     return `
       <div class="col-12 col-sm-6 col-lg-4">
         <a href="tasks.html?employee=${encodeURIComponent(emp.Employee_ID)}" class="emp-card text-decoration-none">
@@ -71,11 +71,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
           <div class="mt-3">
             <div class="d-flex justify-content-between mb-1">
-              <small class="text-muted">Approval Rate</small>
-              <small class="fw-600 text-${pctCl}">${stats.approvalPct}%</small>
+              <small class="text-muted">Completion Rate</small>
+              <small class="fw-600 text-${pctCl}">${stats.completionPct}%</small>
             </div>
             <div class="progress" style="height:5px">
-              <div class="progress-bar bg-${pctCl}" style="width:${stats.approvalPct}%"></div>
+              <div class="progress-bar bg-${pctCl}" style="width:${stats.completionPct}%"></div>
             </div>
           </div>
           ${stats.overdue > 0 ? `<div class="mt-2"><span class="badge bg-danger bg-opacity-10 text-danger"><i class="bi bi-exclamation-circle me-1"></i>${stats.overdue} overdue task${stats.overdue>1?'s':''}</span></div>` : ''}
@@ -167,7 +167,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     </div>
   `;
 
-  // Charts
+  // Charts — degrade gracefully if the Chart.js CDN failed to load
+  if (typeof Chart === 'undefined') {
+    document.querySelectorAll('canvas').forEach(c => {
+      if (c.parentElement) c.parentElement.innerHTML =
+        '<div class="text-muted small text-center w-100"><i class="bi bi-wifi-off me-1"></i>Chart library could not load. Check the internet connection and refresh.</div>';
+    });
+    return;
+  }
   const statusCounts = s => tasks.filter(t => t.Status === s).length;
   new Chart(document.getElementById('taskDistChart'), {
     type: 'doughnut',

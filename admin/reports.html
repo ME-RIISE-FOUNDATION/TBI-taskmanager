@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const rCompleted= filtered.filter(t=>['Completed','Approved'].includes(t.Status)).length;
   const rPending  = filtered.filter(t=>['Pending','In Progress'].includes(t.Status)).length;
   const rOverdue  = filtered.filter(t=>Utils.isOverdue(t.Deadline,t.Status)).length;
-  const rAprRate  = rTotal>0?Math.round((rApproved/rTotal)*100):0;
+  const rComplRate= rTotal>0?Math.round((rCompleted/rTotal)*100):0;
 
   const empProdRows = reportType==='employee' ? employees.map(emp => {
     const s = Utils.employeeStats(filtered, emp.Employee_ID);
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       <td class="text-success fw-600">${s.approved}</td>
       <td class="text-warning">${s.pending}</td>
       <td class="${s.overdue>0?'text-danger fw-600':''}">${s.overdue}</td>
-      <td>${s.approvalPct}%</td>
+      <td>${s.completionPct}%</td>
     </tr>`;
   }).join('') : '';
 
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     <h6 class="fw-600 mb-3">Employee Productivity Summary</h6>
     <div class="table-responsive mb-4">
       <table class="table table-bordered table-sm" id="reportTable">
-        <thead class="table-primary"><tr><th>Employee</th><th>Designation</th><th>Total</th><th>Completed</th><th>Approved</th><th>Pending</th><th>Overdue</th><th>Approval %</th></tr></thead>
+        <thead class="table-primary"><tr><th>Employee</th><th>Designation</th><th>Total</th><th>Completed</th><th>Approved</th><th>Pending</th><th>Overdue</th><th>Completion %</th></tr></thead>
         <tbody>${empProdRows}</tbody>
       </table>
     </div>` : '';
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="col-6 col-md-2 text-center"><div class="fw-700 fs-4 text-info">${rCompleted}</div><div class="small text-muted">Completed</div></div>
           <div class="col-6 col-md-2 text-center"><div class="fw-700 fs-4 text-warning">${rPending}</div><div class="small text-muted">Pending</div></div>
           <div class="col-6 col-md-2 text-center"><div class="fw-700 fs-4 text-danger">${rOverdue}</div><div class="small text-muted">Overdue</div></div>
-          <div class="col-6 col-md-2 text-center"><div class="fw-700 fs-4 text-purple">${rAprRate}%</div><div class="small text-muted">Approval Rate</div></div>
+          <div class="col-6 col-md-2 text-center"><div class="fw-700 fs-4 text-purple">${rComplRate}%</div><div class="small text-muted">Completion Rate</div></div>
         </div>
         ${empProdSection}
         <h6 class="fw-600 mb-3">Task Details (${filtered.length} tasks)</h6>

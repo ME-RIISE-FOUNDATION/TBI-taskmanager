@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const stats   = Utils.employeeStats(tasks, emp.Employee_ID);
     const ini     = Utils.initials(emp.Name);
     const user    = userByEmp[emp.Employee_ID];
-    const pctCl   = Utils.pctColor(stats.approvalPct);
+    const pctCl   = Utils.pctColor(stats.completionPct);
     const empUrl  = `tasks.html?employee=${encodeURIComponent(emp.Employee_ID)}`;
     return `
       <div class="col-12 col-md-6 col-xl-4">
@@ -119,10 +119,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
           <div class="mb-3">
             <div class="d-flex justify-content-between mb-1">
-              <small class="text-muted">Approval Rate</small>
-              <small class="fw-600">${stats.approvalPct}%</small>
+              <small class="text-muted">Completion Rate</small>
+              <small class="fw-600">${stats.completionPct}%</small>
             </div>
-            <div class="progress" style="height:5px"><div class="progress-bar bg-${pctCl}" style="width:${stats.approvalPct}%"></div></div>
+            <div class="progress" style="height:5px"><div class="progress-bar bg-${pctCl}" style="width:${stats.completionPct}%"></div></div>
           </div>
           <div class="d-flex gap-2" onclick="event.stopPropagation()">
             <a href="${empUrl}" class="btn btn-sm btn-outline-primary flex-fill"><i class="bi bi-list-task me-1"></i>Tasks</a>

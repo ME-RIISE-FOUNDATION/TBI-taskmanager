@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tasks   = DB.findMany('tasks', 'Employee_ID', myEmpId);
   const stats   = Utils.employeeStats(tasks, myEmpId);
   const ini     = Utils.initials(emp.Name || '');
-  const pctCl   = Utils.pctColor(stats.approvalPct);
+  const pctCl   = Utils.pctColor(stats.completionPct);
 
   document.getElementById('pageContent').innerHTML = `
     <h4 class="fw-700 mb-4"><i class="bi bi-person-circle me-2 text-primary"></i>My Profile</h4>
@@ -53,10 +53,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="row g-2 text-center mb-3">
               <div class="col-4"><div class="fw-700 text-primary">${stats.total}</div><div class="text-muted" style="font-size:.7rem">Total</div></div>
               <div class="col-4"><div class="fw-700 text-success">${stats.approved}</div><div class="text-muted" style="font-size:.7rem">Approved</div></div>
-              <div class="col-4"><div class="fw-700 text-purple">${stats.approvalPct}%</div><div class="text-muted" style="font-size:.7rem">Rate</div></div>
+              <div class="col-4"><div class="fw-700 text-purple">${stats.completionPct}%</div><div class="text-muted" style="font-size:.7rem">Rate</div></div>
             </div>
-            <div class="progress" style="height:7px"><div class="progress-bar bg-${pctCl}" style="width:${stats.approvalPct}%"></div></div>
-            <div class="text-muted small mt-1">Approval Rate</div>
+            <div class="progress" style="height:7px"><div class="progress-bar bg-${pctCl}" style="width:${stats.completionPct}%"></div></div>
+            <div class="text-muted small mt-1">Completion Rate</div>
           </div>
         </div>
       </div>

@@ -34,7 +34,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const completed    = tasks.filter(t => ['Completed','Approved'].includes(t.Status)).length;
   const pending      = tasks.filter(t => ['Pending','In Progress'].includes(t.Status)).length;
   const overdue      = tasks.filter(t => Utils.isOverdue(t.Deadline, t.Status)).length;
-  const approvalRate = totalTasks > 0 ? Math.round((approved/totalTasks)*100) : 0;
+  const approvalRate   = totalTasks > 0 ? Math.round((approved/totalTasks)*100) : 0;
+  const completionRate = totalTasks > 0 ? Math.round((completed/totalTasks)*100) : 0;
 
   // Monthly data (last 6 months)
   const monthlyData = [];
@@ -51,7 +52,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   const ranking = employees.map(emp => ({
     name: emp.Name, designation: emp.Designation,
     stats: Utils.employeeStats(tasks, emp.Employee_ID)
-  })).sort((a,b) => b.stats.approvalPct - a.stats.approvalPct);
+  })).sort((a,b) => b.stats.completionPct - a.stats.completionPct || b.stats.completed - a.stats.completed);
+
+  // Employee of the Month — top performer for the current calendar month
+  const now      = new Date();
+  const moKey    = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const moLabel  = now.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const moTasks  = tasks.filter(t => (t.Assigned_Date||'').slice(0,7) === moKey);
+  const eom = employees
+    .map(emp => ({ emp, s: Utils.employeeStats(moTasks, emp.Employee_ID) }))
+    .filter(x => x.s.total > 0)
+    .sort((a,b) => b.s.completionPct - a.s.completionPct || b.s.completed - a.s.completed)[0];
 
   const medals = ['🥇','🥈','🥉'];
   const rankRows = ranking.map((r,i) => `
@@ -66,9 +77,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       <td>
         <div class="d-flex align-items-center gap-2">
           <div class="progress flex-fill" style="height:6px">
-            <div class="progress-bar bg-${Utils.pctColor(r.stats.approvalPct)}" style="width:${r.stats.approvalPct}%"></div>
+            <div class="progress-bar bg-${Utils.pctColor(r.stats.completionPct)}" style="width:${r.stats.completionPct}%"></div>
           </div>
-          <span class="fw-600 small">${r.stats.approvalPct}%</span>
+          <span class="fw-600 small">${r.stats.completionPct}%</span>
         </div>
       </td>
     </tr>`).join('');
@@ -79,13 +90,33 @@ document.addEventListener('DOMContentLoaded', async () => {
       <span class="small text-muted">Real-time data</span>
     </div>
 
+    ${eom ? `
+    <div class="card border-0 shadow-sm mb-4" style="background:linear-gradient(135deg, rgba(250,204,21,.14), rgba(96,165,250,.10)); border-left:4px solid #facc15!important">
+      <div class="card-body d-flex align-items-center flex-wrap gap-3">
+        <div class="display-6">🏆</div>
+        <div class="flex-fill">
+          <div class="text-uppercase small fw-700 text-warning" style="letter-spacing:.06em">Employee of the Month — ${Utils.esc(moLabel)}</div>
+          <div class="fw-700 fs-5">${Utils.esc(eom.emp.Name)}</div>
+          <div class="text-muted small">${Utils.esc(eom.emp.Designation)}</div>
+        </div>
+        <div class="text-center px-3">
+          <div class="fw-700 fs-4 text-${Utils.pctColor(eom.s.completionPct)}">${eom.s.completionPct}%</div>
+          <div class="small text-muted">Completion Rate</div>
+        </div>
+        <div class="text-center px-3 border-start">
+          <div class="fw-700 fs-4 text-success">${eom.s.completed}/${eom.s.total}</div>
+          <div class="small text-muted">Tasks Done</div>
+        </div>
+      </div>
+    </div>` : ''}
+
     <div class="row g-3 mb-4">
       <div class="col-6 col-lg-2"><div class="stat-card border-start border-primary border-4 text-center"><div class="stat-val text-primary">${totalTasks}</div><div class="stat-lbl">Total Tasks</div></div></div>
       <div class="col-6 col-lg-2"><div class="stat-card border-start border-success border-4 text-center"><div class="stat-val text-success">${approved}</div><div class="stat-lbl">Approved</div></div></div>
       <div class="col-6 col-lg-2"><div class="stat-card border-start border-info border-4 text-center"><div class="stat-val text-info">${completed}</div><div class="stat-lbl">Completed</div></div></div>
       <div class="col-6 col-lg-2"><div class="stat-card border-start border-warning border-4 text-center"><div class="stat-val text-warning">${pending}</div><div class="stat-lbl">Pending</div></div></div>
       <div class="col-6 col-lg-2"><div class="stat-card border-start border-danger border-4 text-center"><div class="stat-val text-danger">${overdue}</div><div class="stat-lbl">Overdue</div></div></div>
-      <div class="col-6 col-lg-2"><div class="stat-card border-start border-4 text-center" style="border-left-color:var(--c-purple)!important"><div class="stat-val text-purple">${approvalRate}%</div><div class="stat-lbl">Approval Rate</div></div></div>
+      <div class="col-6 col-lg-2"><div class="stat-card border-start border-4 text-center" style="border-left-color:var(--c-purple)!important"><div class="stat-val text-purple">${completionRate}%</div><div class="stat-lbl">Completion Rate</div></div></div>
     </div>
 
     <div class="row g-3 mb-4">
@@ -123,7 +154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-hover mb-0">
-            <thead class="table-light"><tr><th>#</th><th>Employee</th><th>Designation</th><th>Total</th><th>Completed</th><th>Pending</th><th>Overdue</th><th>Approval %</th></tr></thead>
+            <thead class="table-light"><tr><th>#</th><th>Employee</th><th>Designation</th><th>Total</th><th>Completed</th><th>Pending</th><th>Overdue</th><th>Completion %</th></tr></thead>
             <tbody>${rankRows}</tbody>
           </table>
         </div>
@@ -131,7 +162,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     </div>
   `;
 
-  // Charts
+  // Charts — degrade gracefully if the Chart.js CDN failed to load
+  if (typeof Chart === 'undefined') {
+    document.querySelectorAll('canvas').forEach(c => {
+      if (c.parentElement) c.parentElement.innerHTML =
+        '<div class="text-muted small text-center w-100"><i class="bi bi-wifi-off me-1"></i>Chart library could not load. Check the internet connection and refresh.</div>';
+    });
+    return;
+  }
   new Chart(document.getElementById('monthlyChart'), {
     type:'line',
     data:{

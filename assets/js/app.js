@@ -259,8 +259,9 @@ const Utils = {
     const pending   = mine.filter(t => ['Pending','In Progress'].includes(t.Status)).length;
     const rejected  = mine.filter(t => t.Status === 'Rejected').length;
     const overdue   = mine.filter(t => this.isOverdue(t.Deadline, t.Status)).length;
-    const approvalPct = total > 0 ? Math.round((approved / total) * 100) : 0;
-    return {total, completed, approved, pending, rejected, overdue, approvalPct};
+    const approvalPct   = total > 0 ? Math.round((approved / total) * 100) : 0;
+    const completionPct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return {total, completed, approved, pending, rejected, overdue, approvalPct, completionPct};
   },
   pctColor(pct) { return pct >= 70 ? 'success' : pct >= 40 ? 'warning' : 'danger'; },
   desigIcon(d) {
