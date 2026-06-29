@@ -168,7 +168,7 @@ function submitComplete() {
     return;
   }
 
-  DB.updateById('tasks', 'Task_ID', _completeTaskId, {Status:'Completed', Notes:notes});
+  DB.updateById('tasks', 'Task_ID', _completeTaskId, {Status:'Completed', Notes:notes, Completed_Date: task.Completed_Date || Utils.today()});
   DB.append('approvals', {
     Approval_ID: Utils.generateId('APR'), Task_ID: _completeTaskId,
     Employee_ID: session.employee_id, Status: 'Pending',

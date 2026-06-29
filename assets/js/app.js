@@ -236,6 +236,13 @@ const Utils = {
     if (['Approved','Completed','Rejected'].includes(status)) return false;
     return this.daysPending(deadline) > 0;
   },
+  daysBetween(from, to) {
+    if (!from || !to) return null;
+    const a = new Date(from); a.setHours(0,0,0,0);
+    const b = new Date(to);   b.setHours(0,0,0,0);
+    if (isNaN(a) || isNaN(b)) return null;
+    return Math.max(0, Math.round((b - a) / 86400000));
+  },
   priorityBadge(p) {
     const map = {High:'danger', Medium:'warning', Low:'success'};
     return `<span class="badge bg-${map[p]||'secondary'}">${this.esc(p)}</span>`;
