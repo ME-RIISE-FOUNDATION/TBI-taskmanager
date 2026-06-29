@@ -298,6 +298,26 @@ function showFlash(type, msg) {
   setTimeout(() => area.querySelector('.btn-close')?.click(), 5000);
 }
 
+// ── Completion-date backfill ──────────────────────────────────
+// Tasks completed before completion-date tracking existed have no
+// Completed_Date. Derive it once from the matching approval submission date
+// (when the task was actually submitted); fall back to the deadline so
+// month-wise and "Completed Days" views are never blank. Idempotent.
+function backfillCompletedDates() {
+  const submittedBy = {};
+  DB.getAll('approvals').forEach(a => {
+    const d = (a.Submission_Date || a.Approval_Date || '').slice(0, 10);
+    if (!d) return;
+    if (!submittedBy[a.Task_ID] || d < submittedBy[a.Task_ID]) submittedBy[a.Task_ID] = d;
+  });
+  DB.getAll('tasks').forEach(t => {
+    if (!['Completed','Approved'].includes(t.Status)) return;
+    if (t.Completed_Date) return;
+    const date = submittedBy[t.Task_ID] || (t.Deadline || '').slice(0, 10);
+    if (date) DB.updateById('tasks', 'Task_ID', t.Task_ID, { Completed_Date: date });
+  });
+}
+
 // ── Sidebar & Topbar rendering ────────────────────────────────
 function renderShell(title, requireAdmin = false) {
   seedIfNeeded();
@@ -323,6 +343,7 @@ function renderShell(title, requireAdmin = false) {
     <a href="${root}admin/approvals.html" class="${act('admin','approvals.html')}"><i class="bi bi-check2-circle"></i> Approvals ${aprBadge}</a>
     <a href="${root}admin/attendance.html" class="${act('admin','attendance.html')}"><i class="bi bi-clock-history"></i> Attendance</a>
     <div class="sidebar-section">Reports</div>
+    <a href="${root}admin/monthly.html" class="${act('admin','monthly.html')}"><i class="bi bi-calendar3"></i> Monthly View</a>
     <a href="${root}admin/analytics.html" class="${act('admin','analytics.html')}"><i class="bi bi-bar-chart-fill"></i> Analytics</a>
     <a href="${root}admin/reports.html" class="${act('admin','reports.html')}"><i class="bi bi-file-earmark-bar-graph-fill"></i> Reports</a>
   ` : `

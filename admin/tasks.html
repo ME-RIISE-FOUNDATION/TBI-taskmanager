@@ -258,26 +258,6 @@ function applyFilters() {
   window.location.href = 'tasks.html?' + p.toString();
 }
 
-// One-time backfill: completed/approved tasks marked before completion-date
-// tracking existed have no Completed_Date. Derive it from the matching approval
-// submission date (when the task was actually submitted); fall back to the
-// approval/deadline date so the "Completed Days" column is never blank.
-function backfillCompletedDates() {
-  const approvals = DB.getAll('approvals');
-  const submittedBy = {};
-  approvals.forEach(a => {
-    const d = (a.Submission_Date || a.Approval_Date || '').slice(0, 10);
-    if (!d) return;
-    if (!submittedBy[a.Task_ID] || d < submittedBy[a.Task_ID]) submittedBy[a.Task_ID] = d;
-  });
-  DB.getAll('tasks').forEach(t => {
-    if (!['Completed','Approved'].includes(t.Status)) return;
-    if (t.Completed_Date) return;
-    const date = submittedBy[t.Task_ID] || (t.Deadline || '').slice(0, 10);
-    if (date) DB.updateById('tasks', 'Task_ID', t.Task_ID, { Completed_Date: date });
-  });
-}
-
 async function updateStatus(taskId, newStatus) {
   const task = DB.findOne('tasks', 'Task_ID', taskId);
   if (!task) return;
