@@ -104,8 +104,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const renderTaskRow = (t, n) => {
     const od   = Utils.isOverdue(t.Deadline, t.Status);
-    const days = Utils.daysPending(t.Deadline);
     const isDone = ['Completed','Approved'].includes(t.Status);
+    // Days overdue freezes at the completion date once a task is done,
+    // otherwise it keeps counting up to today.
+    const days = isDone
+      ? (t.Completed_Date ? Utils.daysBetween(t.Deadline, t.Completed_Date) : 0)
+      : Utils.daysPending(t.Deadline);
     const completedDays = isDone && t.Completed_Date ? Utils.daysBetween(t.Assigned_Date, t.Completed_Date) : null;
     const completedCell = completedDays === null
       ? '<span class="text-muted">—</span>'
@@ -339,11 +343,13 @@ function exportTasksGrouped(format) {
   const fmtDeadline  = t => Utils.formatDate(t.Deadline) + (t.Deadline_Time ? ' ' + t.Deadline_Time : '');
   const titleAndDesc = t => t.Description ? `${t.Task_Title}\n${t.Description}` : t.Task_Title;
   const rowFor = (t, i) => {
-    const od = Utils.isOverdue(t.Deadline, t.Status);
     const isDone = ['Completed','Approved'].includes(t.Status);
+    const overdue = isDone
+      ? (t.Completed_Date ? Utils.daysBetween(t.Deadline, t.Completed_Date) : 0)
+      : Utils.daysPending(t.Deadline);
     const cd = isDone && t.Completed_Date ? Utils.daysBetween(t.Assigned_Date, t.Completed_Date) : null;
     return [i + 1, titleAndDesc(t), t.Priority, Utils.formatDate(t.Assigned_Date),
-            fmtDeadline(t), od ? Utils.daysPending(t.Deadline) + 'd' : '—', t.Status,
+            fmtDeadline(t), overdue > 0 ? overdue + 'd' : '—', t.Status,
             cd === null ? '—' : cd + 'd'];
   };
 
