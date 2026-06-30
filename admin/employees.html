@@ -162,10 +162,15 @@ async function addEmployee() {
 
   const empId = Utils.generateId('EMP');
   DB.append('employees', {Employee_ID:empId, Name:name, Designation:desig, Email:email, Phone:phone, Photo_URL:photo, Status:'Active'});
-  DB.append('users', {User_ID:Utils.generateId('USR'), Username:username, Password:password, Designation:desig, Employee_ID:empId, Email:email, Name:name});
-  setFlash('success', `Employee ${name} added successfully.`);
+  // Create the user without any password, then set the hash server-side so the
+  // cleartext password is never stored in localStorage or the sync queue.
+  DB.append('users', {User_ID:Utils.generateId('USR'), Username:username, Designation:desig, Employee_ID:empId, Email:email, Name:name});
+  await API.flush();                                   // make sure the user row reaches the server first
+  const r = await API.setPassword(username, password); // admin reset (no current password required)
+  setFlash(r && r.ok ? 'success' : 'warning',
+    r && r.ok ? `Employee ${name} added successfully.`
+              : `Employee ${name} added, but setting the password failed (${(r && r.error) || 'server offline'}). Use Reset Password.`);
   bootstrap.Modal.getInstance(document.getElementById('addEmpModal'))?.hide();
-  await API.flush();
   location.reload();
 }
 
@@ -181,10 +186,12 @@ async function doResetPwd() {
   const newPwd  = document.getElementById('resetNewPwd').value;
   const alertEl = document.getElementById('resetPwdAlert');
   if (!newPwd || newPwd.length < 8) { alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-2">Password must be at least 8 characters.</div>`; return; }
-  DB.updateById('users', 'User_ID', _resetUserId, {Password: newPwd});
+  const u = DB.findOne('users', 'User_ID', _resetUserId);
+  if (!u) { alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-2">User not found.</div>`; return; }
+  const r = await API.setPassword(u.Username, newPwd);   // admin reset, hashed server-side
+  if (!r || !r.ok) { alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-2">${(r && r.error) || 'Could not reset password (server offline).'}</div>`; return; }
   setFlash('success', 'Password reset successfully.');
   bootstrap.Modal.getInstance(document.getElementById('resetPwdModal'))?.hide();
-  await API.flush();
   location.reload();
 }
 </script>

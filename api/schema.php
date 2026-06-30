@@ -7,7 +7,7 @@
 
 const TBI_ENTITIES = [
     'employees'     => ['Employee_ID', 'Name', 'Designation', 'Email', 'Phone', 'Photo_URL', 'Status'],
-    'users'         => ['User_ID', 'Username', 'Password', 'Designation', 'Employee_ID', 'Email', 'Name'],
+    'users'         => ['User_ID', 'Username', 'Password_Hash', 'Designation', 'Employee_ID', 'Email', 'Name'],
     'tasks'         => ['Task_ID', 'Employee_ID', 'Task_Title', 'Description', 'Priority', 'Assigned_Date', 'Deadline', 'Status', 'Days_Pending', 'Assigned_By', 'File_URL', 'Notes'],
     'approvals'     => ['Approval_ID', 'Task_ID', 'Employee_ID', 'Status', 'Approved_By', 'Comments', 'Approval_Date', 'Submission_Date'],
     'notifications' => ['Notif_ID', 'User_ID', 'Message', 'Type', 'Read_Status', 'Created_At'],

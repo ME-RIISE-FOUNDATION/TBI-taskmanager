@@ -119,12 +119,12 @@ This creates all sheets and sample data automatically.
 
 | Role | Username | Password |
 |------|----------|----------|
-| CEO Admin | `geetha` | `Admin@123` |
-| COO Admin | `mohana` | `Admin@123` |
-| Software | `darshan` | `Employee@123` |
-| Finance | `ramya` | `Employee@123` |
-| Innovation | `madhurya` | `Employee@123` |
-| Support | `deeksha` | `Employee@123` |
+| CEO Admin | `geetha` | `(set by admin)` |
+| COO Admin | `mohana` | `(set by admin)` |
+| Software | `darshan` | `(set by admin)` |
+| Finance | `ramya` | `(set by admin)` |
+| Innovation | `madhurya` | `(set by admin)` |
+| Support | `deeksha` | `(set by admin)` |
 
 **Change all passwords immediately after first login!**
 

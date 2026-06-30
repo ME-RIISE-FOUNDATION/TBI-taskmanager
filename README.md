@@ -116,13 +116,13 @@ location /tbi_task_manager {
 
 | Role     | Username | Password      |
 |----------|----------|---------------|
-| Admin    | admin    | Admin@123     |
-| CEO      | rajesh   | Admin@123     |
-| COO      | priya    | Admin@123     |
-| Employee | arun     | Employee@123  |
-| Employee | kavya    | Employee@123  |
-| Employee | suresh   | Employee@123  |
-| Employee | mahesh   | Employee@123  |
+| Admin    | admin    | (set by admin)     |
+| CEO      | rajesh   | (set by admin)     |
+| COO      | priya    | (set by admin)     |
+| Employee | arun     | (set by admin)  |
+| Employee | kavya    | (set by admin)  |
+| Employee | suresh   | (set by admin)  |
+| Employee | mahesh   | (set by admin)  |
 
 > Change all passwords immediately after first login.
 

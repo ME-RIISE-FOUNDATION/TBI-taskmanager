@@ -70,6 +70,25 @@ const API = {
   // Resolves once a send attempt has finished (queue empty, or blocked on error).
   // Check pending() afterwards to know whether everything actually synced.
   flush() { return this.drain(); },
+
+  // ── Credential calls — direct request/response, never queued or cached, so a
+  // cleartext password is never written to localStorage. ──────────────────────
+  async login(username, password) {
+    const res = await fetch(this.url(), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'login', username, password }),
+    });
+    return res.json();   // { ok, user } | { ok:false, error }
+  },
+  async setPassword(username, newPassword, currentPassword) {
+    const payload = { action: 'set_password', username, newPassword };
+    if (currentPassword !== undefined) payload.currentPassword = currentPassword;
+    const res = await fetch(this.url(), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return res.json();   // { ok } | { ok:false, error }
+  },
 };
 
 // ── DB (localStorage cache, mirrored to the server) ───────────
@@ -143,13 +162,16 @@ function seedIfNeeded(force) {
     {"Employee_ID":"EMP_006","Name":"Ms. Deeksha M S",     "Designation":"Supporting Staff",    "Email":"sstbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43215","Photo_URL":"","Status":"Active"}
   ]);
 
+  // DEV/OFFLINE SEED ONLY (file:// fallback). Real auth runs server-side against
+  // bcrypt hashes in data/users.json — never put real passwords here. The
+  // placeholder below only lets the app open when there is no backend.
   DB._setLocal('users', [
-    {"User_ID":"USR_001","Username":"geetha",  "Password":"Admin@123",   "Designation":"CEO",                 "Employee_ID":"EMP_001","Email":"ceotbimeriise@mcehassan.ac.in","Name":"Dr. Geetha Kiran A"},
-    {"User_ID":"USR_002","Username":"mohana",  "Password":"Admin@123",   "Designation":"COO",                 "Employee_ID":"EMP_002","Email":"cootbimeriise@mcehassan.ac.in","Name":"Dr. Mohana Lakshmi J"},
-    {"User_ID":"USR_003","Username":"darsha",  "Password":"Employee@123","Designation":"Software Associate",  "Employee_ID":"EMP_003","Email":"satbimeriise@mcehassan.ac.in","Name":"Mr. Darshan H D"},
-    {"User_ID":"USR_004","Username":"ramya",   "Password":"Employee@123","Designation":"Finance Associate",   "Employee_ID":"EMP_004","Email":"fatbimeriise@mcehassan.ac.in","Name":"Miss. Ramya K V"},
-    {"User_ID":"USR_005","Username":"madhurya","Password":"Employee@123","Designation":"Innovation Associate","Employee_ID":"EMP_005","Email":"iatbimeriise@mcehassan.ac.in","Name":"Ms. Madhurya H V"},
-    {"User_ID":"USR_006","Username":"deeksha", "Password":"Employee@123","Designation":"Supporting Staff",    "Employee_ID":"EMP_006","Email":"sstbimeriise@mcehassan.ac.in","Name":"Ms. Deeksha M S"}
+    {"User_ID":"USR_001","Username":"geetha",  "Password":"changeme123","Designation":"CEO",                 "Employee_ID":"EMP_001","Email":"ceotbimeriise@mcehassan.ac.in","Name":"Dr. Geetha Kiran A"},
+    {"User_ID":"USR_002","Username":"mohana",  "Password":"changeme123","Designation":"COO",                 "Employee_ID":"EMP_002","Email":"cootbimeriise@mcehassan.ac.in","Name":"Dr. Mohana Lakshmi J"},
+    {"User_ID":"USR_003","Username":"darsha",  "Password":"changeme123","Designation":"Software Associate",  "Employee_ID":"EMP_003","Email":"satbimeriise@mcehassan.ac.in","Name":"Mr. Darshan H D"},
+    {"User_ID":"USR_004","Username":"ramya",   "Password":"changeme123","Designation":"Finance Associate",   "Employee_ID":"EMP_004","Email":"fatbimeriise@mcehassan.ac.in","Name":"Miss. Ramya K V"},
+    {"User_ID":"USR_005","Username":"madhurya","Password":"changeme123","Designation":"Innovation Associate","Employee_ID":"EMP_005","Email":"iatbimeriise@mcehassan.ac.in","Name":"Ms. Madhurya H V"},
+    {"User_ID":"USR_006","Username":"deeksha", "Password":"changeme123","Designation":"Supporting Staff",    "Employee_ID":"EMP_006","Email":"sstbimeriise@mcehassan.ac.in","Name":"Ms. Deeksha M S"}
   ]);
 
   DB._setLocal('tasks', [
@@ -187,7 +209,24 @@ const Auth = {
   setSession(u)   { sessionStorage.setItem(this.SESSION_KEY, JSON.stringify({user_id:u.User_ID, username:u.Username, name:u.Name, designation:u.Designation, employee_id:u.Employee_ID, email:u.Email})); },
   isLoggedIn()    { return !!this.getSession(); },
   isAdmin()       { const s = this.getSession(); return s && ADMIN_ROLES.includes(s.designation); },
-  login(username, password) {
+  // Server verifies the bcrypt hash and returns a user record with no password.
+  // Falls back to a local compare only in offline/file:// dev mode.
+  async login(username, password) {
+    if (SERVER_MODE) {
+      try {
+        const r = await API.login(username, password);
+        if (r && r.ok && r.user) {
+          this.setSession(r.user);
+          Attendance.recordLogin(r.user.Employee_ID);
+          return true;
+        }
+        return false;
+      } catch (err) {
+        console.error('[TBI] login request failed', err);
+        return false;
+      }
+    }
+    // Dev fallback (file://): seed stores a placeholder Password.
     const user = DB.findOne('users', 'Username', username);
     if (user && user.Password === password) {
       this.setSession(user);

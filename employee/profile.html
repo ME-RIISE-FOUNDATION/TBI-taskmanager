@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   `;
 });
 
-function changePassword() {
+async function changePassword() {
   const session = Auth.getSession();
   const user    = DB.findOne('users', 'Employee_ID', session.employee_id);
   const current = document.getElementById('currentPwd').value;
@@ -109,8 +109,8 @@ function changePassword() {
   const confirm = document.getElementById('confirmPwd').value;
   const alertEl = document.getElementById('pwdAlert');
 
-  if (!user || user.Password !== current) {
-    alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-3">Current password is incorrect.</div>`; return;
+  if (!user) {
+    alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-3">Your account could not be found.</div>`; return;
   }
   if (newPwd.length < 8) {
     alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-3">New password must be at least 8 characters.</div>`; return;
@@ -118,7 +118,11 @@ function changePassword() {
   if (newPwd !== confirm) {
     alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-3">New passwords do not match.</div>`; return;
   }
-  DB.updateById('users', 'User_ID', user.User_ID, {Password: newPwd});
+  // The current password is verified server-side against the bcrypt hash.
+  const r = await API.setPassword(user.Username, newPwd, current);
+  if (!r || !r.ok) {
+    alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-3">${(r && r.error) || 'Could not change password (server offline).'}</div>`; return;
+  }
   alertEl.innerHTML = `<div class="alert alert-success py-2 small mb-3">Password changed successfully.</div>`;
   document.getElementById('currentPwd').value = '';
   document.getElementById('newPwd').value = '';
