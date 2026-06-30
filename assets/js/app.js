@@ -197,8 +197,8 @@ function seedIfNeeded(force) {
   if (localStorage.getItem('tbi_initialized')) return;
 
   DB._setLocal('employees', [
-    {"Employee_ID":"EMP_001","Name":"Dr. Geetha Kiran A",  "Designation":"CEO",                 "Email":"ceotbimeriise@mcehassan.ac.in","Phone":"+91 98765 43210","Photo_URL":"","Status":"Active"},
-    {"Employee_ID":"EMP_002","Name":"Dr. Mohana Lakshmi J","Designation":"COO",                 "Email":"cootbimeriise@mcehassan.ac.in","Phone":"+91 98765 43211","Photo_URL":"","Status":"Active"},
+    {"Employee_ID":"EMP_001","Name":"Dr. Geetha Kiran A",  "Designation":"CEO",                 "Email":"ceomeriise@mcehassan.ac.in","Phone":"+91 98765 43210","Photo_URL":"","Status":"Active"},
+    {"Employee_ID":"EMP_002","Name":"Dr. Mohana Lakshmi J","Designation":"COO",                 "Email":"coomeriise@mcehassan.ac.in","Phone":"+91 98765 43211","Photo_URL":"","Status":"Active"},
     {"Employee_ID":"EMP_003","Name":"Mr. Darshan H D",     "Designation":"Software Associate",  "Email":"satbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43212","Photo_URL":"","Status":"Active"},
     {"Employee_ID":"EMP_004","Name":"Miss. Ramya K V",     "Designation":"Finance Associate",   "Email":"fatbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43213","Photo_URL":"","Status":"Active"},
     {"Employee_ID":"EMP_005","Name":"Ms. Madhurya H V",    "Designation":"Innovation Associate","Email":"iatbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43214","Photo_URL":"","Status":"Active"},
@@ -209,8 +209,8 @@ function seedIfNeeded(force) {
   // bcrypt hashes in data/users.json — never put real passwords here. The
   // placeholder below only lets the app open when there is no backend.
   DB._setLocal('users', [
-    {"User_ID":"USR_001","Username":"geetha",  "Password":"changeme123","Designation":"CEO",                 "Employee_ID":"EMP_001","Email":"ceotbimeriise@mcehassan.ac.in","Name":"Dr. Geetha Kiran A"},
-    {"User_ID":"USR_002","Username":"mohana",  "Password":"changeme123","Designation":"COO",                 "Employee_ID":"EMP_002","Email":"cootbimeriise@mcehassan.ac.in","Name":"Dr. Mohana Lakshmi J"},
+    {"User_ID":"USR_001","Username":"geetha",  "Password":"changeme123","Designation":"CEO",                 "Employee_ID":"EMP_001","Email":"ceomeriise@mcehassan.ac.in","Name":"Dr. Geetha Kiran A"},
+    {"User_ID":"USR_002","Username":"mohana",  "Password":"changeme123","Designation":"COO",                 "Employee_ID":"EMP_002","Email":"coomeriise@mcehassan.ac.in","Name":"Dr. Mohana Lakshmi J"},
     {"User_ID":"USR_003","Username":"darsha",  "Password":"changeme123","Designation":"Software Associate",  "Employee_ID":"EMP_003","Email":"satbimeriise@mcehassan.ac.in","Name":"Mr. Darshan H D"},
     {"User_ID":"USR_004","Username":"ramya",   "Password":"changeme123","Designation":"Finance Associate",   "Employee_ID":"EMP_004","Email":"fatbimeriise@mcehassan.ac.in","Name":"Miss. Ramya K V"},
     {"User_ID":"USR_005","Username":"madhurya","Password":"changeme123","Designation":"Innovation Associate","Employee_ID":"EMP_005","Email":"iatbimeriise@mcehassan.ac.in","Name":"Ms. Madhurya H V"},
