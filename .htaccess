@@ -30,7 +30,7 @@ ServerSignature Off
 </IfModule>
 
 # Belt-and-braces: deny serving raw credential/data files by name
-<FilesMatch "(credentials\.json|\.env)$">
+<FilesMatch "(credentials\.json|database\.php|\.env)$">
     Require all denied
 </FilesMatch>
 

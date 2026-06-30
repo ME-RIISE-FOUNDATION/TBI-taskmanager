@@ -32,6 +32,38 @@ A complete web-based Task Management and Monitoring System with Google Sheets as
 
 ---
 
+## Hostinger + MySQL Setup (recommended for live hosting)
+
+The app ships with three interchangeable storage backends behind one API —
+**MySQL**, Google Sheets, and a zero-config JSON-file store. It auto-selects
+MySQL as soon as you provide credentials; until then it keeps using the JSON
+files, so nothing breaks before you configure the database. No front-end or API
+changes are needed — every dashboard reads and writes the same database, so they
+all stay in sync.
+
+1. **Create the database** — hPanel → *Databases → MySQL Databases*. Create a
+   database and a user, then attach the user to the database. Note the full
+   database name, user, and password (host is `localhost` on Hostinger).
+
+2. **Add credentials** — copy `config/database.sample.php` to
+   `config/database.php` and fill in those four values. This file is gitignored,
+   so your password is never committed.
+
+3. **Create tables + import existing data** — visit once in a browser:
+   ```
+   https://YOUR-DOMAIN/setup/migrate_to_mysql.php?key=TBI_SETUP_2024
+   ```
+   (`TBI_SETUP_2024` is the default `SETUP_KEY` in `config/config.php` — change
+   it for production.) This creates one table per entity and imports the current
+   `data/*.json` records. It is safe to re-run.
+
+4. **Lock it down** — delete or block `setup/migrate_to_mysql.php` afterwards.
+
+That's it — the app is now backed by MySQL. Each entity is a table with a real
+column per field plus an `extra_json` catch-all, so no data is ever dropped.
+
+---
+
 ## Quick Setup
 
 ### Prerequisites

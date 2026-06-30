@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/schema.php';
 require_once __DIR__ . '/GoogleSheetsService.php';
+require_once __DIR__ . '/MySqlStore.php';
 
 /**
  * Storage abstraction shared by both drivers. Every method works on whole
@@ -15,9 +16,20 @@ interface Store {
     public function delete(string $entity, string $idField, string $idVal): void;
 }
 
-/** Picks the Sheets driver when configured, otherwise the JSON-file driver. */
+/**
+ * Picks a backend in priority order: MySQL when configured, then Google Sheets,
+ * otherwise the zero-config JSON-file driver. Any driver that fails to
+ * initialise falls through to the next so the app stays available.
+ */
 class StoreFactory {
     public static function make(): Store {
+        if (tbi_use_mysql()) {
+            try {
+                return new MySqlStore();
+            } catch (Throwable $e) {
+                error_log('[TBI] MySQL store unavailable, falling back: ' . $e->getMessage());
+            }
+        }
         if (tbi_use_sheets()) {
             try {
                 return new GoogleSheetsStore();
