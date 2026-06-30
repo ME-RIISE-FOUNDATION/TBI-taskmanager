@@ -194,6 +194,9 @@ async function saveTask() {
       : 'Task created and assigned successfully.');
   }
   await API.flush();
+  if (API.pending() > 0) {
+    setFlash('warning', 'Saved on this device but not yet synced to the server (it is offline or restarting). The task is queued and will sync automatically — keep this browser; do not clear its data.');
+  }
   window.location.href = 'tasks.html';
 }
 </script>

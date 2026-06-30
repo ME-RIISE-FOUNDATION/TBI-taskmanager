@@ -71,7 +71,14 @@ class JsonFileStore implements Store {
 
     public function append(string $entity, array $record): void {
         $this->withLock($entity, function () use ($entity, $record) {
-            $rows = $this->getAll($entity);
+            $rows  = $this->getAll($entity);
+            $idCol = TBI_ENTITIES[$entity][0];
+            // Idempotent: a retried/replayed append must not create a duplicate.
+            if (isset($record[$idCol]) && $record[$idCol] !== '') {
+                foreach ($rows as $r) {
+                    if (isset($r[$idCol]) && (string)$r[$idCol] === (string)$record[$idCol]) return;
+                }
+            }
             $rows[] = $record;
             $this->save($entity, $rows);
         });
@@ -145,7 +152,14 @@ class GoogleSheetsStore implements Store {
     }
 
     public function append(string $entity, array $record): void {
-        $rows = $this->getAll($entity);
+        $rows  = $this->getAll($entity);
+        $idCol = TBI_ENTITIES[$entity][0];
+        // Idempotent: a retried/replayed append must not create a duplicate.
+        if (isset($record[$idCol]) && $record[$idCol] !== '') {
+            foreach ($rows as $r) {
+                if (isset($r[$idCol]) && (string)$r[$idCol] === (string)$record[$idCol]) return;
+            }
+        }
         $rows[] = $record;
         $this->writeAll($entity, $rows);
     }

@@ -20,20 +20,56 @@ const ENTITIES    = ['employees', 'users', 'tasks', 'approvals', 'notifications'
 
 const API = {
   url() { return rootPath() + 'api/data_api.php'; },
-  _queue: Promise.resolve(),
-  // Serialised, navigation-proof write. keepalive lets the request finish even
-  // if the page reloads/navigates immediately after a mutation.
+  OUTBOX_KEY: 'tbi_outbox',
+  _draining: null,
+
+  _readOutbox()  { try { return JSON.parse(localStorage.getItem(this.OUTBOX_KEY) || '[]'); } catch { return []; } },
+  _writeOutbox(q){ localStorage.setItem(this.OUTBOX_KEY, JSON.stringify(q)); },
+  // Number of writes that have not yet been confirmed by the server.
+  pending()      { return this._readOutbox().length; },
+
+  // Durably record a mutation BEFORE returning, then kick off a send. Because the
+  // queue lives in localStorage it survives reloads, navigation and cold starts,
+  // so a write is never silently dropped just because the server was unreachable.
   push(action, entity, payload) {
     if (!SERVER_MODE) return;
-    const body = JSON.stringify({ action, entity, ...payload });
-    this._queue = this._queue.then(() =>
-      fetch(this.url(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true })
-        .catch(err => console.error('[TBI] sync push failed', action, entity, err))
-    );
+    const q = this._readOutbox();
+    q.push({ op: 'op_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8), action, entity, payload });
+    this._writeOutbox(q);
+    this.drain();
   },
-  // Resolves once all queued writes have been sent. Await before a reload so a
-  // mutation lands on the server before the next page pulls fresh data.
-  flush() { return this._queue; },
+
+  // Send queued writes in order, stopping at the first failure so ordering is
+  // preserved and nothing is lost — the rest stay queued for the next attempt.
+  drain() {
+    if (this._draining) return this._draining;
+    this._draining = (async () => {
+      while (true) {
+        const q = this._readOutbox();
+        if (!q.length) break;
+        const item = q[0];
+        try {
+          const res = await fetch(this.url(), {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: item.action, entity: item.entity, ...item.payload }),
+            keepalive: true,
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+        } catch (err) {
+          console.error('[TBI] sync deferred, will retry on next load', item.action, item.entity, err);
+          break; // keep this item and everything after it for a later attempt
+        }
+        const q2 = this._readOutbox();
+        q2.shift();                 // confirmed — drop the head
+        this._writeOutbox(q2);
+      }
+    })().finally(() => { this._draining = null; });
+    return this._draining;
+  },
+
+  // Resolves once a send attempt has finished (queue empty, or blocked on error).
+  // Check pending() afterwards to know whether everything actually synced.
+  flush() { return this.drain(); },
 };
 
 // ── DB (localStorage cache, mirrored to the server) ───────────
@@ -68,11 +104,21 @@ const TBI = {
   },
   async _boot() {
     if (!SERVER_MODE) { seedIfNeeded(); return; }
+    // Replay any writes left unsynced by a previous session BEFORE pulling, so
+    // local changes reach the server first and are never lost to stale data.
+    await API.flush();
     try {
       const res  = await fetch(API.url() + '?action=bootstrap', { cache: 'no-store' });
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'bootstrap failed');
-      ENTITIES.forEach(e => { if (Array.isArray(json.data[e])) DB._setLocal(e, json.data[e]); });
+      // Only adopt the server snapshot once everything we have is confirmed
+      // synced. If writes are still stuck (e.g. server up for reads but our POSTs
+      // failed), keep the local cache that still holds them rather than clobber.
+      if (API.pending() === 0) {
+        ENTITIES.forEach(e => { if (Array.isArray(json.data[e])) DB._setLocal(e, json.data[e]); });
+      } else {
+        console.warn('[TBI] keeping local cache —', API.pending(), 'unsynced write(s) pending');
+      }
     } catch (err) {
       console.error('[TBI] server unreachable, using local cache/seed', err);
       seedIfNeeded(true);  // degrade gracefully to a local-only dataset
