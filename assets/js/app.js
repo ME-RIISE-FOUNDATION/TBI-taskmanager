@@ -6,6 +6,31 @@
   document.documentElement.setAttribute('data-theme', theme);
 })();
 
+// ── Startup spinner ───────────────────────────────────────────
+// Shown the instant this script runs so a slow first load shows progress
+// instead of a blank screen; removed by renderShell on first paint.
+function showBootLoader() {
+  if (document.getElementById('tbiBootLoader')) return;
+  const d = document.createElement('div');
+  d.id = 'tbiBootLoader';
+  d.setAttribute('style',
+    'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;' +
+    'justify-content:center;gap:14px;background:#0a1929;color:#cfe3ff;' +
+    'font-family:Inter,system-ui,sans-serif');
+  d.innerHTML =
+    '<div style="width:42px;height:42px;border:4px solid rgba(207,227,255,.25);border-top-color:#3b82f6;' +
+    'border-radius:50%;animation:tbiSpin .8s linear infinite"></div>' +
+    '<div style="font-size:.9rem;opacity:.8">Loading…</div>' +
+    '<style>@keyframes tbiSpin{to{transform:rotate(360deg)}}</style>';
+  (document.body || document.documentElement).appendChild(d);
+}
+function hideBootLoader() {
+  document.getElementById('tbiBootLoader')?.remove();
+}
+// Only shell pages (admin/employee) start blank while awaiting data; the login
+// page renders its own static markup, so leave it alone.
+if (document.getElementById('pageContent')) showBootLoader();
+
 // ── Config ────────────────────────────────────────────────────
 const ADMIN_ROLES   = ['CEO', 'COO'];
 const TASK_STATUSES = ['Pending', 'In Progress', 'Completed', 'Approved', 'Rejected'];
@@ -123,15 +148,32 @@ const TBI = {
   },
   async _boot() {
     if (!SERVER_MODE) { seedIfNeeded(); return; }
-    // Replay any writes left unsynced by a previous session BEFORE pulling, so
-    // local changes reach the server first and are never lost to stale data.
-    await API.flush();
+    // Stale-while-revalidate: if we already have a cached dataset, render from it
+    // immediately and refresh from the server in the background. Only the very
+    // first load (no cache) waits for the network — so a slow/cold backend never
+    // leaves the user staring at a blank screen.
+    if (localStorage.getItem('tbi_users')) {
+      this._sync();                 // fire-and-forget refresh
+      return;
+    }
+    await this._sync();
+  },
+  async _sync() {
+    // Replay unsynced writes first (bounded) so local changes reach the server
+    // before we pull, then fetch a fresh snapshot — both capped so a cold start
+    // can't hang startup indefinitely.
+    await Promise.race([API.flush(), this._delay(3500)]);
     try {
-      const res  = await fetch(API.url() + '?action=bootstrap', { cache: 'no-store' });
-      const json = await res.json();
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 7000);
+      let json;
+      try {
+        const res = await fetch(API.url() + '?action=bootstrap', { cache: 'no-store', signal: ctrl.signal });
+        json = await res.json();
+      } finally { clearTimeout(timer); }
       if (!json.ok) throw new Error(json.error || 'bootstrap failed');
       // Only adopt the server snapshot once everything we have is confirmed
-      // synced. If writes are still stuck (e.g. server up for reads but our POSTs
+      // synced. If writes are still stuck (server up for reads but our POSTs
       // failed), keep the local cache that still holds them rather than clobber.
       if (API.pending() === 0) {
         ENTITIES.forEach(e => { if (Array.isArray(json.data[e])) DB._setLocal(e, json.data[e]); });
@@ -139,10 +181,11 @@ const TBI = {
         console.warn('[TBI] keeping local cache —', API.pending(), 'unsynced write(s) pending');
       }
     } catch (err) {
-      console.error('[TBI] server unreachable, using local cache/seed', err);
+      console.error('[TBI] bootstrap slow/unreachable, using local cache/seed', err);
       seedIfNeeded(true);  // degrade gracefully to a local-only dataset
     }
   },
+  _delay(ms) { return new Promise(r => setTimeout(r, ms)); },
 };
 
 // ── Seed ──────────────────────────────────────────────────────
@@ -405,6 +448,7 @@ function backfillCompletedDates() {
 
 // ── Sidebar & Topbar rendering ────────────────────────────────
 function renderShell(title, requireAdmin = false) {
+  hideBootLoader();   // first paint is happening — drop the startup spinner
   seedIfNeeded();
   if (requireAdmin ? !Auth.requireAdmin() : !Auth.require()) return false;
 

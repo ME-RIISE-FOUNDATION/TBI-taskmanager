@@ -85,7 +85,7 @@
       area.innerHTML = `<div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle me-1"></i>Please enter username and password.</div>`;
       return;
     }
-    await _ready;  // ensure the app is bootstrapped first
+    // Auth is server-side now, so login no longer waits for the full bootstrap.
     if (await Auth.login(username, password)) {
       window.location.href = Auth.isAdmin() ? 'admin/dashboard.html' : 'employee/dashboard.html';
     } else {
