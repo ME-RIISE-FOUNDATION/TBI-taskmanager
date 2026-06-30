@@ -51,23 +51,40 @@ function tbi_db_config(): array {
     $file = __DIR__ . '/database.php';
     if (is_file($file)) {
         $cfg = require $file;
-        if (is_array($cfg) && ($cfg['host'] ?? '') !== '' && ($cfg['name'] ?? '') !== '') {
-            return array_merge(['user' => '', 'pass' => '', 'port' => 3306, 'charset' => 'utf8mb4'], $cfg);
+        if (is_array($cfg) && trim((string)($cfg['host'] ?? '')) !== '' && trim((string)($cfg['name'] ?? '')) !== '') {
+            return tbi_clean_db_config($cfg);
         }
     }
     $host = getenv('DB_HOST') ?: '';
     $name = getenv('DB_NAME') ?: '';
     if ($host !== '' && $name !== '') {
-        return [
-            'host'    => $host,
-            'name'    => $name,
-            'user'    => getenv('DB_USER') ?: '',
-            'pass'    => getenv('DB_PASS') ?: '',
-            'port'    => (int)(getenv('DB_PORT') ?: 3306),
-            'charset' => 'utf8mb4',
-        ];
+        return tbi_clean_db_config([
+            'host' => $host,
+            'name' => $name,
+            'user' => getenv('DB_USER') ?: '',
+            'pass' => getenv('DB_PASS') ?: '',
+            'port' => getenv('DB_PORT') ?: 3306,
+        ]);
     }
     return [];
+}
+
+/**
+ * Normalise raw connection settings. Hand-edited credential files (e.g. via
+ * Hostinger's File Manager) routinely pick up a stray trailing newline or
+ * spaces — fatal for MySQL auth — so identifiers are trimmed of all surrounding
+ * whitespace. The password is only stripped of CR/LF (never spaces, which could
+ * be intentional). Returns the canonical [host,name,user,pass,port,charset] shape.
+ */
+function tbi_clean_db_config(array $cfg): array {
+    return [
+        'host'    => trim((string)($cfg['host'] ?? '')),
+        'name'    => trim((string)($cfg['name'] ?? '')),
+        'user'    => trim((string)($cfg['user'] ?? '')),
+        'pass'    => trim((string)($cfg['pass'] ?? ''), "\r\n"),
+        'port'    => (int)($cfg['port'] ?? 3306),
+        'charset' => trim((string)($cfg['charset'] ?? 'utf8mb4')) ?: 'utf8mb4',
+    ];
 }
 
 /** True when a MySQL backend is configured. */
