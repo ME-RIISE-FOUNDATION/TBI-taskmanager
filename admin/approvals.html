@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await TBI.ready();
   if (!renderShell('Approval Workflow', true)) return;
   renderPage();
+  TBI.onSync(renderPage);   // repaint when another dashboard changes the data
 });
 
 function renderPage() {

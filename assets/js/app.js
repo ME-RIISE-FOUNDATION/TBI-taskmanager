@@ -48,10 +48,24 @@ const API = {
   OUTBOX_KEY: 'tbi_outbox',
   _draining: null,
 
+  OUTBOX_DEAD_KEY: 'tbi_outbox_dead',
   _readOutbox()  { try { return JSON.parse(localStorage.getItem(this.OUTBOX_KEY) || '[]'); } catch { return []; } },
   _writeOutbox(q){ localStorage.setItem(this.OUTBOX_KEY, JSON.stringify(q)); },
   // Number of writes that have not yet been confirmed by the server.
   pending()      { return this._readOutbox().length; },
+  // Entities that still have an unconfirmed write queued — used so a background
+  // refresh can adopt the shared server snapshot for everything EXCEPT the
+  // entities this browser is mid-write on (which would otherwise get clobbered).
+  pendingEntities() { return new Set(this._readOutbox().map(i => i.entity)); },
+  // A write the server permanently rejected (HTTP 4xx) can never succeed on
+  // retry, so it is moved here instead of blocking the queue forever.
+  _deadLetter(item, reason) {
+    try {
+      const d = JSON.parse(localStorage.getItem(this.OUTBOX_DEAD_KEY) || '[]');
+      d.push({ ...item, reason, at: new Date().toISOString() });
+      localStorage.setItem(this.OUTBOX_DEAD_KEY, JSON.stringify(d.slice(-50)));
+    } catch { /* dead-letter is best-effort */ }
+  },
 
   // Durably record a mutation BEFORE returning, then kick off a send. Because the
   // queue lives in localStorage it survives reloads, navigation and cold starts,
@@ -64,8 +78,12 @@ const API = {
     this.drain();
   },
 
-  // Send queued writes in order, stopping at the first failure so ordering is
-  // preserved and nothing is lost — the rest stay queued for the next attempt.
+  // Send queued writes in order. A 4xx (permanent, malformed) write is dropped
+  // to a dead-letter and draining continues; a network error or 5xx (transient)
+  // stops draining so ordering is preserved and the write is retried next time.
+  // Without the 4xx drop a single bad write would wedge the queue forever and,
+  // because _sync() won't adopt the server snapshot while writes are pending,
+  // permanently island this browser on its own local cache.
   drain() {
     if (this._draining) return this._draining;
     this._draining = (async () => {
@@ -79,10 +97,19 @@ const API = {
             body: JSON.stringify({ action: item.action, entity: item.entity, ...item.payload }),
             keepalive: true,
           });
-          if (!res.ok) throw new Error('HTTP ' + res.status);
+          if (!res.ok) {
+            if (res.status >= 400 && res.status < 500) {
+              // Permanent: the server will reject this write on every retry.
+              console.error('[TBI] dropping rejected write', item.action, item.entity, 'HTTP ' + res.status);
+              this._deadLetter(item, 'HTTP ' + res.status);
+              const qd = this._readOutbox(); qd.shift(); this._writeOutbox(qd);
+              continue;             // keep draining the rest of the queue
+            }
+            throw new Error('HTTP ' + res.status);   // 5xx — transient, retry later
+          }
         } catch (err) {
           console.error('[TBI] sync deferred, will retry on next load', item.action, item.entity, err);
-          break; // keep this item and everything after it for a later attempt
+          break; // transient — keep this item and everything after it for a later attempt
         }
         const q2 = this._readOutbox();
         q2.shift();                 // confirmed — drop the head
@@ -142,12 +169,32 @@ const DB = {
 // page load; pages await TBI.ready() before rendering so they show live data.
 const TBI = {
   _ready: null,
+  _syncCbs: [],
+  _timerStarted: false,
   ready() {
     if (!this._ready) this._ready = this._boot();
     return this._ready;
   },
+  // Register a repaint callback re-invoked whenever a background sync brings in
+  // changed shared data, so a dashboard left open converges without a manual
+  // reload. Pages call this right after their initial render.
+  onSync(cb) { if (typeof cb === 'function') this._syncCbs.push(cb); },
+  // For pages that render inline (no reusable render fn): reload on a sync that
+  // changed the shared data, but only when it won't disrupt the user — tab
+  // visible, no open modal, no field focused, and no local write in flight.
+  autoReloadOnSync() {
+    this.onSync(() => {
+      if (document.hidden) return;
+      if (document.querySelector('.modal.show')) return;
+      const ae = document.activeElement;
+      if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT' || ae.isContentEditable)) return;
+      if (API.pending() > 0) return;
+      location.reload();
+    });
+  },
   async _boot() {
     if (!SERVER_MODE) { seedIfNeeded(); return; }
+    this._startAutoSync();
     // Stale-while-revalidate: if we already have a cached dataset, render from it
     // immediately and refresh from the server in the background. Only the very
     // first load (no cache) waits for the network — so a slow/cold backend never
@@ -157,6 +204,16 @@ const TBI = {
       return;
     }
     await this._sync();
+  },
+  // Keep an open dashboard live: refresh periodically and when the tab regains
+  // focus. Guarded so it is wired up only once per page.
+  _startAutoSync() {
+    if (this._timerStarted || !SERVER_MODE) return;
+    this._timerStarted = true;
+    setInterval(() => this._sync(), 45000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) this._sync();
+    });
   },
   async _sync() {
     // Replay unsynced writes first (bounded) so local changes reach the server
@@ -172,18 +229,34 @@ const TBI = {
         json = await res.json();
       } finally { clearTimeout(timer); }
       if (!json.ok) throw new Error(json.error || 'bootstrap failed');
-      // Only adopt the server snapshot once everything we have is confirmed
-      // synced. If writes are still stuck (server up for reads but our POSTs
-      // failed), keep the local cache that still holds them rather than clobber.
-      if (API.pending() === 0) {
-        ENTITIES.forEach(e => { if (Array.isArray(json.data[e])) DB._setLocal(e, json.data[e]); });
-      } else {
-        console.warn('[TBI] keeping local cache —', API.pending(), 'unsynced write(s) pending');
+      // Adopt the shared server snapshot per-entity: overwrite the local cache
+      // for every entity that has no write still queued locally, and keep the
+      // local copy only for entities with an in-flight write (so we don't
+      // clobber an edit that hasn't reached the server yet). This guarantees a
+      // browser always converges to shared data for everything except its own
+      // pending writes — a single stuck write can no longer freeze the whole UI.
+      const pendingEnts = API.pendingEntities();
+      let changed = false;
+      ENTITIES.forEach(e => {
+        if (pendingEnts.has(e) || !Array.isArray(json.data[e])) return;
+        const next = JSON.stringify(json.data[e]);
+        if (next !== JSON.stringify(DB._get(e))) changed = true;
+        DB._setLocal(e, json.data[e]);
+      });
+      if (pendingEnts.size) {
+        console.warn('[TBI] kept local cache for pending entities:', [...pendingEnts].join(', '));
       }
+      // Repaint open pages only when the shared data actually changed, so the
+      // periodic refresh does not trigger needless re-renders (or render loops).
+      if (changed) this._notifySynced();
     } catch (err) {
       console.error('[TBI] bootstrap slow/unreachable, using local cache/seed', err);
       seedIfNeeded(true);  // degrade gracefully to a local-only dataset
     }
+  },
+  _notifySynced() {
+    this._syncCbs.forEach(cb => { try { cb(); } catch (e) { console.error('[TBI] onSync callback failed', e); } });
+    try { window.dispatchEvent(new CustomEvent('tbi:synced')); } catch { /* older browsers */ }
   },
   _delay(ms) { return new Promise(r => setTimeout(r, ms)); },
 };

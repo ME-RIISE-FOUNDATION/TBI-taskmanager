@@ -25,6 +25,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   await TBI.ready();
   if (!renderShell('Admin Dashboard', true)) return;
+  TBI.autoReloadOnSync();   // refresh when another dashboard changes the data
 
   const session   = Auth.getSession();
   const tasks     = DB.getAll('tasks');

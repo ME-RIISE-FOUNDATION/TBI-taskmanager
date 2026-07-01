@@ -81,6 +81,7 @@ let _resetUserId = '';
 document.addEventListener('DOMContentLoaded', async () => {
   await TBI.ready();
   if (!renderShell('Employee Management', true)) return;
+  TBI.autoReloadOnSync();   // refresh when another dashboard changes the data
 
   const tasks     = DB.getAll('tasks');
   const employees = DB.getAll('employees');

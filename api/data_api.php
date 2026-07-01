@@ -58,6 +58,27 @@ try {
 
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $action = $_GET['action'] ?? 'bootstrap';
+
+        // Health probe — reports which backend is actually live so a silent MySQL
+        // fallback to the JSON store can't hide. store: mysql|sheets|json.
+        if ($action === 'health') {
+            // $store was already resolved by StoreFactory::make() above, which
+            // set StoreFactory::$active to the driver actually in use.
+            $dbOk = false;
+            if (StoreFactory::$active === 'mysql') {
+                // A successful getAll proves the connection AND that tables exist.
+                try { $store->getAll('users'); $dbOk = true; }
+                catch (Throwable $e) { error_log('[TBI] health: MySQL query failed: ' . $e->getMessage()); }
+            }
+            echo json_encode([
+                'ok'            => true,
+                'store'         => StoreFactory::$active,
+                'db_ok'         => $dbOk,
+                'data_writable' => is_writable(DATA_DIR),
+            ]);
+            exit;
+        }
+
         if ($action !== 'bootstrap') fail(400, 'Unknown GET action');
 
         $data = [];

@@ -22,21 +22,31 @@ interface Store {
  * initialise falls through to the next so the app stays available.
  */
 class StoreFactory {
+    /** Driver chosen by the last make() call: 'mysql' | 'sheets' | 'json'. */
+    public static string $active = 'json';
+
     public static function make(): Store {
         if (tbi_use_mysql()) {
             try {
-                return new MySqlStore();
+                $store = new MySqlStore();
+                self::$active = 'mysql';
+                return $store;
             } catch (Throwable $e) {
-                error_log('[TBI] MySQL store unavailable, falling back: ' . $e->getMessage());
+                // Loud, not silent: a broken DB must not hide behind the JSON
+                // fallback unnoticed. Surfaced via data_api.php ?action=health.
+                error_log('[TBI] MySQL configured but UNAVAILABLE — falling back to JSON store: ' . $e->getMessage());
             }
         }
         if (tbi_use_sheets()) {
             try {
-                return new GoogleSheetsStore();
+                $store = new GoogleSheetsStore();
+                self::$active = 'sheets';
+                return $store;
             } catch (Throwable $e) {
                 error_log('[TBI] Sheets store unavailable, falling back to JSON: ' . $e->getMessage());
             }
         }
+        self::$active = 'json';
         return new JsonFileStore();
     }
 }

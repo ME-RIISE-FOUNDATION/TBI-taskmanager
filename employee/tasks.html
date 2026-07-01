@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await TBI.ready();
   if (!renderShell('My Tasks')) return;
   renderPage();
+  TBI.onSync(renderPage);   // repaint when another dashboard changes the data
 });
 
 function renderPage() {

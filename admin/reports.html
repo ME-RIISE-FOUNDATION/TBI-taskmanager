@@ -28,6 +28,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   await TBI.ready();
   if (!renderShell('Reports', true)) return;
+  TBI.autoReloadOnSync();   // refresh when another dashboard changes the data
 
   const params       = getParams();
   const reportType   = params.get('type')     || 'daily';
