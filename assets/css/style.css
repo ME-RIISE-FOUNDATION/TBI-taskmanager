@@ -228,7 +228,7 @@
 [data-theme="white"] .btn-primary:hover,
 [data-theme="white"] .btn-primary:focus {
   background: linear-gradient(135deg, #333333, #555555) !important;
-  color: #ffffff !important;
+  color: #000000 !important;
 }
 
 [data-theme="white"] .btn-outline-primary,
