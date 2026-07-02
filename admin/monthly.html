@@ -66,11 +66,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const completedCount = rows.filter(r => r.kind === 'completed').length;
   const carriedCount   = rows.filter(r => r.kind === 'carried').length;
 
+  // Completed/approved tasks are hidden by default so the month shows only what
+  // still needs doing while updating; the "Show completed" switch (?completed=1)
+  // brings them back.
+  const showCompleted = params.get('completed') === '1';
+  const compQ         = showCompleted ? '&completed=1' : '';
+  const visibleRows   = showCompleted ? rows : rows.filter(r => r.kind !== 'completed');
+
   // Group by employee in designation order
   const order = ['CEO','COO','Software Associate','Finance Associate','Innovation Associate','Supporting Staff'];
   employees.sort((a,b) => { const ai=order.indexOf(a.Designation); const bi=order.indexOf(b.Designation); return (ai<0?99:ai)-(bi<0?99:bi); });
   const groups = {};
-  rows.forEach(r => { (groups[r.t.Employee_ID] = groups[r.t.Employee_ID] || []).push(r); });
+  visibleRows.forEach(r => { (groups[r.t.Employee_ID] = groups[r.t.Employee_ID] || []).push(r); });
   const groupOrderIds = employees.map(e => e.Employee_ID).filter(id => groups[id]);
 
   const renderRow = (r, n) => {
@@ -99,7 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     </tr>`;
   };
 
-  const tableRows = rows.length ? groupOrderIds.map(id => {
+  const tableRows = visibleRows.length ? groupOrderIds.map(id => {
     const emp  = empMap[id];
     const list = groups[id];
     const done = list.filter(r => r.kind === 'completed').length;
@@ -108,11 +115,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       <td colspan="8" class="fw-700">
         <i class="bi bi-person-fill me-1"></i>${Utils.esc(emp?.Name || id)}
         <span class="fw-normal text-muted small"> — ${Utils.esc(emp?.Designation || '')}
-          · <span class="text-success">${done} completed</span> · <span class="text-warning">${carr} carried</span></span>
+          ${showCompleted ? `· <span class="text-success">${done} completed</span> ` : ''}· <span class="text-warning">${carr} carried</span></span>
       </td>
     </tr>`;
     return header + list.map((r, i) => renderRow(r, i + 1)).join('');
-  }).join('') : `<tr><td colspan="8" class="text-center py-4 text-muted">No tasks for ${Utils.esc(monthName)}</td></tr>`;
+  }).join('') : `<tr><td colspan="8" class="text-center py-4 text-muted">No ${showCompleted?'':'pending '}tasks for ${Utils.esc(monthName)}${!showCompleted && completedCount ? ` — ${completedCount} completed (turn on “Show completed” to view)` : ''}</td></tr>`;
 
   document.getElementById('pageContent').innerHTML = `
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -123,17 +130,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div class="d-flex align-items-center gap-2">
-          <a href="monthly.html?m=${prevMonth}" class="btn btn-outline-primary"><i class="bi bi-chevron-left"></i></a>
+          <a href="monthly.html?m=${prevMonth}${compQ}" class="btn btn-outline-primary"><i class="bi bi-chevron-left"></i></a>
           <div class="text-center" style="min-width:160px">
             <div class="fw-700 fs-5">${monthName}</div>
             <div class="small text-muted">${month === curMonth ? 'Current month' : ''}</div>
           </div>
-          <a href="monthly.html?m=${nextMonth}" class="btn btn-outline-primary"><i class="bi bi-chevron-right"></i></a>
+          <a href="monthly.html?m=${nextMonth}${compQ}" class="btn btn-outline-primary"><i class="bi bi-chevron-right"></i></a>
           <input type="month" id="monthPicker" class="form-control ms-2" style="max-width:170px" value="${month}">
         </div>
-        <div class="d-flex gap-2 flex-wrap">
+        <div class="d-flex gap-2 flex-wrap align-items-center">
           <span class="badge bg-success fs-6 px-3 py-2"><i class="bi bi-check2-circle me-1"></i>${completedCount} completed this month</span>
           <span class="badge bg-warning text-dark fs-6 px-3 py-2"><i class="bi bi-arrow-right-circle me-1"></i>${carriedCount} carried over</span>
+          <div class="form-check form-switch ms-2 mb-0">
+            <input class="form-check-input" type="checkbox" role="switch" id="toggleCompleted" ${showCompleted?'checked':''}>
+            <label class="form-check-label small text-muted" for="toggleCompleted">Show completed</label>
+          </div>
         </div>
       </div>
     </div>
@@ -156,7 +167,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   `;
 
   document.getElementById('monthPicker')?.addEventListener('change', e => {
-    if (e.target.value) window.location.href = 'monthly.html?m=' + e.target.value;
+    if (e.target.value) window.location.href = 'monthly.html?m=' + e.target.value + compQ;
+  });
+  document.getElementById('toggleCompleted')?.addEventListener('change', e => {
+    window.location.href = 'monthly.html?m=' + month + (e.target.checked ? '&completed=1' : '');
   });
 });
 </script>
