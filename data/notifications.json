@@ -1,1 +1,18 @@
-[]
+[
+ {
+  "Notif_ID": "NOTIF_20260706_OGQCV6",
+  "User_ID": "EMP_003",
+  "Message": "Your task has been Approved: Complete NAIN certificates",
+  "Type": "approval_result",
+  "Read_Status": "unread",
+  "Created_At": "2026-07-06 07:21:55"
+ },
+ {
+  "Notif_ID": "NOTIF_20260706_7ZL8JA",
+  "User_ID": "EMP_003",
+  "Message": "Your task has been Approved: Get the seals",
+  "Type": "approval_result",
+  "Read_Status": "unread",
+  "Created_At": "2026-07-06 07:25:00"
+ }
+]
