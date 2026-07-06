@@ -52,6 +52,19 @@
   </div>
 </div>
 
+<!-- Employee Profile Modal -->
+<div class="modal fade" id="empProfileModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-700"><i class="bi bi-person-vcard me-2"></i>Employee Profile</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="empProfileBody"></div>
+    </div>
+  </div>
+</div>
+
 <!-- Reset Password Modal -->
 <div class="modal fade" id="resetPwdModal" tabindex="-1">
   <div class="modal-dialog modal-sm">
@@ -84,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   TBI.autoReloadOnSync();   // refresh when another dashboard changes the data
 
   const tasks     = DB.getAll('tasks');
-  const employees = DB.getAll('employees');
+  const employees = staffOnly(DB.getAll('employees'));   // the CEO is the head/admin, not listed as staff
   const users     = DB.getAll('users');
   const userByEmp = Object.fromEntries(users.map(u => [u.Employee_ID, u]));
 
@@ -93,7 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Populate designation select
   const desigSel = document.getElementById('newDesig');
-  DESIGNATIONS.forEach(d => { const o=document.createElement('option'); o.value=o.textContent=d; desigSel.appendChild(o); });
+  DESIGNATIONS.filter(d => d !== 'CEO').forEach(d => { const o=document.createElement('option'); o.value=o.textContent=d; desigSel.appendChild(o); });
 
   const empCards = employees.map(emp => {
     const stats   = Utils.employeeStats(tasks, emp.Employee_ID);
@@ -107,7 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="emp-card-header">
             ${emp.Photo_URL ? `<img src="${Utils.esc(emp.Photo_URL)}" class="emp-avatar" alt="${Utils.esc(emp.Name)}">` : `<div class="emp-avatar-initials">${Utils.esc(ini)}</div>`}
             <div>
-              <div class="emp-name">${Utils.esc(emp.Name)}</div>
+              <div class="emp-name">${Utils.esc(emp.Name)} ${Utils.leaveBadge(emp)}</div>
               <div class="emp-desig">${Utils.esc(emp.Designation)}</div>
               <div style="font-size:.68rem" class="text-muted mt-1">${Utils.esc(emp.Email)}</div>
             </div>
@@ -127,6 +140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
           <div class="d-flex gap-2" onclick="event.stopPropagation()">
             <a href="${empUrl}" class="btn btn-sm btn-outline-primary flex-fill"><i class="bi bi-list-task me-1"></i>Tasks</a>
+            <button class="btn btn-sm btn-outline-info flex-fill" onclick="event.stopPropagation();openProfile('${Utils.esc(emp.Employee_ID)}')"><i class="bi bi-person-vcard me-1"></i>Profile</button>
             ${user ? `<button class="btn btn-sm btn-outline-warning" onclick="event.stopPropagation();openResetPwd('${Utils.esc(user.User_ID)}','${Utils.esc(emp.Name)}')" title="Reset Password"><i class="bi bi-key"></i></button>` : ''}
           </div>
           ${user ? `<div class="emp-card-footer"><i class="bi bi-person-circle me-1"></i>Login: <code>${Utils.esc(user.Username)}</code></div>` : ''}
@@ -172,6 +186,78 @@ async function addEmployee() {
     r && r.ok ? `Employee ${name} added successfully.`
               : `Employee ${name} added, but setting the password failed (${(r && r.error) || 'server offline'}). Use Reset Password.`);
   bootstrap.Modal.getInstance(document.getElementById('addEmpModal'))?.hide();
+  location.reload();
+}
+
+// ── Employee profile: full details + admin edit (incl. On Leave status) ──
+function openProfile(empId) {
+  const emp   = DB.findOne('employees', 'Employee_ID', empId);
+  if (!emp) return;
+  const user  = DB.findOne('users', 'Employee_ID', empId);
+  const tasks = DB.findMany('tasks', 'Employee_ID', empId);
+  const stats = Utils.employeeStats(tasks, empId);
+  const ini   = Utils.initials(emp.Name);
+  const desigOpts = DESIGNATIONS.filter(d => d !== 'CEO')
+    .map(d => `<option value="${Utils.esc(d)}" ${emp.Designation===d?'selected':''}>${Utils.esc(d)}</option>`).join('');
+
+  document.getElementById('empProfileBody').innerHTML = `
+    <div class="d-flex align-items-center gap-3 mb-3">
+      ${emp.Photo_URL ? `<img src="${Utils.esc(emp.Photo_URL)}" class="rounded-circle" width="72" height="72" style="object-fit:cover;border:3px solid var(--glass-bd2)">` : `<div class="emp-avatar-initials" style="width:72px;height:72px;font-size:1.4rem">${Utils.esc(ini)}</div>`}
+      <div>
+        <div class="fw-700 fs-5">${Utils.esc(emp.Name)} ${Utils.leaveBadge(emp)}</div>
+        <div class="text-muted">${Utils.esc(emp.Designation)}</div>
+        <div class="text-muted small">ID: <code>${Utils.esc(emp.Employee_ID)}</code>${user?` · Login: <code>${Utils.esc(user.Username)}</code>`:''}</div>
+      </div>
+    </div>
+    <div class="row g-2 text-center mb-3">
+      <div class="col-3"><div class="fw-700 text-primary">${stats.total}</div><div class="text-muted" style="font-size:.72rem">Total Tasks</div></div>
+      <div class="col-3"><div class="fw-700 text-success">${stats.completed}</div><div class="text-muted" style="font-size:.72rem">Completed</div></div>
+      <div class="col-3"><div class="fw-700 text-warning">${stats.pending}</div><div class="text-muted" style="font-size:.72rem">Pending</div></div>
+      <div class="col-3"><div class="fw-700 text-danger">${stats.overdue}</div><div class="text-muted" style="font-size:.72rem">Overdue</div></div>
+    </div>
+    <hr>
+    <div id="profAlert"></div>
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label small fw-500">Full Name</label><input type="text" class="form-control" id="profName" value="${Utils.esc(emp.Name)}"></div>
+      <div class="col-md-6"><label class="form-label small fw-500">Designation</label><select class="form-select" id="profDesig">${desigOpts}</select></div>
+      <div class="col-md-6"><label class="form-label small fw-500">Email</label><input type="email" class="form-control" id="profEmail" value="${Utils.esc(emp.Email||'')}"></div>
+      <div class="col-md-6"><label class="form-label small fw-500">Phone</label><input type="tel" class="form-control" id="profPhone" value="${Utils.esc(emp.Phone||'')}"></div>
+      <div class="col-md-6"><label class="form-label small fw-500">Photo URL</label><input type="url" class="form-control" id="profPhoto" value="${Utils.esc(emp.Photo_URL||'')}"></div>
+      <div class="col-md-6">
+        <label class="form-label small fw-500">Availability</label>
+        <select class="form-select" id="profStatus">
+          <option value="Active" ${emp.Status!=='On Leave'?'selected':''}>Active</option>
+          <option value="On Leave" ${emp.Status==='On Leave'?'selected':''}>On Leave</option>
+        </select>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      <button type="button" class="btn btn-primary" onclick="saveProfile('${Utils.esc(empId)}')"><i class="bi bi-save me-1"></i>Save Changes</button>
+    </div>`;
+  new bootstrap.Modal(document.getElementById('empProfileModal')).show();
+}
+
+async function saveProfile(empId) {
+  const emp     = DB.findOne('employees', 'Employee_ID', empId);
+  const alertEl = document.getElementById('profAlert');
+  if (!emp) return;
+  const name  = document.getElementById('profName').value.trim();
+  const desig = document.getElementById('profDesig').value;
+  const email = document.getElementById('profEmail').value.trim();
+  const phone = document.getElementById('profPhone').value.trim();
+  const photo = document.getElementById('profPhoto').value.trim();
+  const stat  = document.getElementById('profStatus').value;
+  if (!name || !email) { alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-2">Name and email are required.</div>`; return; }
+
+  DB.updateById('employees', 'Employee_ID', empId, {Name:name, Designation:desig, Email:email, Phone:phone, Photo_URL:photo, Status:stat});
+  // Keep the login record in step so the sidebar/session shows the same details.
+  const user = DB.findOne('users', 'Employee_ID', empId);
+  if (user) DB.updateById('users', 'User_ID', user.User_ID, {Name:name, Designation:desig, Email:email});
+
+  setFlash('success', `Profile of ${name} updated${stat==='On Leave'?' — marked On Leave':''}.`);
+  bootstrap.Modal.getInstance(document.getElementById('empProfileModal'))?.hide();
+  await API.flush();
   location.reload();
 }
 

@@ -39,9 +39,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const fTo          = params.get('to')       || today;
 
   const tasks     = DB.getAll('tasks');
-  const employees = DB.getAll('employees');
+  const allEmployees = DB.getAll('employees');
+  const employees = staffOnly(allEmployees);              // the CEO is the head/admin, not reported as staff
   const session   = Auth.getSession();
-  const empMap    = Object.fromEntries(employees.map(e => [e.Employee_ID, e]));
+  const empMap    = Object.fromEntries(allEmployees.map(e => [e.Employee_ID, e]));
 
   // Date range for auto types
   function getRange(type) {

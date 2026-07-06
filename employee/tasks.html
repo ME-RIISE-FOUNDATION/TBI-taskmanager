@@ -69,7 +69,7 @@ function renderPage() {
     all:        {label:'All Tasks',    filter: t => true},
     pending:    {label:'Pending',      filter: t => t.Status==='Pending'},
     inprogress: {label:'In Progress',  filter: t => t.Status==='In Progress'},
-    completed:  {label:'Completed',    filter: t => t.Status==='Completed'},
+    completed:  {label:'Completed',    filter: t => ['Completed','Approved'].includes(t.Status)},   // approved tasks are completed tasks
     approved:   {label:'Approved',     filter: t => t.Status==='Approved'},
     rejected:   {label:'Rejected',     filter: t => t.Status==='Rejected'},
     overdue:    {label:'Overdue',       filter: t => Utils.isOverdue(t.Deadline, t.Status)},
@@ -83,6 +83,8 @@ function renderPage() {
     const isActive = tab === k;
     return `<li class="nav-item"><a class="nav-link ${isActive?'active':''}" href="?tab=${k}${fSearch?'&q='+encodeURIComponent(fSearch):''}">${v.label}${cnt>0?`<span class="badge ${isActive?'bg-white':'bg-secondary'} ms-1">${cnt}</span>`:''}</a></li>`;
   }).join('');
+
+  const pendingApprovalIds = new Set(DB.getAll('approvals').filter(a => a.Status === 'Pending').map(a => a.Task_ID));
 
   const taskCards = filtered.length ? filtered.map(t => {
     const od     = Utils.isOverdue(t.Deadline, t.Status);
@@ -116,7 +118,10 @@ function renderPage() {
                   <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle w-100" data-bs-toggle="dropdown">Change Status</button>
                   <ul class="dropdown-menu w-100">${statusOpts}</ul>
                 </div>` : ''}
-              ${t.Status==='Completed'?`<div class="alert alert-info py-1 small mt-2 mb-0"><i class="bi bi-clock me-1"></i>Awaiting admin approval…</div>`:''}
+              ${t.Status==='Completed' ? (pendingApprovalIds.has(t.Task_ID)
+                ? `<div class="alert alert-info py-1 small mt-2 mb-0"><i class="bi bi-clock me-1"></i>Awaiting admin approval…</div>`
+                : `<div class="alert alert-success py-1 small mt-2 mb-0"><i class="bi bi-check2-circle me-1"></i>Completed${t.Completed_Date?` on ${Utils.formatDateTime(t.Completed_Date)}`:''}</div>`) : ''}
+              ${t.Status==='Approved'?`<div class="alert alert-success py-1 small mt-2 mb-0"><i class="bi bi-check2-all me-1"></i>Completed &amp; approved${t.Completed_Date?` — ${Utils.formatDateTime(t.Completed_Date)}`:''}</div>`:''}
             </div>
           </div>
         </div>
@@ -169,7 +174,7 @@ function submitComplete() {
     return;
   }
 
-  DB.updateById('tasks', 'Task_ID', _completeTaskId, {Status:'Completed', Notes:notes, Completed_Date: task.Completed_Date || Utils.today()});
+  DB.updateById('tasks', 'Task_ID', _completeTaskId, {Status:'Completed', Notes:notes, Completed_Date: task.Completed_Date || Utils.nowStamp()});
   DB.append('approvals', {
     Approval_ID: Utils.generateId('APR'), Task_ID: _completeTaskId,
     Employee_ID: session.employee_id, Status: 'Pending',

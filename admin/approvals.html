@@ -67,7 +67,7 @@ function renderPage() {
               <textarea class="form-control form-control-sm" id="comments_${appr.Approval_ID}" rows="2" placeholder="Review comments (optional)…"></textarea>
             </div>
             <div class="d-flex gap-2">
-              <button class="btn btn-success btn-sm flex-fill" onclick="if(confirm('Approve this task?'))processApproval('${appr.Approval_ID}','approve')">
+              <button class="btn btn-success btn-sm flex-fill" onclick="processApproval('${appr.Approval_ID}','approve')">
                 <i class="bi bi-check2 me-1"></i>Approve
               </button>
               <button class="btn btn-danger btn-sm flex-fill" onclick="processApproval('${appr.Approval_ID}','reject')">
@@ -128,10 +128,17 @@ function processApproval(approvalId, action) {
 
   const comments   = document.getElementById(`comments_${approvalId}`)?.value.trim() || '';
   const newStatus  = action === 'approve' ? 'Approved' : 'Rejected';
-  const now        = new Date().toISOString().replace('T',' ').slice(0,19);
+  const now        = Utils.nowStamp();
 
   DB.updateById('approvals', 'Approval_ID', approvalId, {Status:newStatus, Approved_By:session.name, Comments:comments, Approval_Date:now});
-  DB.updateById('tasks', 'Task_ID', approval.Task_ID, {Status:newStatus, Notes:comments});
+  // An approved task is a completed task — make sure it carries its completion
+  // date & time so it shows as completed everywhere immediately.
+  const taskPatch = {Status:newStatus, Notes:comments};
+  if (newStatus === 'Approved') {
+    const t0 = DB.findOne('tasks', 'Task_ID', approval.Task_ID);
+    taskPatch.Completed_Date = (t0 && t0.Completed_Date) || approval.Submission_Date || now;
+  }
+  DB.updateById('tasks', 'Task_ID', approval.Task_ID, taskPatch);
 
   const task = DB.findOne('tasks', 'Task_ID', approval.Task_ID);
   DB.append('notifications', {

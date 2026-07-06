@@ -32,18 +32,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!renderShell(title, true)) return;
 
   const session   = Auth.getSession();
-  const employees = DB.getAll('employees');
+  const employees = staffOnly(DB.getAll('employees'));   // tasks are assigned to staff, not the CEO/head
   const order = ['CEO','COO','Software Associate','Finance Associate','Innovation Associate','Supporting Staff'];
   employees.sort((a,b) => { const ai=order.indexOf(a.Designation); const bi=order.indexOf(b.Designation); return (ai<0?99:ai)-(bi<0?99:bi); });
 
+  const onLeaveTag = e => e.Status === 'On Leave' ? ' <span class="badge bg-warning text-dark">On Leave</span>' : '';
   const empOptions = employees.map(e =>
-    `<option value="${Utils.esc(e.Employee_ID)}" ${task?.Employee_ID===e.Employee_ID?'selected':''}>${Utils.esc(e.Name)} — ${Utils.esc(e.Designation)}</option>`
+    `<option value="${Utils.esc(e.Employee_ID)}" ${task?.Employee_ID===e.Employee_ID?'selected':''}>${Utils.esc(e.Name)} — ${Utils.esc(e.Designation)}${e.Status==='On Leave'?' (On Leave)':''}</option>`
   ).join('');
 
   const empChecks = employees.map(e =>
     `<div class="form-check">
        <input class="form-check-input emp-assign-chk" type="checkbox" value="${Utils.esc(e.Employee_ID)}" id="empAssign_${Utils.esc(e.Employee_ID)}">
-       <label class="form-check-label small" for="empAssign_${Utils.esc(e.Employee_ID)}">${Utils.esc(e.Name)} <span class="text-muted">— ${Utils.esc(e.Designation)}</span></label>
+       <label class="form-check-label small" for="empAssign_${Utils.esc(e.Employee_ID)}">${Utils.esc(e.Name)} <span class="text-muted">— ${Utils.esc(e.Designation)}</span>${onLeaveTag(e)}</label>
      </div>`
   ).join('');
 
@@ -106,7 +107,8 @@ document.addEventListener('DOMContentLoaded', async () => {
               </div>
               <div class="col-6 col-md-4">
                 <label class="form-label fw-500">Deadline <span class="text-danger">*</span></label>
-                <input type="date" class="form-control" id="deadline" value="${Utils.esc(task?.Deadline||'')}" required>
+                <input type="date" class="form-control" id="deadline" value="${Utils.esc(task?.Deadline||'')}" min="${Utils.today()}" required>
+                <div class="form-text">Cannot be a past date</div>
               </div>
               <div class="col-6 col-md-4">
                 <label class="form-label fw-500">Completion Time</label>
@@ -164,6 +166,17 @@ async function saveTask() {
 
   if (!employeeIds.length || !title || !deadline) {
     alertEl.innerHTML = `<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-circle me-1"></i>At least one employee, Title, and Deadline are required.</div>`;
+    return;
+  }
+  // A deadline can never be set in the past; for an existing task it may stay
+  // where it already was, but it cannot be moved further back.
+  const minDeadline = isEdit ? (task.Deadline && task.Deadline < Utils.today() ? task.Deadline : Utils.today()) : Utils.today();
+  if (deadline < minDeadline) {
+    alertEl.innerHTML = `<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-circle me-1"></i>Deadline cannot be a past date. Please pick today or a future date.</div>`;
+    return;
+  }
+  if (deadline < startDate) {
+    alertEl.innerHTML = `<div class="alert alert-danger py-2 mb-3"><i class="bi bi-exclamation-circle me-1"></i>Deadline cannot be before the start date.</div>`;
     return;
   }
   alertEl.innerHTML = '';

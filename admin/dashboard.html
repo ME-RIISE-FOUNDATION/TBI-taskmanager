@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const session   = Auth.getSession();
   const tasks     = DB.getAll('tasks');
-  const employees = DB.getAll('employees');
+  const employees = staffOnly(DB.getAll('employees'));   // the CEO is the head/admin, not shown as staff
   const approvals = DB.getAll('approvals');
 
   const totalTasks       = tasks.length;
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="emp-card-header">
             ${emp.Photo_URL ? `<img src="${Utils.esc(emp.Photo_URL)}" class="emp-avatar" alt="${Utils.esc(emp.Name)}">` : `<div class="emp-avatar-initials">${Utils.esc(ini)}</div>`}
             <div>
-              <div class="emp-name">${Utils.esc(emp.Name)}</div>
+              <div class="emp-name">${Utils.esc(emp.Name)} ${Utils.leaveBadge(emp)}</div>
               <div class="emp-desig"><i class="bi ${icon} me-1"></i>${Utils.esc(emp.Designation)}</div>
             </div>
           </div>

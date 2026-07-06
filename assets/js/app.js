@@ -423,8 +423,27 @@ const Utils = {
   },
   formatDate(date) {
     if (!date) return '—';
-    try { return new Date(date).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}); }
+    // Space-separated "YYYY-MM-DD HH:MM:SS" stamps need the T for Safari.
+    try { return new Date(String(date).replace(' ', 'T')).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}); }
     catch { return date; }
+  },
+  // "2026-07-06 14:35:00" → "06 Jul 2026, 2:35 PM"; date-only values show just the date.
+  formatDateTime(dt) {
+    if (!dt) return '—';
+    const s = String(dt);
+    const hasTime = /\d{2}:\d{2}/.test(s.slice(10));
+    if (!hasTime) return this.formatDate(s);
+    try {
+      const d = new Date(s.replace(' ', 'T'));
+      return d.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) + ', ' +
+             d.toLocaleTimeString('en-IN', {hour:'numeric', minute:'2-digit', hour12:true});
+    } catch { return s; }
+  },
+  // Local "YYYY-MM-DD HH:MM:SS" timestamp (toISOString would shift to UTC).
+  nowStamp() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
   },
   today() { return new Date().toISOString().split('T')[0]; },
   daysPending(deadline) {
@@ -439,8 +458,8 @@ const Utils = {
   },
   daysBetween(from, to) {
     if (!from || !to) return null;
-    const a = new Date(from); a.setHours(0,0,0,0);
-    const b = new Date(to);   b.setHours(0,0,0,0);
+    const a = new Date(String(from).replace(' ', 'T')); a.setHours(0,0,0,0);
+    const b = new Date(String(to).replace(' ', 'T'));   b.setHours(0,0,0,0);
     if (isNaN(a) || isNaN(b)) return null;
     return Math.max(0, Math.round((b - a) / 86400000));
   },
@@ -476,7 +495,18 @@ const Utils = {
     return {'CEO':'bi-person-badge-fill','COO':'bi-person-workspace','Software Associate':'bi-code-slash',
             'Finance Associate':'bi-currency-rupee','Innovation Associate':'bi-lightbulb'}[d] || 'bi-person';
   },
+  // "On Leave" pill for an employee record (empty string when active)
+  leaveBadge(emp) {
+    return emp && emp.Status === 'On Leave'
+      ? '<span class="badge bg-warning text-dark"><i class="bi bi-umbrella me-1"></i>On Leave</span>' : '';
+  },
 };
+
+// Dr. Geetha Kiran A (CEO) is the head of the organisation and the admin —
+// she is not listed alongside staff in employee views, rankings or analytics.
+function staffOnly(employees) {
+  return (employees || []).filter(e => e.Designation !== 'CEO');
+}
 
 // ── Root path ─────────────────────────────────────────────────
 function rootPath() {
