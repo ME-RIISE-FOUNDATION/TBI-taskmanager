@@ -1,17 +1,20 @@
-name: Deploy to Render
+name: Deploy to Hostinger
 
 on:
   push:
     branches: [ main ]
+  workflow_dispatch: {}   # allow manual re-runs from the Actions tab
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Render Deploy
+      - name: Trigger Hostinger Deploy
         run: |
           if [ -z "${{ secrets.HOSTINGER_WEB_HOOK }}" ]; then
             echo "Error: HOSTINGER_WEB_HOOK secret is not set"
             exit 1
           fi
-          curl -X POST "${{ secrets.HOSTINGER_WEB_HOOK }}"
+          # -f makes curl exit non-zero on an HTTP error so a dead webhook
+          # turns this job red instead of silently "succeeding".
+          curl -fsS -X POST "${{ secrets.HOSTINGER_WEB_HOOK }}"
