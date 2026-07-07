@@ -32,7 +32,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   backfillCompletedDates();
 
-  const tasks     = DB.getAll('tasks').reverse(); // newest created first
+  // Newest first: most recently assigned at the top; ties keep newest-added first.
+  const tasks     = DB.getAll('tasks').slice().reverse();
+  tasks.sort((a, b) => {
+    const da = (a.Assigned_Date || '') + ' ' + (a.Deadline_Time || '');
+    const db = (b.Assigned_Date || '') + ' ' + (b.Deadline_Time || '');
+    return db.localeCompare(da);
+  });
   const allEmployees = DB.getAll('employees');
   const employees = staffOnly(allEmployees);
   const empMap    = Object.fromEntries(allEmployees.map(e => [e.Employee_ID, e]));

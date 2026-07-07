@@ -60,7 +60,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 function renderPage() {
   const session  = Auth.getSession();
   const myEmpId  = session.employee_id;
-  const allTasks = DB.findMany('tasks', 'Employee_ID', myEmpId).reverse(); // newest created first
+  // Newest first: most recently assigned at the top.
+  const allTasks = DB.findMany('tasks', 'Employee_ID', myEmpId).slice().reverse();
+  allTasks.sort((a, b) => {
+    const da = (a.Assigned_Date || '') + ' ' + (a.Deadline_Time || '');
+    const db = (b.Assigned_Date || '') + ' ' + (b.Deadline_Time || '');
+    return db.localeCompare(da);
+  });
   const params   = getParams();
   const tab      = params.get('tab') || 'all';
   const fSearch  = (params.get('q') || '').trim();

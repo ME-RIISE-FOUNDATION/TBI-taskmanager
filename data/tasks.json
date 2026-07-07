@@ -1982,11 +1982,12 @@
   "Assigned_Date": "2026-07-01",
   "Deadline": "2026-07-01",
   "Deadline_Time": "",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-07 11:27:29"
  },
  {
   "Task_ID": "TSK_20260702_782411",
