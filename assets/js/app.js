@@ -35,7 +35,7 @@ if (document.getElementById('pageContent')) showBootLoader();
 const ADMIN_ROLES   = ['CEO', 'COO'];
 const TASK_STATUSES = ['Pending', 'In Progress', 'Completed', 'Approved', 'Rejected'];
 const PRIORITIES    = ['High', 'Medium', 'Low'];
-const DESIGNATIONS  = ['CEO', 'COO', 'Software Associate', 'Finance Associate', 'Innovation Associate', 'Supporting Staff'];
+const DESIGNATIONS  = ['CEO', 'COO', 'Software Associate', 'Finance Associate', 'Innovation Associate', 'Support Staff'];
 
 // ── Server sync ───────────────────────────────────────────────
 // Served over http(s) => a PHP backend is present and is the shared source of
@@ -275,7 +275,7 @@ function seedIfNeeded(force) {
     {"Employee_ID":"EMP_003","Name":"Mr. Darshan H D",     "Designation":"Software Associate",  "Email":"satbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43212","Photo_URL":"","Status":"Active"},
     {"Employee_ID":"EMP_004","Name":"Miss. Ramya K V",     "Designation":"Finance Associate",   "Email":"fatbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43213","Photo_URL":"","Status":"Active"},
     {"Employee_ID":"EMP_005","Name":"Ms. Madhurya H V",    "Designation":"Innovation Associate","Email":"iatbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43214","Photo_URL":"","Status":"Active"},
-    {"Employee_ID":"EMP_006","Name":"Ms. Deeksha M S",     "Designation":"Supporting Staff",    "Email":"sstbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43215","Photo_URL":"","Status":"Active"}
+    {"Employee_ID":"EMP_006","Name":"Ms. Deeksha M S",     "Designation":"Support Staff",    "Email":"sstbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43215","Photo_URL":"","Status":"Active"}
   ]);
 
   // DEV/OFFLINE SEED ONLY (file:// fallback). Real auth runs server-side against
@@ -287,7 +287,7 @@ function seedIfNeeded(force) {
     {"User_ID":"USR_003","Username":"darsha",  "Password":"changeme123","Designation":"Software Associate",  "Employee_ID":"EMP_003","Email":"satbimeriise@mcehassan.ac.in","Name":"Mr. Darshan H D"},
     {"User_ID":"USR_004","Username":"ramya",   "Password":"changeme123","Designation":"Finance Associate",   "Employee_ID":"EMP_004","Email":"fatbimeriise@mcehassan.ac.in","Name":"Miss. Ramya K V"},
     {"User_ID":"USR_005","Username":"madhurya","Password":"changeme123","Designation":"Innovation Associate","Employee_ID":"EMP_005","Email":"iatbimeriise@mcehassan.ac.in","Name":"Ms. Madhurya H V"},
-    {"User_ID":"USR_006","Username":"deeksha", "Password":"changeme123","Designation":"Supporting Staff",    "Employee_ID":"EMP_006","Email":"sstbimeriise@mcehassan.ac.in","Name":"Ms. Deeksha M S"}
+    {"User_ID":"USR_006","Username":"deeksha", "Password":"changeme123","Designation":"Support Staff",    "Employee_ID":"EMP_006","Email":"sstbimeriise@mcehassan.ac.in","Name":"Ms. Deeksha M S"}
   ]);
 
   DB._setLocal('tasks', [

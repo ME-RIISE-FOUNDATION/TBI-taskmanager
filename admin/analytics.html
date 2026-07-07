@@ -65,23 +65,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 || b.stats.completed - a.stats.completed
                 || a.stats.overdue - b.stats.overdue);
 
-  // Employee of the Month — decided by work completed within a calendar month.
-  // The running month's award is revealed only on its last day; until then the
-  // card shows the winner of the last completed month.
+  // Employee of the Month — decided by work completed within the calendar month.
+  // The award is revealed ONLY on the last day of the month; on every other day
+  // the card is hidden entirely (eom stays null).
   const lastDayOfMonth = new Date(nowD.getFullYear(), nowD.getMonth()+1, 0);
   const isLastDay = nowD.getDate() === lastDayOfMonth.getDate();
-  const moDate   = isLastDay ? nowD : new Date(nowD.getFullYear(), nowD.getMonth()-1, 1);
-  const moKey    = `${moDate.getFullYear()}-${String(moDate.getMonth()+1).padStart(2,'0')}`;
-  const moLabel  = moDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const moKey    = `${nowD.getFullYear()}-${String(nowD.getMonth()+1).padStart(2,'0')}`;
+  const moLabel  = nowD.toLocaleDateString('en-US',{month:'long',year:'numeric'});
   const moTasks  = tasks.filter(t =>
     (t.Assigned_Date||'').slice(0,7) === moKey ||
     (isDoneT(t) && (t.Completed_Date||'').slice(0,7) === moKey));
-  const eom = employees
+  const eom = !isLastDay ? null : employees
     .map(emp => ({ emp, s: Utils.employeeStats(moTasks, emp.Employee_ID) }))
     .filter(x => x.s.completed > 0)
     .sort((a,b) => b.s.completed - a.s.completed || b.s.completionPct - a.s.completionPct)[0];
-  const nextAwardNote = isLastDay ? '' :
-    `Award for ${nowD.toLocaleDateString('en-US',{month:'long'})} will be announced on ${lastDayOfMonth.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}`;
 
   const medals = ['🥇','🥈','🥉'];
   const rankRows = ranking.map((r,i) => `
@@ -117,7 +114,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="text-uppercase small fw-700 text-warning" style="letter-spacing:.06em">Employee of the Month — ${Utils.esc(moLabel)}</div>
           <div class="fw-700 fs-5">${Utils.esc(eom.emp.Name)}</div>
           <div class="text-muted small">${Utils.esc(eom.emp.Designation)}</div>
-          ${nextAwardNote ? `<div class="small text-muted fst-italic mt-1"><i class="bi bi-calendar-event me-1"></i>${Utils.esc(nextAwardNote)}</div>` : ''}
         </div>
         <div class="text-center px-3">
           <div class="fw-700 fs-4 text-${Utils.pctColor(eom.s.completionPct)}">${eom.s.completionPct}%</div>
@@ -126,15 +122,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="text-center px-3 border-start">
           <div class="fw-700 fs-4 text-success">${eom.s.completed}/${eom.s.total}</div>
           <div class="small text-muted">Tasks Done</div>
-        </div>
-      </div>
-    </div>` : nextAwardNote ? `
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-body d-flex align-items-center gap-3">
-        <div class="fs-3">🏆</div>
-        <div>
-          <div class="text-uppercase small fw-700 text-warning" style="letter-spacing:.06em">Employee of the Month</div>
-          <div class="text-muted small">${Utils.esc(nextAwardNote)}</div>
         </div>
       </div>
     </div>` : ''}

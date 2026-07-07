@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const users     = DB.getAll('users');
   const userByEmp = Object.fromEntries(users.map(u => [u.Employee_ID, u]));
 
-  const order = ['CEO','COO','Software Associate','Finance Associate','Innovation Associate','Supporting Staff'];
+  const order = ['CEO','COO','Software Associate','Finance Associate','Innovation Associate','Support Staff'];
   employees.sort((a,b) => { const ai=order.indexOf(a.Designation); const bi=order.indexOf(b.Designation); return (ai<0?99:ai)-(bi<0?99:bi); });
 
   // Populate designation select
