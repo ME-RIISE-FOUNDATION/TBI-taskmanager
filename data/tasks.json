@@ -8,11 +8,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-25",
   "Deadline_Time": "12:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260625_0002",
@@ -23,11 +24,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-25",
   "Deadline_Time": "12:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260625_0003",
@@ -38,11 +40,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-26",
   "Deadline_Time": "11:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260625_0004",
@@ -53,11 +56,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-25",
   "Deadline_Time": "14:00",
-  "Status": "Pending",
+  "Status": "Approved",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260625_0005",
@@ -83,11 +87,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-25",
   "Deadline_Time": "12:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260624_0007",
@@ -162,11 +167,12 @@
   "Assigned_Date": "2026-06-22",
   "Deadline": "2026-06-25",
   "Deadline_Time": "16:00",
-  "Status": "Pending",
+  "Status": "Approved",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260622_0012",
@@ -223,11 +229,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-25",
   "Deadline_Time": "16:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260622_0016",
@@ -270,11 +277,12 @@
   "Assigned_Date": "2026-06-22",
   "Deadline": "2026-06-22",
   "Deadline_Time": "11:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-06"
  },
  {
   "Task_ID": "TSK_20260622_0019",
@@ -285,11 +293,12 @@
   "Assigned_Date": "2026-06-22",
   "Deadline": "2026-06-22",
   "Deadline_Time": "12:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260622_0020",
@@ -537,11 +546,12 @@
   "Assigned_Date": "2026-05-21",
   "Deadline": "2026-06-20",
   "Deadline_Time": "",
-  "Status": "In Progress",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-06"
  },
  {
   "Task_ID": "TSK_20260625_0036",
@@ -552,11 +562,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-25",
   "Deadline_Time": "15:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260625_0037",
@@ -567,11 +578,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-27",
   "Deadline_Time": "15:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260625_0038",
@@ -582,11 +594,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-25",
   "Deadline_Time": "00:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260624_0039",
@@ -597,11 +610,12 @@
   "Assigned_Date": "2026-06-24",
   "Deadline": "2026-06-24",
   "Deadline_Time": "11:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260624_0040",
@@ -628,11 +642,12 @@
   "Assigned_Date": "2026-06-22",
   "Deadline": "2026-06-24",
   "Deadline_Time": "12:30",
-  "Status": "In Progress",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260622_0042",
@@ -850,11 +865,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-25",
   "Deadline_Time": "11:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260625_0056",
@@ -865,11 +881,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-25",
   "Deadline_Time": "10:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260625_0057",
@@ -880,11 +897,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-25",
   "Deadline_Time": "14:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260622_0058",
@@ -942,11 +960,12 @@
   "Assigned_Date": "2026-06-22",
   "Deadline": "2026-06-22",
   "Deadline_Time": "12:45",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260622_0062",
@@ -1068,11 +1087,12 @@
   "Assigned_Date": "2026-06-19",
   "Deadline": "2026-06-22",
   "Deadline_Time": "10:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260616_0070",
@@ -1224,11 +1244,12 @@
   "Assigned_Date": "2026-06-25",
   "Deadline": "2026-06-26",
   "Deadline_Time": "11:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-04"
  },
  {
   "Task_ID": "TSK_20260622_0080",
@@ -1331,11 +1352,12 @@
   "Assigned_Date": "2026-06-19",
   "Deadline": "2026-06-19",
   "Deadline_Time": "13:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260619_0087",
@@ -1346,11 +1368,12 @@
   "Assigned_Date": "2026-06-19",
   "Deadline": "2026-06-19",
   "Deadline_Time": "",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260619_0088",
@@ -1531,11 +1554,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260630_694857",
@@ -1546,11 +1570,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "11:30",
-  "Status": "Pending",
+  "Status": "Approved",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260630_819120",
@@ -1561,11 +1586,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "10:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260630_292511",
@@ -1576,11 +1602,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "10:45",
-  "Status": "Pending",
+  "Status": "Approved",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-02"
  },
  {
   "Task_ID": "TSK_20260630_381826",
@@ -1591,11 +1618,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "16:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260630_171717",
@@ -1606,11 +1634,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "15:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-07 12:00:59"
  },
  {
   "Task_ID": "TSK_20260630_105278",
@@ -1621,11 +1650,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "11:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-04"
  },
  {
   "Task_ID": "TSK_20260630_158084",
@@ -1651,11 +1681,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "11:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260629_107957",
@@ -1682,11 +1713,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "16:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260630_060807",
@@ -1697,11 +1729,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "14:45",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260630_483375",
@@ -1712,11 +1745,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "15:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260630_273837",
@@ -1727,11 +1761,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "00:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260630_322177",
@@ -1742,11 +1777,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "10:50",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-04"
  },
  {
   "Task_ID": "TSK_20260630_347000",
@@ -1757,11 +1793,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "10:40",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260630_038383",
@@ -1772,11 +1809,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "11:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260630_584051",
@@ -1787,11 +1825,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "16:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260630_551547",
@@ -1817,11 +1856,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "11:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260630_478200",
@@ -1832,11 +1872,12 @@
   "Assigned_Date": "2026-06-30",
   "Deadline": "2026-06-30",
   "Deadline_Time": "10:30",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-03"
  },
  {
   "Task_ID": "TSK_20260702_335701",
@@ -1922,11 +1963,12 @@
   "Assigned_Date": "2026-07-02",
   "Deadline": "2026-07-02",
   "Deadline_Time": "10:02",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-04"
  },
  {
   "Task_ID": "TSK_20260702_112118",
@@ -1952,11 +1994,12 @@
   "Assigned_Date": "2026-07-02",
   "Deadline": "2026-07-02",
   "Deadline_Time": "00:00",
-  "Status": "Pending",
+  "Status": "Completed",
   "Days_Pending": 0,
   "Assigned_By": "Dr. Geetha Kiran A",
   "File_URL": "",
-  "Notes": ""
+  "Notes": "",
+  "Completed_Date": "2026-07-04"
  },
  {
   "Task_ID": "TSK_20260701_600740",
@@ -2672,5 +2715,20 @@
   "File_URL": "",
   "Notes": "",
   "Completed_Date": "2026-07-04"
+ },
+ {
+  "Task_ID": "TSK_20260707_26W3SZ",
+  "Employee_ID": "EMP_003",
+  "Task_Title": "Test",
+  "Description": "sdfgghj",
+  "Priority": "Medium",
+  "Assigned_Date": "2026-07-07",
+  "Deadline": "2026-07-07",
+  "Deadline_Time": "",
+  "Status": "Pending",
+  "Days_Pending": 0,
+  "Assigned_By": "Dr. Geetha Kiran A",
+  "File_URL": "",
+  "Notes": ""
  }
 ]
