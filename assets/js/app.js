@@ -598,11 +598,14 @@ function renderShell(title, requireAdmin = false) {
           <div class="su-name">${Utils.esc(session.name)}</div>
           <div class="su-role">${Utils.esc(session.designation)}</div>
         </div>
+        <a href="#" class="su-logout" title="Change Password" onclick="openChangePassword();return false;"><i class="bi bi-key"></i></a>
         <a href="#" class="su-logout" title="Logout" onclick="Auth.logout();return false;"><i class="bi bi-box-arrow-right"></i></a>
       </div>
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
   `;
+
+  ensureChangePasswordModal();
 
   document.getElementById('topbarContainer').innerHTML = `
     <header class="tbi-topbar">
@@ -670,6 +673,74 @@ function renderShell(title, requireAdmin = false) {
   }
 
   return true;
+}
+
+// ── Change Password (self-service, any logged-in user) ────────
+// Injected once into the shell so the logged-in user — including admins like the
+// CEO who have no Profile page — can change their own password. The current
+// password is verified server-side against the bcrypt hash.
+function ensureChangePasswordModal() {
+  if (document.getElementById('changePwdModal')) return;
+  const el = document.createElement('div');
+  el.innerHTML = `
+    <div class="modal fade" id="changePwdModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-shield-lock me-2"></i>Change Password</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="cpwdAlert"></div>
+            <div class="mb-3">
+              <label class="form-label small">Current Password</label>
+              <input type="password" class="form-control" id="cpwdCurrent" autocomplete="current-password" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small">New Password</label>
+              <input type="password" class="form-control" id="cpwdNew" minlength="8" autocomplete="new-password" required>
+            </div>
+            <div class="mb-1">
+              <label class="form-label small">Confirm New Password</label>
+              <input type="password" class="form-control" id="cpwdConfirm" minlength="8" autocomplete="new-password" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="submitChangePassword()">Update Password</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(el.firstElementChild);
+}
+
+function openChangePassword() {
+  ensureChangePasswordModal();
+  const ids = ['cpwdAlert','cpwdCurrent','cpwdNew','cpwdConfirm'];
+  ids.forEach(id => { const n = document.getElementById(id); if (n) n[id==='cpwdAlert'?'innerHTML':'value'] = ''; });
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('changePwdModal')).show();
+}
+
+async function submitChangePassword() {
+  const session = Auth.getSession();
+  const alertEl = document.getElementById('cpwdAlert');
+  const current = document.getElementById('cpwdCurrent').value;
+  const newPwd  = document.getElementById('cpwdNew').value;
+  const confirm = document.getElementById('cpwdConfirm').value;
+  const err = m => alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-3">${m}</div>`;
+
+  if (!session || !session.username) return err('Your session has expired. Please log in again.');
+  if (!current)                       return err('Enter your current password.');
+  if (newPwd.length < 8)              return err('New password must be at least 8 characters.');
+  if (newPwd !== confirm)             return err('New passwords do not match.');
+
+  const r = await API.setPassword(session.username, newPwd, current);
+  if (!r || !r.ok) return err((r && r.error) || 'Could not change password (server offline).');
+  alertEl.innerHTML = `<div class="alert alert-success py-2 small mb-3">Password changed successfully.</div>`;
+  document.getElementById('cpwdCurrent').value = '';
+  document.getElementById('cpwdNew').value = '';
+  document.getElementById('cpwdConfirm').value = '';
 }
 
 // ── Notifications ─────────────────────────────────────────────
