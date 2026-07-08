@@ -1,10 +1,42 @@
 [
- {
-  "Attendance_ID": "ATT_20260706_PH0V5Y",
-  "Employee_ID": "EMP_001",
-  "Date": "2026-07-06",
-  "Login_Time": "2026-07-06 15:33:45",
-  "Check_In": "",
-  "Check_Out": ""
- }
+  {
+    "Attendance_ID": "ATT_20260706_PH0V5Y",
+    "Employee_ID": "EMP_001",
+    "Date": "2026-07-06",
+    "Login_Time": "2026-07-06 15:33:45",
+    "Check_In": "",
+    "Check_Out": ""
+  },
+  {
+    "Attendance_ID": "ATT_20260707_XWKB4O",
+    "Employee_ID": "EMP_001",
+    "Date": "2026-07-07",
+    "Login_Time": "2026-07-07 17:46:55",
+    "Check_In": "",
+    "Check_Out": ""
+  },
+  {
+    "Attendance_ID": "ATT_20260708_1O3NYR",
+    "Employee_ID": "EMP_001",
+    "Date": "2026-07-08",
+    "Login_Time": "2026-07-08 06:09:44",
+    "Check_In": "",
+    "Check_Out": ""
+  },
+  {
+    "Attendance_ID": "ATT_20260708_FA8YIP",
+    "Employee_ID": "EMP_006",
+    "Date": "2026-07-08",
+    "Login_Time": "2026-07-08 10:06:35",
+    "Check_In": "",
+    "Check_Out": ""
+  },
+  {
+    "Attendance_ID": "ATT_20260708_R25AZW",
+    "Employee_ID": "EMP_004",
+    "Date": "2026-07-08",
+    "Login_Time": "2026-07-08 10:06:49",
+    "Check_In": "",
+    "Check_Out": ""
+  }
 ]

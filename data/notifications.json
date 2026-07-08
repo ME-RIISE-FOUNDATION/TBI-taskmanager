@@ -1,1 +1,66 @@
-[]
+[
+  {
+    "Notif_ID": "NOTIF_20260708_X479BG",
+    "User_ID": "EMP_002",
+    "Message": "New task assigned: Get the permission letter for alumni Hall by 10:00 am for 10th event",
+    "Type": "task_assigned",
+    "Read_Status": "unread",
+    "Created_At": "2026-07-08 03:10:52"
+  },
+  {
+    "Notif_ID": "NOTIF_20260708_I4KHPO",
+    "User_ID": "EMP_003",
+    "Message": "New task assigned: In Task manager show me the option to change password",
+    "Type": "task_assigned",
+    "Read_Status": "unread",
+    "Created_At": "2026-07-08 03:11:36"
+  },
+  {
+    "Notif_ID": "NOTIF_20260708_XNY0EJ",
+    "User_ID": "EMP_003",
+    "Message": "New task assigned: Talk to Gokul and set up a meeting with the volunteers today - Need to work on Arogyamanthan registrations",
+    "Type": "task_assigned",
+    "Read_Status": "unread",
+    "Created_At": "2026-07-08 03:12:44"
+  },
+  {
+    "Notif_ID": "NOTIF_20260708_G6N9MK",
+    "User_ID": "EMP_002",
+    "Message": "New task assigned: Discuss and float the problem statements for Arogyamanthan",
+    "Type": "task_assigned",
+    "Read_Status": "unread",
+    "Created_At": "2026-07-08 03:13:29"
+  },
+  {
+    "Notif_ID": "NOTIF_20260708_QDSU32",
+    "User_ID": "EMP_003",
+    "Message": "New task assigned: Discuss and float the problem statements for Arogyamanthan",
+    "Type": "task_assigned",
+    "Read_Status": "unread",
+    "Created_At": "2026-07-08 03:13:29"
+  },
+  {
+    "Notif_ID": "NOTIF_20260708_V5E7F4",
+    "User_ID": "EMP_004",
+    "Message": "New task assigned: Update RGEP UC as per this months stipend disbursement",
+    "Type": "task_assigned",
+    "Read_Status": "unread",
+    "Created_At": "2026-07-08 03:15:01"
+  },
+  {
+    "Notif_ID": "NOTIF_20260708_S4NBA8",
+    "User_ID": "EMP_006",
+    "Message": "New task assigned: Marketing decoded",
+    "Type": "task_assigned",
+    "Read_Status": "unread",
+    "Created_At": "2026-07-08 03:18:00"
+  },
+  {
+    "Notif_ID": "NOTIF_20260708_E67MGY",
+    "User_ID": "EMP_004",
+    "Message": "New task assigned: Plan for the Tally event",
+    "Type": "task_assigned",
+    "Read_Status": "unread",
+    "Created_At": "2026-07-08 03:19:29"
+  }
+]
