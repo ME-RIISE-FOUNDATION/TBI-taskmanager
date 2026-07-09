@@ -32,7 +32,9 @@ function hideBootLoader() {
 if (document.getElementById('pageContent')) showBootLoader();
 
 // ── Config ────────────────────────────────────────────────────
-const ADMIN_ROLES   = ['CEO', 'COO'];
+// Only the CEO has admin access. The COO (Mohana) is a task recipient like any
+// other staff member — she receives tasks but does not get the admin panel.
+const ADMIN_ROLES   = ['CEO'];
 const TASK_STATUSES = ['Pending', 'In Progress', 'Completed', 'Approved', 'Rejected'];
 const PRIORITIES    = ['High', 'Medium', 'Low'];
 const DESIGNATIONS  = ['CEO', 'COO', 'Software Associate', 'Finance Associate', 'Innovation Associate', 'Support Staff'];
