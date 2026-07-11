@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "Approval_ID": "APR_20260711_WLQJCV",
+    "Task_ID": "TSK_20260706_396003",
+    "Employee_ID": "EMP_006",
+    "Status": "Pending",
+    "Approved_By": "",
+    "Comments": "",
+    "Approval_Date": "",
+    "Submission_Date": "2026-07-11 06:40:47"
+  }
+]
