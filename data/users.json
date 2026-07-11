@@ -52,5 +52,14 @@
     "Employee_ID": "EMP_006",
     "Email": "sstbimeriise@mcehassan.ac.in",
     "Name": "Ms. Deeksha M S"
+  },
+  {
+    "User_ID": "USR_007",
+    "Username": "megha",
+    "Designation": "Programme Associate/Outreach officer",
+    "Employee_ID": "EMP_007",
+    "Email": "patbimeriise@mcehassan.ac.in",
+    "Name": "Ms. Megha H M",
+    "Password_Hash": "$2b$10$4N/40wHVr.rUUiuK3qESJeOBToLFwMoWUUorM7F4SaO/nxPXTJWlu"
   }
 ]

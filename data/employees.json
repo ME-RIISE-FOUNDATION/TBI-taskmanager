@@ -52,5 +52,14 @@
     "Phone": "+91 98765 43215",
     "Photo_URL": "",
     "Status": "Active"
+  },
+  {
+    "Employee_ID": "EMP_007",
+    "Name": "Ms. Megha H M",
+    "Designation": "Programme Associate/Outreach officer",
+    "Email": "patbimeriise@mcehassan.ac.in",
+    "Phone": "",
+    "Photo_URL": "",
+    "Status": "Active"
   }
 ]
