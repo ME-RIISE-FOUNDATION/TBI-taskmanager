@@ -39,7 +39,8 @@
           </div>
           <div class="col-md-6"><label class="form-label fw-500">Email <span class="text-danger">*</span></label><input type="email" class="form-control" id="newEmail" required></div>
           <div class="col-md-6"><label class="form-label fw-500">Phone</label><input type="tel" class="form-control" id="newPhone" placeholder="+91 XXXXX XXXXX"></div>
-          <div class="col-12"><label class="form-label fw-500">Photo URL</label><input type="url" class="form-control" id="newPhoto" placeholder="https://…"></div>
+          <div class="col-md-6"><label class="form-label fw-500">Date of Joining</label><input type="date" class="form-control" id="newJoinDate"></div>
+          <div class="col-md-6"><label class="form-label fw-500">Photo URL</label><input type="url" class="form-control" id="newPhoto" placeholder="https://…"></div>
           <div class="col-md-6"><label class="form-label fw-500">Username <span class="text-danger">*</span></label><input type="text" class="form-control" id="newUsername" required autocomplete="off"></div>
           <div class="col-md-6"><label class="form-label fw-500">Password <span class="text-danger">*</span></label><input type="password" class="form-control" id="newPassword" required minlength="8" placeholder="Min 8 characters" autocomplete="new-password"></div>
         </div>
@@ -123,6 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div class="emp-name">${Utils.esc(emp.Name)} ${Utils.leaveBadge(emp)}</div>
               <div class="emp-desig">${Utils.esc(emp.Designation)}</div>
               <div style="font-size:.68rem" class="text-muted mt-1">${Utils.esc(emp.Email)}</div>
+              ${emp.Joining_Date ? `<div style="font-size:.68rem" class="text-muted"><i class="bi bi-calendar-check me-1"></i>Joined ${Utils.esc(Utils.formatDate(emp.Joining_Date))}</div>` : ''}
             </div>
           </div>
           <div class="row g-2 text-center mb-3">
@@ -162,6 +164,7 @@ async function addEmployee() {
   const desig    = document.getElementById('newDesig').value;
   const email    = document.getElementById('newEmail').value.trim();
   const phone    = document.getElementById('newPhone').value.trim();
+  const joinDate = document.getElementById('newJoinDate').value;
   const photo    = document.getElementById('newPhoto').value.trim();
   const username = document.getElementById('newUsername').value.trim();
   const password = document.getElementById('newPassword').value;
@@ -176,7 +179,7 @@ async function addEmployee() {
   if (DB.findOne('users','Username',username)) { alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-2">Username already exists.</div>`; return; }
 
   const empId = Utils.generateId('EMP');
-  DB.append('employees', {Employee_ID:empId, Name:name, Designation:desig, Email:email, Phone:phone, Photo_URL:photo, Status:'Active'});
+  DB.append('employees', {Employee_ID:empId, Name:name, Designation:desig, Email:email, Phone:phone, Joining_Date:joinDate, Photo_URL:photo, Status:'Active'});
   // Create the user without any password, then set the hash server-side so the
   // cleartext password is never stored in localStorage or the sync queue.
   DB.append('users', {User_ID:Utils.generateId('USR'), Username:username, Designation:desig, Employee_ID:empId, Email:email, Name:name});
@@ -207,6 +210,7 @@ function openProfile(empId) {
         <div class="fw-700 fs-5">${Utils.esc(emp.Name)} ${Utils.leaveBadge(emp)}</div>
         <div class="text-muted">${Utils.esc(emp.Designation)}</div>
         <div class="text-muted small">ID: <code>${Utils.esc(emp.Employee_ID)}</code>${user?` · Login: <code>${Utils.esc(user.Username)}</code>`:''}</div>
+        <div class="text-muted small"><i class="bi bi-calendar-check me-1"></i>Joined: ${Utils.esc(Utils.formatDate(emp.Joining_Date))}</div>
       </div>
     </div>
     <div class="row g-2 text-center mb-3">
@@ -222,6 +226,7 @@ function openProfile(empId) {
       <div class="col-md-6"><label class="form-label small fw-500">Designation</label><select class="form-select" id="profDesig">${desigOpts}</select></div>
       <div class="col-md-6"><label class="form-label small fw-500">Email</label><input type="email" class="form-control" id="profEmail" value="${Utils.esc(emp.Email||'')}"></div>
       <div class="col-md-6"><label class="form-label small fw-500">Phone</label><input type="tel" class="form-control" id="profPhone" value="${Utils.esc(emp.Phone||'')}"></div>
+      <div class="col-md-6"><label class="form-label small fw-500">Date of Joining</label><input type="date" class="form-control" id="profJoinDate" value="${Utils.esc((emp.Joining_Date||'').slice(0,10))}"></div>
       <div class="col-md-6"><label class="form-label small fw-500">Photo URL</label><input type="url" class="form-control" id="profPhoto" value="${Utils.esc(emp.Photo_URL||'')}"></div>
       <div class="col-md-6">
         <label class="form-label small fw-500">Availability</label>
@@ -246,11 +251,12 @@ async function saveProfile(empId) {
   const desig = document.getElementById('profDesig').value;
   const email = document.getElementById('profEmail').value.trim();
   const phone = document.getElementById('profPhone').value.trim();
+  const join  = document.getElementById('profJoinDate').value;
   const photo = document.getElementById('profPhoto').value.trim();
   const stat  = document.getElementById('profStatus').value;
   if (!name || !email) { alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-2">Name and email are required.</div>`; return; }
 
-  DB.updateById('employees', 'Employee_ID', empId, {Name:name, Designation:desig, Email:email, Phone:phone, Photo_URL:photo, Status:stat});
+  DB.updateById('employees', 'Employee_ID', empId, {Name:name, Designation:desig, Email:email, Phone:phone, Joining_Date:join, Photo_URL:photo, Status:stat});
   // Keep the login record in step so the sidebar/session shows the same details.
   const user = DB.findOne('users', 'Employee_ID', empId);
   if (user) DB.updateById('users', 'User_ID', user.User_ID, {Name:name, Designation:desig, Email:email});
