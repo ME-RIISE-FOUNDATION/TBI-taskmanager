@@ -40,7 +40,17 @@
           <div class="col-md-6"><label class="form-label fw-500">Email <span class="text-danger">*</span></label><input type="email" class="form-control" id="newEmail" required></div>
           <div class="col-md-6"><label class="form-label fw-500">Phone</label><input type="tel" class="form-control" id="newPhone" placeholder="+91 XXXXX XXXXX"></div>
           <div class="col-md-6"><label class="form-label fw-500">Date of Joining</label><input type="date" class="form-control" id="newJoinDate"></div>
-          <div class="col-md-6"><label class="form-label fw-500">Photo URL</label><input type="url" class="form-control" id="newPhoto" placeholder="https://…"></div>
+          <div class="col-12">
+            <label class="form-label fw-500">Profile Picture</label>
+            <div class="d-flex align-items-center gap-3">
+              <img id="newPhotoPreview" src="" alt="" class="rounded-circle" width="56" height="56" style="object-fit:cover;border:2px solid var(--glass-bd2);display:none">
+              <div class="flex-fill">
+                <input type="file" accept="image/*" class="form-control form-control-sm mb-2" id="newPhotoFile" onchange="pickPhoto('newPhotoFile','newPhotoPreview','newPhotoData','newPhoto')">
+                <input type="url" class="form-control form-control-sm" id="newPhoto" placeholder="…or paste an image URL" oninput="document.getElementById('newPhotoData').value=''">
+              </div>
+            </div>
+            <input type="hidden" id="newPhotoData">
+          </div>
           <div class="col-md-6"><label class="form-label fw-500">Username <span class="text-danger">*</span></label><input type="text" class="form-control" id="newUsername" required autocomplete="off"></div>
           <div class="col-md-6"><label class="form-label fw-500">Password <span class="text-danger">*</span></label><input type="password" class="form-control" id="newPassword" required minlength="8" placeholder="Min 8 characters" autocomplete="new-password"></div>
         </div>
@@ -165,7 +175,7 @@ async function addEmployee() {
   const email    = document.getElementById('newEmail').value.trim();
   const phone    = document.getElementById('newPhone').value.trim();
   const joinDate = document.getElementById('newJoinDate').value;
-  const photo    = document.getElementById('newPhoto').value.trim();
+  const photo    = document.getElementById('newPhotoData').value || document.getElementById('newPhoto').value.trim();
   const username = document.getElementById('newUsername').value.trim();
   const password = document.getElementById('newPassword').value;
   const alertEl  = document.getElementById('addEmpAlert');
@@ -227,7 +237,17 @@ function openProfile(empId) {
       <div class="col-md-6"><label class="form-label small fw-500">Email</label><input type="email" class="form-control" id="profEmail" value="${Utils.esc(emp.Email||'')}"></div>
       <div class="col-md-6"><label class="form-label small fw-500">Phone</label><input type="tel" class="form-control" id="profPhone" value="${Utils.esc(emp.Phone||'')}"></div>
       <div class="col-md-6"><label class="form-label small fw-500">Date of Joining</label><input type="date" class="form-control" id="profJoinDate" value="${Utils.esc((emp.Joining_Date||'').slice(0,10))}"></div>
-      <div class="col-md-6"><label class="form-label small fw-500">Photo URL</label><input type="url" class="form-control" id="profPhoto" value="${Utils.esc(emp.Photo_URL||'')}"></div>
+      <div class="col-12">
+        <label class="form-label small fw-500">Profile Picture</label>
+        <div class="d-flex align-items-center gap-3">
+          <img id="profPhotoPreview" src="${Utils.esc(emp.Photo_URL||'')}" alt="" class="rounded-circle" width="56" height="56" style="object-fit:cover;border:2px solid var(--glass-bd2);${emp.Photo_URL?'':'display:none'}">
+          <div class="flex-fill">
+            <input type="file" accept="image/*" class="form-control form-control-sm mb-2" id="profPhotoFile" onchange="pickPhoto('profPhotoFile','profPhotoPreview','profPhotoData','profPhoto')">
+            <input type="url" class="form-control form-control-sm" id="profPhoto" value="${(emp.Photo_URL||'').startsWith('data:')?'':Utils.esc(emp.Photo_URL||'')}" placeholder="…or paste an image URL" oninput="document.getElementById('profPhotoData').value=''">
+          </div>
+        </div>
+        <input type="hidden" id="profPhotoData" value="${Utils.esc(emp.Photo_URL||'')}">
+      </div>
       <div class="col-md-6">
         <label class="form-label small fw-500">Availability</label>
         <select class="form-select" id="profStatus">
@@ -252,7 +272,7 @@ async function saveProfile(empId) {
   const email = document.getElementById('profEmail').value.trim();
   const phone = document.getElementById('profPhone').value.trim();
   const join  = document.getElementById('profJoinDate').value;
-  const photo = document.getElementById('profPhoto').value.trim();
+  const photo = document.getElementById('profPhotoData').value || document.getElementById('profPhoto').value.trim();
   const stat  = document.getElementById('profStatus').value;
   if (!name || !email) { alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-2">Name and email are required.</div>`; return; }
 

@@ -482,6 +482,34 @@ const Utils = {
     return `${prefix.toUpperCase()}_${date}_${rand}`;
   },
   initials(name) { return (name||'U').split(' ').map(w=>w[0]?.toUpperCase()||'').join('').slice(0,2) || 'U'; },
+  // Read a picked image file and return a small, compressed JPEG data URL. Done
+  // entirely client-side (canvas) so no upload server is needed — the result is
+  // stored in Photo_URL and syncs like any other field. Capped in size so the
+  // dataset stays small.
+  readImageResized(file, maxDim = 320, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+      if (!file) return reject(new Error('No file selected.'));
+      if (!file.type || !file.type.startsWith('image/')) return reject(new Error('Please choose an image file.'));
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Could not read the file.'));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('That file is not a valid image.'));
+        img.onload = () => {
+          let { width, height } = img;
+          if (width >= height && width > maxDim)      { height = Math.round(height * maxDim / width);  width = maxDim; }
+          else if (height > width && height > maxDim) { width  = Math.round(width  * maxDim / height); height = maxDim; }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          try { resolve(canvas.toDataURL('image/jpeg', quality)); }
+          catch (e) { reject(new Error('Could not process the image.')); }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  },
   employeeStats(tasks, employeeId) {
     const mine      = tasks.filter(t => t.Employee_ID === employeeId);
     const total     = mine.length;
@@ -745,6 +773,27 @@ async function submitChangePassword() {
   document.getElementById('cpwdCurrent').value = '';
   document.getElementById('cpwdNew').value = '';
   document.getElementById('cpwdConfirm').value = '';
+}
+
+// ── Profile picture upload (shared) ───────────────────────────
+// Resize the picked file to a small JPEG data URL, preview it, stash it in the
+// hidden data field, and clear any pasted URL (an uploaded image wins). Stored
+// in Photo_URL and synced like any other field — no upload server needed.
+async function pickPhoto(fileId, previewId, dataId, urlId) {
+  const fileEl = document.getElementById(fileId);
+  const file   = fileEl && fileEl.files && fileEl.files[0];
+  if (!file) return;
+  try {
+    const dataUrl = await Utils.readImageResized(file, 320, 0.82);
+    const dataEl = document.getElementById(dataId);
+    if (dataEl) dataEl.value = dataUrl;
+    const prev = document.getElementById(previewId);
+    if (prev) { prev.src = dataUrl; prev.style.display = ''; }
+    if (urlId) { const u = document.getElementById(urlId); if (u) u.value = ''; }
+  } catch (err) {
+    alert(err.message || 'Could not load that image.');
+    fileEl.value = '';
+  }
 }
 
 // ── Notifications ─────────────────────────────────────────────

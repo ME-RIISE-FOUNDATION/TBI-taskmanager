@@ -86,9 +86,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <label class="form-label small">Phone</label>
                 <input type="tel" class="form-control" id="editPhone" value="${Utils.esc(emp.Phone||'')}" placeholder="+91 XXXXX XXXXX">
               </div>
-              <div class="col-sm-6">
-                <label class="form-label small">Photo URL</label>
-                <input type="url" class="form-control" id="editPhoto" value="${Utils.esc(emp.Photo_URL||'')}" placeholder="https://…">
+              <div class="col-12">
+                <label class="form-label small">Profile Picture</label>
+                <div class="d-flex align-items-center gap-3">
+                  <img id="editPhotoPreview" src="${Utils.esc(emp.Photo_URL||'')}" alt="" class="rounded-circle" width="56" height="56" style="object-fit:cover;border:2px solid var(--glass-bd2);${emp.Photo_URL?'':'display:none'}">
+                  <div class="flex-fill">
+                    <input type="file" accept="image/*" class="form-control form-control-sm mb-2" id="editPhotoFile" onchange="pickPhoto('editPhotoFile','editPhotoPreview','editPhotoData','editPhoto')">
+                    <input type="url" class="form-control form-control-sm" id="editPhoto" value="${(emp.Photo_URL||'').startsWith('data:')?'':Utils.esc(emp.Photo_URL||'')}" placeholder="…or paste an image URL" oninput="document.getElementById('editPhotoData').value=''">
+                  </div>
+                </div>
+                <input type="hidden" id="editPhotoData" value="${Utils.esc(emp.Photo_URL||'')}">
               </div>
               <div class="col-sm-6">
                 <label class="form-label small">Availability</label>
@@ -137,7 +144,7 @@ async function saveMyDetails() {
     alertEl.innerHTML = `<div class="alert alert-danger py-2 small mb-3">Your employee record could not be found.</div>`; return;
   }
   const phone  = document.getElementById('editPhone').value.trim();
-  const photo  = document.getElementById('editPhoto').value.trim();
+  const photo  = document.getElementById('editPhotoData').value || document.getElementById('editPhoto').value.trim();
   const status = document.getElementById('editStatus').value;
   DB.updateById('employees', 'Employee_ID', session.employee_id, {Phone: phone, Photo_URL: photo, Status: status});
   setFlash('success', status === 'On Leave' ? 'Details saved — you are marked On Leave.' : 'Profile details updated.');
