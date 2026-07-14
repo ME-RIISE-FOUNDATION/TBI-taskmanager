@@ -72,12 +72,12 @@
     "Assigned_Date": "2026-06-25",
     "Deadline": "2026-06-25",
     "Deadline_Time": "11:00",
-    "Status": "In Progress",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
     "Notes": "",
-    "Completed_Date": ""
+    "Completed_Date": "2026-07-14 08:09:57"
   },
   {
     "Task_ID": "TSK_20260625_0006",
@@ -200,11 +200,12 @@
     "Assigned_Date": "2026-06-25",
     "Deadline": "2026-06-25",
     "Deadline_Time": "12:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 12:01:50"
   },
   {
     "Task_ID": "TSK_20260625_0014",
@@ -455,11 +456,12 @@
     "Assigned_Date": "2026-06-19",
     "Deadline": "2026-06-19",
     "Deadline_Time": "",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 10:33:55"
   },
   {
     "Task_ID": "TSK_20260616_0030",
@@ -710,11 +712,12 @@
     "Assigned_Date": "2026-06-19",
     "Deadline": "2026-06-20",
     "Deadline_Time": "",
-    "Status": "Pending",
+    "Status": "In Progress",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": ""
   },
   {
     "Task_ID": "TSK_20260619_0046",
@@ -949,11 +952,12 @@
     "Assigned_Date": "2026-06-22",
     "Deadline": "2026-06-22",
     "Deadline_Time": "12:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 17:28:10"
   },
   {
     "Task_ID": "TSK_20260622_0061",
@@ -1195,21 +1199,6 @@
     "Completed_Date": "2026-06-04"
   },
   {
-    "Task_ID": "TSK_20260604_0076",
-    "Employee_ID": "EMP_005",
-    "Task_Title": "Updating website with event details (regular). End-to-end documentation for all events.",
-    "Description": "",
-    "Priority": "High",
-    "Assigned_Date": "2026-06-04",
-    "Deadline": "2026-06-30",
-    "Deadline_Time": "",
-    "Status": "In Progress",
-    "Days_Pending": 0,
-    "Assigned_By": "Dr. Geetha Kiran A",
-    "File_URL": "",
-    "Notes": ""
-  },
-  {
     "Task_ID": "TSK_20260625_0077",
     "Employee_ID": "EMP_006",
     "Task_Title": "Events facilitated by Darshan to be recorded",
@@ -1233,11 +1222,12 @@
     "Assigned_Date": "2026-06-25",
     "Deadline": "2026-06-25",
     "Deadline_Time": "10:31",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-11 13:32:07"
   },
   {
     "Task_ID": "TSK_20260625_0079",
@@ -1264,11 +1254,12 @@
     "Assigned_Date": "2026-06-22",
     "Deadline": "2026-06-22",
     "Deadline_Time": "15:00",
-    "Status": "In Progress",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 17:30:35"
   },
   {
     "Task_ID": "TSK_20260622_0081",
@@ -1341,11 +1332,12 @@
     "Assigned_Date": "2026-06-19",
     "Deadline": "2026-06-20",
     "Deadline_Time": "",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 17:31:41"
   },
   {
     "Task_ID": "TSK_20260619_0086",
@@ -1458,21 +1450,6 @@
     "File_URL": "",
     "Notes": "",
     "Completed_Date": "2026-06-04"
-  },
-  {
-    "Task_ID": "TSK_20260630_251851",
-    "Employee_ID": "EMP_002",
-    "Task_Title": "Get the report of visit to Visukhi and Cambridge and get it filed",
-    "Description": "",
-    "Priority": "High",
-    "Assigned_Date": "2026-06-30",
-    "Deadline": "2026-06-30",
-    "Deadline_Time": "",
-    "Status": "Pending",
-    "Days_Pending": 0,
-    "Assigned_By": "Dr. Geetha Kiran A",
-    "File_URL": "",
-    "Notes": ""
   },
   {
     "Task_ID": "TSK_20260630_869046",
@@ -1589,17 +1566,18 @@
   {
     "Task_ID": "TSK_20260630_158084",
     "Employee_ID": "EMP_003",
-    "Task_Title": "Show TBI board and NAIN 1.0 batch 1 projects board - finalize and send it for print",
+    "Task_Title": "Show TBI board and NAIN 2.0 batch 1 projects board - finalize and send it for print",
     "Description": "",
     "Priority": "High",
     "Assigned_Date": "2026-06-30",
     "Deadline": "2026-06-30",
     "Deadline_Time": "11:30",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 15:58:58"
   },
   {
     "Task_ID": "TSK_20260630_903435",
@@ -1809,21 +1787,6 @@
     "Completed_Date": "2026-07-03"
   },
   {
-    "Task_ID": "TSK_20260702_335701",
-    "Employee_ID": "EMP_002",
-    "Task_Title": "Milestone document to be checked and mailed",
-    "Description": "",
-    "Priority": "Medium",
-    "Assigned_Date": "2026-07-02",
-    "Deadline": "2026-07-02",
-    "Deadline_Time": "11:00",
-    "Status": "Pending",
-    "Days_Pending": 0,
-    "Assigned_By": "Dr. Geetha Kiran A",
-    "File_URL": "",
-    "Notes": ""
-  },
-  {
     "Task_ID": "TSK_20260702_083251",
     "Employee_ID": "EMP_002",
     "Task_Title": "Call for startup pitch",
@@ -1911,11 +1874,12 @@
     "Assigned_Date": "2026-07-02",
     "Deadline": "2026-07-02",
     "Deadline_Time": "12:55",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 11:56:51"
   },
   {
     "Task_ID": "TSK_20260702_792616",
@@ -1974,32 +1938,18 @@
     "Assigned_Date": "2026-07-02",
     "Deadline": "2026-07-02",
     "Deadline_Time": "15:30",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-14 07:55:36"
   },
   {
     "Task_ID": "TSK_20260702_230085",
     "Employee_ID": "EMP_004",
     "Task_Title": "Complete the planning of the events discussed",
-    "Description": "1. Madhurya - Rural school event\n2. Ramya - Stock Market\n3. Deeksha - Finance Quiz event\nComplete plan and date of event should be discussed with me by today 12:30 pm",
-    "Priority": "Medium",
-    "Assigned_Date": "2026-07-02",
-    "Deadline": "2026-07-02",
-    "Deadline_Time": "12:30",
-    "Status": "Pending",
-    "Days_Pending": 0,
-    "Assigned_By": "Dr. Geetha Kiran A",
-    "File_URL": "",
-    "Notes": ""
-  },
-  {
-    "Task_ID": "TSK_20260702_007919",
-    "Employee_ID": "EMP_005",
-    "Task_Title": "Complete the planning of the events discussed",
-    "Description": "1. Madhurya - Rural school event\n2. Ramya - Stock Market\n3. Deeksha - Finance Quiz event\nComplete plan and date of event should be discussed with me by today 12:30 pm",
+    "Description": "1. Madhurya - Rural school event\n2. Ramya - tally \n3. Deeksha - Finance Quiz event\nComplete plan and date of event should be discussed with me by today 12:30 pm",
     "Priority": "Medium",
     "Assigned_Date": "2026-07-02",
     "Deadline": "2026-07-02",
@@ -2019,26 +1969,12 @@
     "Assigned_Date": "2026-07-02",
     "Deadline": "2026-07-02",
     "Deadline_Time": "10:30",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
-  },
-  {
-    "Task_ID": "TSK_20260701_506913",
-    "Employee_ID": "EMP_005",
-    "Task_Title": "Complete all pending tasks",
-    "Description": "",
-    "Priority": "Medium",
-    "Assigned_Date": "2026-07-01",
-    "Deadline": "2026-07-01",
-    "Deadline_Time": "12:30",
-    "Status": "Pending",
-    "Days_Pending": 0,
-    "Assigned_By": "Dr. Geetha Kiran A",
-    "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 07:53:54"
   },
   {
     "Task_ID": "TSK_20260702_186816",
@@ -2049,12 +1985,12 @@
     "Assigned_Date": "2026-07-02",
     "Deadline": "2026-07-02",
     "Deadline_Time": "00:00",
-    "Status": "In Progress",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
     "Notes": "",
-    "Completed_Date": ""
+    "Completed_Date": "2026-07-13 07:59:47"
   },
   {
     "Task_ID": "TSK_20260702_443569",
@@ -2065,11 +2001,12 @@
     "Assigned_Date": "2026-07-02",
     "Deadline": "2026-07-02",
     "Deadline_Time": "12:30",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 17:27:17"
   },
   {
     "Task_ID": "TSK_20260702_021191",
@@ -2080,11 +2017,12 @@
     "Assigned_Date": "2026-07-02",
     "Deadline": "2026-07-02",
     "Deadline_Time": "15:30",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 17:26:22"
   },
   {
     "Task_ID": "TSK_20260701_722890",
@@ -2126,11 +2064,12 @@
     "Assigned_Date": "2026-07-06",
     "Deadline": "2026-07-09",
     "Deadline_Time": "10:00",
-    "Status": "Pending",
+    "Status": "In Progress",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": ""
   },
   {
     "Task_ID": "TSK_20260706_879006",
@@ -2220,11 +2159,12 @@
     "Assigned_Date": "2026-07-04",
     "Deadline": "2026-07-04",
     "Deadline_Time": "11:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-14 08:10:14"
   },
   {
     "Task_ID": "TSK_20260703_972624",
@@ -2235,11 +2175,12 @@
     "Assigned_Date": "2026-07-03",
     "Deadline": "2026-07-06",
     "Deadline_Time": "10:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-14 07:48:28"
   },
   {
     "Task_ID": "TSK_20260703_453472",
@@ -2282,11 +2223,12 @@
     "Assigned_Date": "2026-07-03",
     "Deadline": "2026-07-03",
     "Deadline_Time": "11:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-14 08:09:47"
   },
   {
     "Task_ID": "TSK_20260706_353923",
@@ -2297,12 +2239,12 @@
     "Assigned_Date": "2026-07-06",
     "Deadline": "2026-07-06",
     "Deadline_Time": "17:30",
-    "Status": "In Progress",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
     "Notes": "",
-    "Completed_Date": ""
+    "Completed_Date": "2026-07-13 07:05:33"
   },
   {
     "Task_ID": "TSK_20260706_691925",
@@ -2313,11 +2255,12 @@
     "Assigned_Date": "2026-07-06",
     "Deadline": "2026-07-06",
     "Deadline_Time": "17:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 12:02:20"
   },
   {
     "Task_ID": "TSK_20260704_707032",
@@ -2344,11 +2287,12 @@
     "Assigned_Date": "2026-07-04",
     "Deadline": "2026-07-04",
     "Deadline_Time": "10:30",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 15:58:54"
   },
   {
     "Task_ID": "TSK_20260704_106149",
@@ -2391,11 +2335,12 @@
     "Assigned_Date": "2026-07-03",
     "Deadline": "2026-07-03",
     "Deadline_Time": "17:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 11:56:48"
   },
   {
     "Task_ID": "TSK_20260706_118591",
@@ -2406,41 +2351,44 @@
     "Assigned_Date": "2026-07-06",
     "Deadline": "2026-07-06",
     "Deadline_Time": "12:30",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 17:27:07"
   },
   {
     "Task_ID": "TSK_20260704_527185",
     "Employee_ID": "EMP_004",
-    "Task_Title": "Show me the folder which comprises all the documents of expenses, cheque and drive link",
+    "Task_Title": "Show me the folder which comprises all the documents of expenses, cheque and drive link - share the drive link",
     "Description": "",
     "Priority": "Medium",
     "Assigned_Date": "2026-07-04",
     "Deadline": "2026-07-04",
     "Deadline_Time": "11:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 17:27:17"
   },
   {
     "Task_ID": "TSK_20260703_804910",
     "Employee_ID": "EMP_004",
     "Task_Title": "Tally software",
-    "Description": "Everyday 15 minutes show us what you have learnt",
+    "Description": "Complete the Tally software course \nPrepare the ppt \nShow it mona by today 3:30 pm",
     "Priority": "Medium",
     "Assigned_Date": "2026-07-03",
-    "Deadline": "2026-07-31",
+    "Deadline": "2026-07-16",
     "Deadline_Time": "17:30",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-14 07:55:50"
   },
   {
     "Task_ID": "TSK_20260703_810248",
@@ -2451,11 +2399,12 @@
     "Assigned_Date": "2026-07-03",
     "Deadline": "2026-07-03",
     "Deadline_Time": "11:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 07:47:27"
   },
   {
     "Task_ID": "TSK_20260706_542485",
@@ -2482,11 +2431,12 @@
     "Assigned_Date": "2026-07-06",
     "Deadline": "2026-07-08",
     "Deadline_Time": "17:30",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 07:55:56"
   },
   {
     "Task_ID": "TSK_20260704_194781",
@@ -2497,20 +2447,21 @@
     "Assigned_Date": "2026-07-04",
     "Deadline": "2026-07-04",
     "Deadline_Time": "11:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 07:56:07"
   },
   {
     "Task_ID": "TSK_20260703_882319",
     "Employee_ID": "EMP_005",
-    "Task_Title": "Darshan - teach MAdhurya the newsletter design",
-    "Description": "News letter for month of June to be completed by EOD",
-    "Priority": "Medium",
+    "Task_Title": "Start designing the Newsletter for July - With all events in place the Newsletter should be released on August 1",
+    "Description": "",
+    "Priority": "High",
     "Assigned_Date": "2026-07-03",
-    "Deadline": "2026-07-03",
+    "Deadline": "2026-07-30",
     "Deadline_Time": "17:00",
     "Status": "Pending",
     "Days_Pending": 0,
@@ -2591,26 +2542,12 @@
     "Assigned_Date": "2026-07-04",
     "Deadline": "2026-07-04",
     "Deadline_Time": "04:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
-  },
-  {
-    "Task_ID": "TSK_20260704_220187",
-    "Employee_ID": "EMP_006",
-    "Task_Title": "Discuss the plan of Finance quiz event with me",
-    "Description": "",
-    "Priority": "Medium",
-    "Assigned_Date": "2026-07-04",
-    "Deadline": "2026-07-04",
-    "Deadline_Time": "10:00",
-    "Status": "Pending",
-    "Days_Pending": 0,
-    "Assigned_By": "Dr. Geetha Kiran A",
-    "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-11 13:32:46"
   },
   {
     "Task_ID": "TSK_20260703_487435",
@@ -2637,11 +2574,12 @@
     "Assigned_Date": "2026-07-08",
     "Deadline": "2026-07-08",
     "Deadline_Time": "10:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 07:05:59"
   },
   {
     "Task_ID": "TSK_20260708_6IK1P9",
@@ -2652,11 +2590,12 @@
     "Assigned_Date": "2026-07-08",
     "Deadline": "2026-07-08",
     "Deadline_Time": "10:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 07:05:25"
   },
   {
     "Task_ID": "TSK_20260708_6LTSIG",
@@ -2712,11 +2651,12 @@
     "Assigned_Date": "2026-07-08",
     "Deadline": "2026-07-08",
     "Deadline_Time": "11:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-08"
   },
   {
     "Task_ID": "TSK_20260708_TZHVLC",
@@ -2727,11 +2667,12 @@
     "Assigned_Date": "2026-07-08",
     "Deadline": "2026-07-08",
     "Deadline_Time": "10:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-11 13:32:36"
   },
   {
     "Task_ID": "TSK_20260708_K5Z46Z",
@@ -2742,7 +2683,7 @@
     "Assigned_Date": "2026-07-08",
     "Deadline": "2026-07-08",
     "Deadline_Time": "12:00",
-    "Status": "Pending",
+    "Status": "In Progress",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
@@ -2757,11 +2698,12 @@
     "Assigned_Date": "2026-07-09",
     "Deadline": "2026-07-09",
     "Deadline_Time": "17:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-14 07:52:26"
   },
   {
     "Task_ID": "TSK_20260709_945TQR",
@@ -2772,11 +2714,12 @@
     "Assigned_Date": "2026-07-09",
     "Deadline": "2026-07-09",
     "Deadline_Time": "11:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 07:46:40"
   },
   {
     "Task_ID": "TSK_20260709_7WSC4D",
@@ -2787,11 +2730,12 @@
     "Assigned_Date": "2026-07-09",
     "Deadline": "2026-07-09",
     "Deadline_Time": "16:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 07:55:54"
   },
   {
     "Task_ID": "TSK_20260709_7XAWHB",
@@ -2802,11 +2746,12 @@
     "Assigned_Date": "2026-07-09",
     "Deadline": "2026-07-09",
     "Deadline_Time": "16:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 07:49:59"
   },
   {
     "Task_ID": "TSK_20260711_EPO1UD",
@@ -2817,11 +2762,12 @@
     "Assigned_Date": "2026-07-11",
     "Deadline": "2026-07-13",
     "Deadline_Time": "14:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 15:07:48"
   },
   {
     "Task_ID": "TSK_20260711_XIXAZL",
@@ -2832,11 +2778,12 @@
     "Assigned_Date": "2026-07-11",
     "Deadline": "2026-07-11",
     "Deadline_Time": "11:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 15:07:00"
   },
   {
     "Task_ID": "TSK_20260711_AV2VMO",
@@ -2847,11 +2794,12 @@
     "Assigned_Date": "2026-07-11",
     "Deadline": "2026-07-11",
     "Deadline_Time": "10:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 11:56:33"
   },
   {
     "Task_ID": "TSK_20260711_HM2ER5",
@@ -2862,11 +2810,12 @@
     "Assigned_Date": "2026-07-11",
     "Deadline": "2026-07-11",
     "Deadline_Time": "12:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 17:26:38"
   },
   {
     "Task_ID": "TSK_20260711_KCNDOF",
@@ -2877,11 +2826,12 @@
     "Assigned_Date": "2026-07-11",
     "Deadline": "2026-07-11",
     "Deadline_Time": "12:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 07:53:34"
   },
   {
     "Task_ID": "TSK_20260711_11XTQG",
@@ -2892,11 +2842,12 @@
     "Assigned_Date": "2026-07-11",
     "Deadline": "2026-07-11",
     "Deadline_Time": "11:00",
-    "Status": "Pending",
+    "Status": "Completed",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
     "File_URL": "",
-    "Notes": ""
+    "Notes": "",
+    "Completed_Date": "2026-07-13 17:28:51"
   },
   {
     "Task_ID": "TSK_20260711_029SZ6",
@@ -2907,6 +2858,38 @@
     "Assigned_Date": "2026-07-11",
     "Deadline": "2026-07-11",
     "Deadline_Time": "10:00",
+    "Status": "Completed",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": "",
+    "Completed_Date": "2026-07-13 07:53:42"
+  },
+  {
+    "Task_ID": "TSK_20260711_W5U9VD",
+    "Employee_ID": "EMP_006",
+    "Task_Title": "Complete the filing of events according to check list - This file has not been sent to me in drive",
+    "Description": "1. Marketing Decoded\n2. AI NEXUS",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-11",
+    "Deadline": "2026-07-11",
+    "Deadline_Time": "12:00",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": "",
+    "Completed_Date": ""
+  },
+  {
+    "Task_ID": "TSK_20260713_JOP45V",
+    "Employee_ID": "EMP_007",
+    "Task_Title": "Morning Session  - script",
+    "Description": "Prepare a presentation script explaining what **ME-RIISE Foundation** is, its vision, mission, and its initiatives for schools and the community.\n\nThe script should also cover the Foundation's outreach approach—how you will interact with school management, teachers, and students to understand their needs and ask how ME-RIISE Foundation can support them. Emphasize that the Foundation is open to collaborating in **technology, innovation, entrepreneurship, startups, design thinking, skill development, and problem-solving**, with programs customized to meet each school's specific requirements.",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-13",
+    "Deadline": "2026-07-13",
+    "Deadline_Time": "12:30",
     "Status": "Pending",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
@@ -2914,14 +2897,320 @@
     "Notes": ""
   },
   {
-    "Task_ID": "TSK_20260711_W5U9VD",
-    "Employee_ID": "EMP_006",
-    "Task_Title": "Complete the filing of events according to check list",
-    "Description": "1. Marketing Decoded",
+    "Task_ID": "TSK_20260713_V3BSRK",
+    "Employee_ID": "EMP_007",
+    "Task_Title": "Afternoon Task",
+    "Description": "Prepare a list of the schools you plan to visit tomorrow. For each school, include the name of the institution, contact person (Principal/Headmaster/Coordinator), designation, phone number, email ID (if available), complete address, and any relevant remarks.\n\nMaintain this information in a well-organized Excel database that can be updated regularly. Also, record the status of communication (contacted/meeting scheduled/visited/follow-up required), the proposed date of visit, and key discussion points to ensure systematic outreach and follow-up.",
+    "Priority": "Medium",
+    "Assigned_Date": "2026-07-13",
+    "Deadline": "2026-07-13",
+    "Deadline_Time": "16:30",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260713_JNFBUP",
+    "Employee_ID": "EMP_005",
+    "Task_Title": "Complete Marketing decoded and AI nexus filing and share in drive",
+    "Description": "",
+    "Priority": "Medium",
+    "Assigned_Date": "2026-07-13",
+    "Deadline": "2026-07-13",
+    "Deadline_Time": "12:30",
+    "Status": "Completed",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": "Completed Marketing workshop and AI nexus Report is pending",
+    "Completed_Date": "2026-07-13 17:28:47"
+  },
+  {
+    "Task_ID": "TSK_20260713_5JCLYZ",
+    "Employee_ID": "EMP_005",
+    "Task_Title": "Redraft the event plan as per my suggestions in mail and send it by 4 pm",
+    "Description": "",
     "Priority": "High",
-    "Assigned_Date": "2026-07-11",
-    "Deadline": "2026-07-11",
+    "Assigned_Date": "2026-07-13",
+    "Deadline": "2026-07-13",
+    "Deadline_Time": "16:00",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260713_ZXWGU7",
+    "Employee_ID": "EMP_006",
+    "Task_Title": "Redraft the event plan as per my suggestions in mail and send it by 4 pm",
+    "Description": "",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-13",
+    "Deadline": "2026-07-13",
+    "Deadline_Time": "16:00",
+    "Status": "Completed",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": "",
+    "Completed_Date": "2026-07-14 07:59:49"
+  },
+  {
+    "Task_ID": "TSK_20260713_MSX61D",
+    "Employee_ID": "EMP_006",
+    "Task_Title": "Share the drive link of all events of June and July till date to ceomeriise@mcehassan.ac.in",
+    "Description": "Make sure all documents as per checklist are there",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-13",
+    "Deadline": "2026-07-13",
+    "Deadline_Time": "11:30",
+    "Status": "Completed",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": "",
+    "Completed_Date": "2026-07-13 17:26:40"
+  },
+  {
+    "Task_ID": "TSK_20260713_LG8MGC",
+    "Employee_ID": "EMP_005",
+    "Task_Title": "Complete the filing of DSA course of session 4",
+    "Description": "",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-13",
+    "Deadline": "2026-07-13",
+    "Deadline_Time": "11:00",
+    "Status": "Completed",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": "",
+    "Completed_Date": "2026-07-13 17:28:01"
+  },
+  {
+    "Task_ID": "TSK_20260713_YKDV85",
+    "Employee_ID": "EMP_005",
+    "Task_Title": "Update excel sheet of NAIN events and MRF events",
+    "Description": "",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-13",
+    "Deadline": "2026-07-13",
+    "Deadline_Time": "10:00",
+    "Status": "Completed",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": "completed and sent to agk mail",
+    "Completed_Date": "2026-07-13 17:27:51"
+  },
+  {
+    "Task_ID": "TSK_20260714_3WGA4T",
+    "Employee_ID": "EMP_003",
+    "Task_Title": "Website maintenance - Check the google form and update the status",
+    "Description": "We shall discuss form the team and close this",
+    "Priority": "Medium",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "10:00",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260714_KANLNM",
+    "Employee_ID": "EMP_007",
+    "Task_Title": "Discuss the preparation for outreach with me. Update the tracker and plan for the visit to schools",
+    "Description": "",
+    "Priority": "Medium",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "11:00",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260714_KZXJJ3",
+    "Employee_ID": "EMP_004",
+    "Task_Title": "Tally - ppt",
+    "Description": "Add few example screenshots and using tally and update the ppt",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "11:00",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260714_NOG72B",
+    "Employee_ID": "EMP_002",
+    "Task_Title": "Complete the plan for communication workshop.",
+    "Description": "",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
     "Deadline_Time": "12:00",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260714_O3W499",
+    "Employee_ID": "EMP_006",
+    "Task_Title": "Get the excel sheet of events from Madhurya",
+    "Description": "In the same sheet create another tab for 2026-27 and update the details.",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "11:00",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260714_NJ2885",
+    "Employee_ID": "EMP_002",
+    "Task_Title": "Send IIC events of Q1, Q2 and Q3 to Deeksha - Tell her to print and file it by EoD",
+    "Description": "",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "17:00",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260714_KN37UC",
+    "Employee_ID": "EMP_006",
+    "Task_Title": "Collect IIC activities from Mona and print it and file it",
+    "Description": "",
+    "Priority": "Medium",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "17:00",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260714_Q5OTHO",
+    "Employee_ID": "EMP_004",
+    "Task_Title": "RGEP - PMP fee - Talk to Mona and get the information",
+    "Description": "Look into the previous support fee payment and prepare the letter  and supporting document for payment of PMP support fee",
+    "Priority": "Medium",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "17:00",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260714_0WB0HS",
+    "Employee_ID": "EMP_003",
+    "Task_Title": "In meriise.org homepage - the tabs are overlapping - rectify it",
+    "Description": "",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "11:00",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260714_HRNYZP",
+    "Employee_ID": "EMP_006",
+    "Task_Title": "Ge the scanned copy of Megha H M's appointment order, reporting letter and mail it to ceomeriise@mcehassan.ac.in also add all details in drive.",
+    "Description": "",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "11:00",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260714_4Y4V2S",
+    "Employee_ID": "EMP_002",
+    "Task_Title": "Submit the book chapter",
+    "Description": "",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "10:00",
+    "Status": "Completed",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": "",
+    "Completed_Date": "2026-07-14 08:27:22"
+  },
+  {
+    "Task_ID": "TSK_20260714_B2FKI7",
+    "Employee_ID": "EMP_005",
+    "Task_Title": "Add craftronics visit and T-Hub visit in ME-RIISE foundation website",
+    "Description": "",
+    "Priority": "High",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "12:30",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260714_PG4SM0",
+    "Employee_ID": "EMP_006",
+    "Task_Title": "File the reports of Craftronics and T-Hub visit - Take it from madhurya -",
+    "Description": "",
+    "Priority": "Medium",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "12:30",
+    "Status": "Pending",
+    "Days_Pending": 0,
+    "Assigned_By": "Dr. Geetha Kiran A",
+    "File_URL": "",
+    "Notes": ""
+  },
+  {
+    "Task_ID": "TSK_20260714_KVJWD0",
+    "Employee_ID": "EMP_003",
+    "Task_Title": "testing",
+    "Description": "test",
+    "Priority": "Medium",
+    "Assigned_Date": "2026-07-14",
+    "Deadline": "2026-07-14",
+    "Deadline_Time": "04:00",
     "Status": "Pending",
     "Days_Pending": 0,
     "Assigned_By": "Dr. Geetha Kiran A",
