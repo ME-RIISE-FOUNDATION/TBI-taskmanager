@@ -66,5 +66,15 @@
     "Photo_URL": "",
     "Status": "Active",
     "Joining_Date": "2026-07-10"
+  },
+  {
+    "Employee_ID": "EMP_008",
+    "Name": "Mr. Stapley V S",
+    "Designation": "TBI Manager",
+    "Email": "imtbimeriise@mcehassan.ac.in",
+    "Phone": "+91 9844293678",
+    "Photo_URL": "",
+    "Status": "Active",
+    "Joining_Date": "2026-07-14"
   }
 ]

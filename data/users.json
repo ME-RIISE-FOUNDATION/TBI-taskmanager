@@ -18,6 +18,15 @@
     "Name": "Dr. Mohana Lakshmi J"
   },
   {
+    "User_ID": "USR_008",
+    "Username": "stapley",
+    "Password_Hash": "$2b$10$IucNQkKUQoZlV7y83yOyxeX.4W1XEUJfPq6BISiTn.ebH.I0qfWwS",
+    "Designation": "TBI Manager",
+    "Employee_ID": "EMP_008",
+    "Email": "imtbimeriise@mcehassan.ac.in",
+    "Name": "Mr. Stapley V S"
+  },
+  {
     "User_ID": "USR_003",
     "Username": "darsha",
     "Password_Hash": "$2y$10$sBRUN.5NJSiXxDnl6I631.o9djzVUPQSdLMsO7pvQkybktMJ3l21.",

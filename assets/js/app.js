@@ -37,7 +37,7 @@ if (document.getElementById('pageContent')) showBootLoader();
 const ADMIN_ROLES   = ['CEO'];
 const TASK_STATUSES = ['Pending', 'In Progress', 'Completed', 'Approved', 'Rejected'];
 const PRIORITIES    = ['High', 'Medium', 'Low'];
-const DESIGNATIONS  = ['CEO', 'COO', 'Programme Associate/Outreach officer', 'Software Associate', 'Finance Associate', 'Innovation Associate', 'Support Staff'];
+const DESIGNATIONS  = ['CEO', 'COO', 'TBI Manager', 'Programme Associate/Outreach officer', 'Software Associate', 'Finance Associate', 'Innovation Associate', 'Support Staff'];
 
 // ── Server sync ───────────────────────────────────────────────
 // Served over http(s) => a PHP backend is present and is the shared source of
@@ -274,6 +274,7 @@ function seedIfNeeded(force) {
   DB._setLocal('employees', [
     {"Employee_ID":"EMP_001","Name":"Dr. Geetha Kiran A",  "Designation":"CEO",                 "Email":"ceomeriise@mcehassan.ac.in","Phone":"+91 98765 43210","Photo_URL":"","Status":"Active"},
     {"Employee_ID":"EMP_002","Name":"Dr. Mohana Lakshmi J","Designation":"COO",                 "Email":"coomeriise@mcehassan.ac.in","Phone":"+91 98765 43211","Photo_URL":"","Status":"Active"},
+    {"Employee_ID":"EMP_008","Name":"Mr. Stapley V S",     "Designation":"TBI Manager",         "Email":"imtbimeriise@mcehassan.ac.in","Phone":"+91 9844293678","Photo_URL":"","Status":"Active"},
     {"Employee_ID":"EMP_007","Name":"Ms. Megha H M",       "Designation":"Programme Associate/Outreach officer","Email":"patbimeriise@mcehassan.ac.in","Phone":"","Photo_URL":"","Status":"Active"},
     {"Employee_ID":"EMP_003","Name":"Mr. Darshan H D",     "Designation":"Software Associate",  "Email":"satbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43212","Photo_URL":"","Status":"Active"},
     {"Employee_ID":"EMP_004","Name":"Miss. Ramya K V",     "Designation":"Finance Associate",   "Email":"fatbimeriise@mcehassan.ac.in", "Phone":"+91 98765 43213","Photo_URL":"","Status":"Active"},
@@ -287,6 +288,7 @@ function seedIfNeeded(force) {
   DB._setLocal('users', [
     {"User_ID":"USR_001","Username":"geetha",  "Password":"changeme123","Designation":"CEO",                 "Employee_ID":"EMP_001","Email":"ceomeriise@mcehassan.ac.in","Name":"Dr. Geetha Kiran A"},
     {"User_ID":"USR_002","Username":"mohana",  "Password":"changeme123","Designation":"COO",                 "Employee_ID":"EMP_002","Email":"coomeriise@mcehassan.ac.in","Name":"Dr. Mohana Lakshmi J"},
+    {"User_ID":"USR_008","Username":"stapley", "Password":"changeme123","Designation":"TBI Manager",         "Employee_ID":"EMP_008","Email":"imtbimeriise@mcehassan.ac.in","Name":"Mr. Stapley V S"},
     {"User_ID":"USR_007","Username":"megha",   "Password":"changeme123","Designation":"Programme Associate/Outreach officer","Employee_ID":"EMP_007","Email":"patbimeriise@mcehassan.ac.in","Name":"Ms. Megha H M"},
     {"User_ID":"USR_003","Username":"darsha",  "Password":"changeme123","Designation":"Software Associate",  "Employee_ID":"EMP_003","Email":"satbimeriise@mcehassan.ac.in","Name":"Mr. Darshan H D"},
     {"User_ID":"USR_004","Username":"ramya",   "Password":"changeme123","Designation":"Finance Associate",   "Employee_ID":"EMP_004","Email":"fatbimeriise@mcehassan.ac.in","Name":"Miss. Ramya K V"},
@@ -524,7 +526,7 @@ const Utils = {
   },
   pctColor(pct) { return pct >= 70 ? 'success' : pct >= 40 ? 'warning' : 'danger'; },
   desigIcon(d) {
-    return {'CEO':'bi-person-badge-fill','COO':'bi-person-workspace','Software Associate':'bi-code-slash',
+    return {'CEO':'bi-person-badge-fill','COO':'bi-person-workspace','TBI Manager':'bi-briefcase-fill','Software Associate':'bi-code-slash',
             'Finance Associate':'bi-currency-rupee','Innovation Associate':'bi-lightbulb'}[d] || 'bi-person';
   },
   // "On Leave" pill for an employee record (empty string when active)
