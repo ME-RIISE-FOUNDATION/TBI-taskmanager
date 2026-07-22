@@ -19,6 +19,24 @@
   </div>
 </div>
 
+<!-- Task Details Modal -->
+<div class="modal fade" id="taskDetailsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-700" id="taskDetailTitle"></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="taskDetailContent">
+        <!-- Content loaded dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Complete Task Modal -->
 <div class="modal fade" id="completeModal" tabindex="-1">
   <div class="modal-dialog">
@@ -104,7 +122,7 @@ function renderPage() {
     }).join('');
     return `
       <div class="col-12 col-md-6 col-xl-4">
-        <div class="card border-0 shadow-sm h-100 ${od?'border-start border-danger border-3':''}">
+        <div class="card border-0 shadow-sm h-100 ${od?'border-start border-danger border-3':''} cursor-pointer" onclick="openTaskDetails('${t.Task_ID}')" style="cursor:pointer;">
           <div class="card-body d-flex flex-column">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <h6 class="fw-600 mb-0 flex-fill me-2">${Utils.esc(t.Task_Title)}</h6>
@@ -117,11 +135,11 @@ function renderPage() {
             </div>
             ${od?`<div class="badge bg-danger bg-opacity-10 text-danger mb-2 d-inline-block"><i class="bi bi-exclamation-circle me-1"></i>${days} day${days>1?'s':''} overdue</div>`:''}
             ${t.Notes?`<div class="alert alert-light py-1 small mb-2"><i class="bi bi-chat-text me-1"></i><strong>Feedback:</strong> ${Utils.esc(t.Notes)}</div>`:''}
-            ${t.File_URL?`<a href="${Utils.esc(t.File_URL)}" target="_blank" class="btn btn-sm btn-outline-secondary mb-2"><i class="bi bi-paperclip me-1"></i>Attachment</a>`:''}
+            ${t.File_URL?`<a href="${Utils.esc(t.File_URL)}" target="_blank" class="btn btn-sm btn-outline-secondary mb-2" onclick="event.stopPropagation();"><i class="bi bi-paperclip me-1"></i>Attachment</a>`:''}
             <div class="mt-auto">
               ${canAct?`
                 <div class="btn-group w-100">
-                  <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle w-100" data-bs-toggle="dropdown">Change Status</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle w-100" data-bs-toggle="dropdown" onclick="event.stopPropagation();">Change Status</button>
                   <ul class="dropdown-menu w-100">${statusOpts}</ul>
                 </div>` : ''}
               ${t.Status==='Completed' ? (pendingApprovalIds.has(t.Task_ID)
@@ -202,6 +220,72 @@ function updateStatus(taskId, newStatus) {
   setFlash('success', 'Task status updated.');
   renderPage();
   showFlash('success', 'Task status updated.');
+}
+
+function openTaskDetails(taskId) {
+  const session = Auth.getSession();
+  const task = DB.findOne('tasks', 'Task_ID', taskId);
+  if (!task || task.Employee_ID !== session.employee_id) return;
+
+  const od = Utils.isOverdue(task.Deadline, task.Status);
+  const days = Utils.daysPending(task.Deadline);
+
+  document.getElementById('taskDetailTitle').textContent = Utils.esc(task.Task_Title);
+
+  const detailsHTML = `
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="d-flex gap-2 flex-wrap">
+          ${Utils.priorityBadge(task.Priority)}
+          ${Utils.statusBadge(task.Status)}
+          ${od ? `<span class="badge bg-danger"><i class="bi bi-exclamation-circle me-1"></i>${days} day${days>1?'s':''} overdue</span>` : ''}
+        </div>
+      </div>
+      ${task.Description ? `
+      <div class="col-12">
+        <h6 class="fw-600 mb-2">Description</h6>
+        <p class="mb-0">${Utils.esc(task.Description)}</p>
+      </div>
+      ` : ''}
+      <div class="col-md-6">
+        <h6 class="fw-600 mb-2"><i class="bi bi-calendar-plus me-2"></i>Assigned Date</h6>
+        <p class="mb-0 text-muted">${Utils.formatDate(task.Assigned_Date)} ${task.Assigned_Date ? `<small class="text-muted">(${new Date(task.Assigned_Date).toDateString()})</small>` : ''}</p>
+      </div>
+      <div class="col-md-6">
+        <h6 class="fw-600 mb-2"><i class="bi bi-calendar-x me-2"></i>Deadline</h6>
+        <p class="mb-0 ${od ? 'text-danger fw-600' : 'text-muted'}">${Utils.formatDate(task.Deadline)} ${task.Deadline_Time ? `at ${task.Deadline_Time}` : ''}</p>
+      </div>
+      <div class="col-md-6">
+        <h6 class="fw-600 mb-2"><i class="bi bi-person me-2"></i>Assigned By</h6>
+        <p class="mb-0 text-muted">${Utils.esc(task.Assigned_By)}</p>
+      </div>
+      <div class="col-md-6">
+        <h6 class="fw-600 mb-2"><i class="bi bi-hourglass-split me-2"></i>Status</h6>
+        <p class="mb-0 text-muted">${Utils.esc(task.Status)}</p>
+      </div>
+      ${task.Completed_Date ? `
+      <div class="col-md-6">
+        <h6 class="fw-600 mb-2"><i class="bi bi-check2-circle me-2"></i>Completed Date</h6>
+        <p class="mb-0 text-muted">${Utils.formatDateTime(task.Completed_Date)}</p>
+      </div>
+      ` : ''}
+      ${task.Notes ? `
+      <div class="col-12">
+        <h6 class="fw-600 mb-2"><i class="bi bi-chat-text me-2"></i>Admin Feedback</h6>
+        <div class="alert alert-light py-2 px-3 mb-0">${Utils.esc(task.Notes)}</div>
+      </div>
+      ` : ''}
+      ${task.File_URL ? `
+      <div class="col-12">
+        <h6 class="fw-600 mb-2"><i class="bi bi-paperclip me-2"></i>Attachment</h6>
+        <a href="${Utils.esc(task.File_URL)}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-download me-1"></i>Download File</a>
+      </div>
+      ` : ''}
+    </div>
+  `;
+
+  document.getElementById('taskDetailContent').innerHTML = detailsHTML;
+  new bootstrap.Modal(document.getElementById('taskDetailsModal')).show();
 }
 </script>
 </body>
