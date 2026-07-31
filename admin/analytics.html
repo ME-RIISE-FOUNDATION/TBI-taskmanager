@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 || b.stats.completed - a.stats.completed
                 || a.stats.overdue - b.stats.overdue);
 
-  // Employee of the Month — decided by work completed within the calendar month.
+  // Employee of the Month — decided by tasks COMPLETED (not just assigned) within the calendar month.
   // The award is revealed ONLY on the last day of the month; on every other day
   // the card is hidden entirely (eom stays null).
   const lastDayOfMonth = new Date(nowD.getFullYear(), nowD.getMonth()+1, 0);
@@ -73,8 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const moKey    = `${nowD.getFullYear()}-${String(nowD.getMonth()+1).padStart(2,'0')}`;
   const moLabel  = nowD.toLocaleDateString('en-US',{month:'long',year:'numeric'});
   const moTasks  = tasks.filter(t =>
-    (t.Assigned_Date||'').slice(0,7) === moKey ||
-    (isDoneT(t) && (t.Completed_Date||'').slice(0,7) === moKey));
+    isDoneT(t) && (t.Completed_Date||'').slice(0,7) === moKey);
   const eom = !isLastDay ? null : employees
     .map(emp => ({ emp, s: Utils.employeeStats(moTasks, emp.Employee_ID) }))
     .filter(x => x.s.completed > 0)
