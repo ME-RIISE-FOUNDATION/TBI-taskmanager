@@ -25,6 +25,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   await TBI.ready();
   const editId = getParams().get('edit') || '';
+  const preEmp = getParams().get('employee') || '';   // employee we came from, so we can pre-tick them
   const task   = editId ? DB.findOne('tasks', 'Task_ID', editId) : null;
   const isEdit = !!task;
   const title  = isEdit ? 'Edit Task' : 'Create Task';
@@ -43,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const empChecks = employees.map(e =>
     `<div class="form-check">
-       <input class="form-check-input emp-assign-chk" type="checkbox" value="${Utils.esc(e.Employee_ID)}" id="empAssign_${Utils.esc(e.Employee_ID)}">
+       <input class="form-check-input emp-assign-chk" type="checkbox" value="${Utils.esc(e.Employee_ID)}" id="empAssign_${Utils.esc(e.Employee_ID)}" ${preEmp===e.Employee_ID?'checked':''}>
        <label class="form-check-label small" for="empAssign_${Utils.esc(e.Employee_ID)}">${Utils.esc(e.Name)} <span class="text-muted">— ${Utils.esc(e.Designation)}</span>${onLeaveTag(e)}</label>
      </div>`
   ).join('');
