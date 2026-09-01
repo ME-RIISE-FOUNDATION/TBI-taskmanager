@@ -9,6 +9,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link href="../assets/css/style.css" rel="stylesheet">
+<style>
+  /* Clickable task cards — hover lift handled in CSS so no per-card JS binding is needed */
+  .task-card { cursor: pointer; transition: box-shadow .2s ease, transform .2s ease; }
+  .task-card:hover { box-shadow: 0 8px 16px rgba(0,0,0,0.2) !important; transform: translateY(-2px); }
+  .task-card:focus-visible { outline: 2px solid var(--theme-primary, #3b82f6); outline-offset: 2px; }
+</style>
 </head>
 <body>
 <div class="tbi-wrapper">
@@ -74,22 +80,43 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderPage();
   TBI.onSync(renderPage);   // repaint when another dashboard changes the data
 
-  // Add event listeners for task cards
-  setTimeout(() => {
-    document.querySelectorAll('.task-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('a, button, .btn-group, [onclick]')) return;
-        const taskId = card.getAttribute('data-task-id');
-        if (taskId) openTaskDetails(taskId);
-      });
-      card.addEventListener('mouseover', () => {
-        card.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)';
-      });
-      card.addEventListener('mouseout', () => {
-        card.style.boxShadow = '';
-      });
-    });
-  }, 100);
+  // A single delegated listener on the stable page container handles clicks for
+  // every task card. Because it is bound once to an element that survives each
+  // re-render, cards never lose their handler and never get bound twice (the old
+  // per-card binding double-bound on load, which opened the modal twice and left
+  // a stray backdrop that froze the page).
+  const container = document.getElementById('pageContent');
+  container.addEventListener('click', (e) => {
+    // Let interactive controls inside the card (status dropdown, attachment link,
+    // anything with its own handler) work without opening the details modal.
+    if (e.target.closest('a, button, .btn-group, .dropdown-menu, [onclick]')) return;
+    const card = e.target.closest('.task-card');
+    if (card) {
+      const taskId = card.getAttribute('data-task-id');
+      if (taskId) openTaskDetails(taskId);
+    }
+  });
+  // Keyboard access: Enter/Space on a focused card opens its details.
+  container.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.task-card');
+    if (card && e.target === card) {
+      e.preventDefault();
+      const taskId = card.getAttribute('data-task-id');
+      if (taskId) openTaskDetails(taskId);
+    }
+  });
+
+  // Safety net: whenever the details modal closes, remove any leftover Bootstrap
+  // backdrop/scroll-lock so the page can never end up frozen behind an invisible
+  // overlay.
+  const modalEl = document.getElementById('taskDetailsModal');
+  modalEl.addEventListener('hidden.bs.modal', () => {
+    document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('overflow');
+    document.body.style.removeProperty('padding-right');
+  });
 });
 
 function renderPage() {
@@ -137,10 +164,9 @@ function renderPage() {
       }
       return `<li><button class="dropdown-item${t.Status===opt?' active':''}" onclick="updateStatus('${t.Task_ID}','${opt}')">${opt}</button></li>`;
     }).join('');
-    const safeTaskId = Utils.esc(t.Task_ID).replace(/&quot;/g, '\\"').replace(/&#x27;/g, "\\'");
     return `
       <div class="col-12 col-md-6 col-xl-4">
-        <div class="card border-0 shadow-sm h-100 ${od?'border-start border-danger border-3':''} task-card" data-task-id="${Utils.esc(t.Task_ID)}" style="cursor:pointer; transition: all 0.2s ease;">
+        <div class="card border-0 shadow-sm h-100 ${od?'border-start border-danger border-3':''} task-card" data-task-id="${Utils.esc(t.Task_ID)}" role="button" tabindex="0" aria-label="View details for ${Utils.esc(t.Task_Title)}">
           <div class="card-body d-flex flex-column">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <h6 class="fw-600 mb-0 flex-fill me-2">${Utils.esc(t.Task_Title)}</h6>
@@ -186,23 +212,9 @@ function renderPage() {
     </form>
     <div class="row g-3">${taskCards}</div>
   `;
-
-  // Re-attach event listeners for task cards
-  setTimeout(() => {
-    document.querySelectorAll('.task-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('a, button, .btn-group, [onclick]')) return;
-        const taskId = card.getAttribute('data-task-id');
-        if (taskId) openTaskDetails(taskId);
-      });
-      card.addEventListener('mouseover', () => {
-        card.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)';
-      });
-      card.addEventListener('mouseout', () => {
-        card.style.boxShadow = '';
-      });
-    });
-  }, 100);
+  // No per-card listeners are attached here: a single delegated click/keydown
+  // handler bound once in DOMContentLoaded covers every card, including the ones
+  // this re-render just created.
 }
 
 function doSearch(e) {
@@ -269,7 +281,14 @@ function openTaskDetails(taskId) {
     const od = Utils.isOverdue(task.Deadline, task.Status);
     const days = Utils.daysPending(task.Deadline);
 
-    document.getElementById('taskDetailTitle').textContent = Utils.esc(task.Task_Title);
+    // textContent escapes on its own; passing Utils.esc() here would double-encode
+    // characters like & in the title.
+    document.getElementById('taskDetailTitle').textContent = task.Task_Title || 'Task Details';
+
+    // The "Attachment Note" field may hold either a real URL or a plain-text note.
+    const fileUrl  = (task.File_URL || '').trim();
+    const isLink   = /^(https?:\/\/|www\.)/i.test(fileUrl);
+    const linkHref = fileUrl && /^www\./i.test(fileUrl) ? 'https://' + fileUrl : fileUrl;
 
     const detailsHTML = `
       <div class="row g-3">
@@ -280,33 +299,35 @@ function openTaskDetails(taskId) {
             ${od ? `<span class="badge bg-danger"><i class="bi bi-exclamation-circle me-1"></i>${days} day${days>1?'s':''} overdue</span>` : ''}
           </div>
         </div>
-        ${task.Description ? `
         <div class="col-12">
           <h6 class="fw-600 mb-2"><i class="bi bi-file-text me-2"></i>Description</h6>
-          <p class="mb-0 text-muted" style="white-space: pre-wrap; word-wrap: break-word;">${Utils.esc(task.Description)}</p>
+          <p class="mb-0 ${task.Description ? 'text-muted' : 'text-muted fst-italic'}" style="white-space: pre-wrap; word-wrap: break-word;">${task.Description ? Utils.esc(task.Description) : 'No description was provided for this task.'}</p>
         </div>
-        ` : ''}
         <div class="col-12">
           <h6 class="fw-600 mb-3">Task Details</h6>
           <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="small text-muted"><i class="bi bi-flag me-2"></i>Priority</div>
+              <p class="mb-0 fw-500">${Utils.esc(task.Priority || '—')}</p>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="small text-muted"><i class="bi bi-hourglass-split me-2"></i>Current Status</div>
+              <p class="mb-0 fw-500">${Utils.esc(task.Status)}</p>
+            </div>
             <div class="col-md-6 mb-3">
               <div class="small text-muted"><i class="bi bi-calendar-plus me-2"></i>Assigned Date</div>
               <p class="mb-0 fw-500">${Utils.formatDate(task.Assigned_Date)}</p>
             </div>
             <div class="col-md-6 mb-3">
               <div class="small text-muted"><i class="bi bi-calendar-x me-2"></i>Deadline</div>
-              <p class="mb-0 fw-500 ${od ? 'text-danger' : ''}">${Utils.formatDate(task.Deadline)} ${task.Deadline_Time ? `<small>at ${task.Deadline_Time}</small>` : ''}</p>
+              <p class="mb-0 fw-500 ${od ? 'text-danger' : ''}">${Utils.formatDate(task.Deadline)} ${task.Deadline_Time ? `<small>at ${Utils.esc(task.Deadline_Time)}</small>` : ''}</p>
             </div>
             <div class="col-md-6 mb-3">
               <div class="small text-muted"><i class="bi bi-person me-2"></i>Assigned By</div>
-              <p class="mb-0 fw-500">${Utils.esc(task.Assigned_By)}</p>
-            </div>
-            <div class="col-md-6 mb-3">
-              <div class="small text-muted"><i class="bi bi-hourglass-split me-2"></i>Current Status</div>
-              <p class="mb-0 fw-500">${Utils.esc(task.Status)}</p>
+              <p class="mb-0 fw-500">${Utils.esc(task.Assigned_By) || '—'}</p>
             </div>
             ${task.Completed_Date ? `
-            <div class="col-md-6">
+            <div class="col-md-6 mb-3">
               <div class="small text-muted"><i class="bi bi-check2-circle me-2"></i>Completed Date</div>
               <p class="mb-0 fw-500">${Utils.formatDateTime(task.Completed_Date)}</p>
             </div>
@@ -319,17 +340,21 @@ function openTaskDetails(taskId) {
           <div class="alert alert-info py-3 px-3 mb-0" style="white-space: pre-wrap; word-wrap: break-word;">${Utils.esc(task.Notes)}</div>
         </div>
         ` : ''}
-        ${task.File_URL ? `
+        ${fileUrl ? `
         <div class="col-12">
           <h6 class="fw-600 mb-2"><i class="bi bi-paperclip me-2"></i>Attachment</h6>
-          <a href="${Utils.esc(task.File_URL)}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-download me-1"></i>Download File</a>
+          ${isLink
+            ? `<a href="${Utils.esc(linkHref)}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary"><i class="bi bi-box-arrow-up-right me-1"></i>Open Attachment</a>`
+            : `<p class="mb-0" style="white-space: pre-wrap; word-wrap: break-word;">${Utils.esc(fileUrl)}</p>`}
         </div>
         ` : ''}
       </div>
     `;
 
     document.getElementById('taskDetailContent').innerHTML = detailsHTML;
-    const modal = new bootstrap.Modal(document.getElementById('taskDetailsModal'), {backdrop: 'static', keyboard: true});
+    // getOrCreateInstance reuses the one modal instance instead of spawning a new
+    // one per click (which stacked backdrops and left the page frozen).
+    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('taskDetailsModal'), {keyboard: true});
     modal.show();
   } catch (err) {
     console.error('Error opening task details:', err);
