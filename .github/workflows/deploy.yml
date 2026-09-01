@@ -12,9 +12,18 @@ jobs:
       - name: Trigger Hostinger Deploy
         run: |
           if [ -z "${{ secrets.HOSTINGER_WEB_HOOK }}" ]; then
-            echo "Error: HOSTINGER_WEB_HOOK secret is not set"
+            echo "::error::HOSTINGER_WEB_HOOK secret is not set. Add it in Settings → Secrets and variables → Actions (value = the auto-deploy webhook URL from hPanel → Git)."
             exit 1
           fi
-          # -f makes curl exit non-zero on an HTTP error so a dead webhook
-          # turns this job red instead of silently "succeeding".
-          curl -fsS -X POST "${{ secrets.HOSTINGER_WEB_HOOK }}"
+          echo "Calling Hostinger auto-deploy webhook…"
+          # Capture the HTTP status + body (the URL is a masked secret and is never
+          # printed) so a failure says WHY — 404/410 = URL rotated or repo deploy
+          # removed, 401/403 = auth, 000 = host unreachable.
+          code=$(curl -sS -m 30 -o /tmp/hook_resp.txt -w "%{http_code}" -X POST "${{ secrets.HOSTINGER_WEB_HOOK }}" || echo "000")
+          echo "HTTP status: $code"
+          echo "Response body:"; cat /tmp/hook_resp.txt 2>/dev/null || true; echo
+          if [ "$code" -lt 200 ] || [ "$code" -ge 300 ]; then
+            echo "::error::Hostinger webhook returned $code. The webhook URL is likely wrong, rotated, or the Git deployment was removed. Regenerate it in hPanel → Git (Auto-deployment) and update the HOSTINGER_WEB_HOOK secret."
+            exit 1
+          fi
+          echo "Webhook accepted (HTTP $code). Hostinger should now pull the latest commit."
