@@ -211,13 +211,12 @@ async function saveTask() {
   if (API.pending() > 0) {
     setFlash('warning', 'Saved on this device but not yet synced to the server (it is offline or restarting). The task is queued and will sync automatically — keep this browser; do not clear its data.');
   }
-  // Return to wherever the user came from: if this page was opened from a
-  // single employee's task view (?employee=…), go back to that same employee's
-  // page so more tasks can be added for them; if it was opened from the full
-  // Task Management list, return to that full list.
-  const originEmp = getParams().get('employee') || '';
-  window.location.href = originEmp
-    ? 'tasks.html?employee=' + encodeURIComponent(originEmp)
+  // After creating, land on the assigned employee's task page so the new task
+  // is shown in that person's list. When the task was assigned to several
+  // employees at once there is no single page to land on, so fall back to the
+  // full Task Management list.
+  window.location.href = employeeIds.length === 1
+    ? 'tasks.html?employee=' + encodeURIComponent(employeeIds[0])
     : 'tasks.html';
 }
 </script>
