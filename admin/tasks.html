@@ -48,7 +48,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const fEmployees  = params.getAll('employee').filter(Boolean);
   const fStatuses   = params.getAll('status').filter(Boolean);
   const fPriorities = params.getAll('priority').filter(Boolean);
-  const fDate       = params.get('date') || '';
+  // Date range (inclusive). A legacy single ?date= still works: it sets both ends.
+  const fFrom       = (params.get('from') || params.get('date') || '').slice(0,10);
+  const fTo         = (params.get('to')   || params.get('date') || '').slice(0,10);
   const fSearch     = (params.get('q') || '').trim();
   const fEmployee   = fEmployees.length === 1 ? fEmployees[0] : '';
 
@@ -57,7 +59,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (fEmployees.length  && !fEmployees.includes(t.Employee_ID)) return false;
     if (fStatuses.length   && !fStatuses.includes(t.Status))       return false;
     if (fPriorities.length && !fPriorities.includes(t.Priority))   return false;
-    if (fDate && (t.Assigned_Date||'').slice(0,10) !== fDate)       return false;
+    // Date range filter on the Assigned Date (YYYY-MM-DD sorts chronologically as text).
+    const d = (t.Assigned_Date||'').slice(0,10);
+    if (fFrom && (!d || d < fFrom)) return false;
+    if (fTo   && (!d || d > fTo))   return false;
     if (fSearch) {
       const hay = ((t.Task_Title||'') + ' ' + (t.Description||'')).toLowerCase();
       if (!hay.includes(fSearch.toLowerCase())) return false;
@@ -199,7 +204,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
           </div>
           <div class="col-6 col-sm-4 col-lg-2">
-            <input type="date" class="form-control" id="dateInput" value="${Utils.esc(fDate)}">
+            <label class="form-label small text-muted mb-1" for="fromInput">Assigned from</label>
+            <input type="date" class="form-control" id="fromInput" value="${Utils.esc(fFrom)}" max="${Utils.esc(fTo)}">
+          </div>
+          <div class="col-6 col-sm-4 col-lg-2">
+            <label class="form-label small text-muted mb-1" for="toInput">Assigned to</label>
+            <input type="date" class="form-control" id="toInput" value="${Utils.esc(fTo)}" min="${Utils.esc(fFrom)}">
           </div>
           <div class="col-12 col-sm-auto d-flex gap-2">
             <button type="button" class="btn btn-primary" onclick="applyFilters()">Filter</button>
@@ -252,13 +262,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function applyFilters() {
   const q         = document.getElementById('searchInput')?.value.trim() || '';
-  const date      = document.getElementById('dateInput')?.value || '';
+  const from      = document.getElementById('fromInput')?.value || '';
+  const to        = document.getElementById('toInput')?.value || '';
   const employees = [...document.querySelectorAll('.emp-filter-chk:checked')].map(c => c.value);
   const statuses  = [...document.querySelectorAll('.stat-filter-chk:checked')].map(c => c.value);
   const priorities= [...document.querySelectorAll('.pri-filter-chk:checked')].map(c => c.value);
   const p = new URLSearchParams();
   if (q) p.set('q', q);
-  if (date) p.set('date', date);
+  if (from) p.set('from', from);
+  if (to)   p.set('to', to);
   employees.forEach(e => p.append('employee', e));
   statuses.forEach(s => p.append('status', s));
   priorities.forEach(pr => p.append('priority', pr));
