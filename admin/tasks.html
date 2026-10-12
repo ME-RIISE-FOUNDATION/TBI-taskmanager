@@ -59,10 +59,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (fEmployees.length  && !fEmployees.includes(t.Employee_ID)) return false;
     if (fStatuses.length   && !fStatuses.includes(t.Status))       return false;
     if (fPriorities.length && !fPriorities.includes(t.Priority))   return false;
-    // Date range filter on the Assigned Date (YYYY-MM-DD sorts chronologically as text).
-    const d = (t.Assigned_Date||'').slice(0,10);
-    if (fFrom && (!d || d < fFrom)) return false;
-    if (fTo   && (!d || d > fTo))   return false;
+    // Date range filter: show a task if it was active during the selected window —
+    // i.e. its span (Assigned Date → Deadline) overlaps [fFrom, fTo]. YYYY-MM-DD
+    // strings sort chronologically as text, so plain comparisons work.
+    if (fFrom || fTo) {
+      const a = (t.Assigned_Date||'').slice(0,10);
+      const b = (t.Deadline||'').slice(0,10);
+      const start = a || b, end = b || a;          // fall back if one date is missing
+      if (!start && !end) return false;            // no dates at all → can't fall in a range
+      if (fFrom && end   && end   < fFrom) return false;  // task ended before the window
+      if (fTo   && start && start > fTo)   return false;  // task started after the window
+    }
     if (fSearch) {
       const hay = ((t.Task_Title||'') + ' ' + (t.Description||'')).toLowerCase();
       if (!hay.includes(fSearch.toLowerCase())) return false;
@@ -204,11 +211,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
           </div>
           <div class="col-6 col-sm-4 col-lg-2">
-            <label class="form-label small text-muted mb-1" for="fromInput">Assigned from</label>
+            <label class="form-label small text-muted mb-1" for="fromInput">From date</label>
             <input type="date" class="form-control" id="fromInput" value="${Utils.esc(fFrom)}" max="${Utils.esc(fTo)}">
           </div>
           <div class="col-6 col-sm-4 col-lg-2">
-            <label class="form-label small text-muted mb-1" for="toInput">Assigned to</label>
+            <label class="form-label small text-muted mb-1" for="toInput">To date</label>
             <input type="date" class="form-control" id="toInput" value="${Utils.esc(fTo)}" min="${Utils.esc(fFrom)}">
           </div>
           <div class="col-12 col-sm-auto d-flex gap-2">
